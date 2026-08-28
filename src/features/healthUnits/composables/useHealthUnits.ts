@@ -13,14 +13,10 @@ import type {
 
 export const healthUnitsQueryKey = ['health-units']
 
-export function useHealthUnits(params?: { activeOnly?: boolean; limit?: number }) {
+export function useHealthUnits() {
 	return useQuery({
-		queryKey: [...healthUnitsQueryKey, params ?? {}],
-		queryFn: () =>
-			getHealthUnits({
-				limit: params?.limit ?? 100,
-				isActive: params?.activeOnly ? true : undefined,
-			}),
+		queryKey: healthUnitsQueryKey,
+		queryFn: () => getHealthUnits({ limit: 100 }),
 		select: (response) => response.data as PaginatedHealthUnits,
 	})
 }

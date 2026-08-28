@@ -41,7 +41,7 @@ interface UsuarioSheetProps {
 
 export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitting }: UsuarioSheetProps) {
 	const isEdit = !!usuario
-	const { data: healthUnits } = useHealthUnits({ activeOnly: true })
+	const { data: healthUnits } = useHealthUnits()
 
 	const ubsPorNome = useMemo(() => {
 		const map = new Map<string, string>()

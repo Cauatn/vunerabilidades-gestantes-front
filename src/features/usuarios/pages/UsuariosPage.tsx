@@ -17,7 +17,7 @@ import type { CreateUsuarioPayload, Usuario } from '@/features/usuarios/types/us
 
 export function UsuariosPage() {
 	const { data, isLoading, page, setPage, busca, setBusca } = useUsuariosListagem()
-	const { data: healthUnits } = useHealthUnits({ activeOnly: true })
+	const { data: healthUnits } = useHealthUnits()
 
 	const [termoBusca, setTermoBusca] = useState(busca ?? '')
 	const [usuarioEmEdicao, setUsuarioEmEdicao] = useState<Usuario | undefined>(undefined)
@@ -92,17 +92,15 @@ export function UsuariosPage() {
 
 				<DataTable
 					columns={columns}
-					data={isLoading ? undefined : data?.data}
+					data={data?.data}
 					isLoading={isLoading}
 					emptyStateTitle="Nenhum usuário encontrado."
 					emptyStateDescription="Cadastre usuários para dar acesso ao sistema."
 				/>
 
-				<Pagination
-					page={page}
-					totalPages={data?.meta.totalPages ?? 1}
-					onPageChange={(next) => void setPage(next)}
-				/>
+				{data ? (
+					<Pagination page={page} totalPages={data.meta.totalPages} onPageChange={(next) => void setPage(next)} />
+				) : null}
 			</Page>
 
 			<UsuarioSheet

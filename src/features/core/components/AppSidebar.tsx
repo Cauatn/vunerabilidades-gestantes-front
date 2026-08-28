@@ -58,7 +58,7 @@ export function AppSidebar() {
 	const location = useLocation()
 	const navigate = useNavigate()
 	const { user, logout } = useSession()
-	const { data: healthUnits } = useHealthUnits({ activeOnly: true })
+	const { data: healthUnits } = useHealthUnits()
 	const trocarUbs = useSetCurrentHealthUnit()
 
 	const minhasUbs = healthUnits?.data.filter((unit) => user?.healthUnitIds.includes(unit.id)) ?? []

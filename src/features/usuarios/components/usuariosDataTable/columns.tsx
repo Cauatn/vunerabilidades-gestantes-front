@@ -38,7 +38,9 @@ export function createUsuariosColumns({
 				const ids = row.original.healthUnitIds
 				if (ids.length === 0) return <span className="text-n-400">-</span>
 
-				const nomes = ids.map((id) => ubsNomePorId.get(id) ?? id)
+				const nomes = ids.map((id) => ubsNomePorId.get(id)).filter((nome): nome is string => !!nome)
+				if (nomes.length === 0) return <span className="text-n-400">-</span>
+
 				const visiveis = nomes.slice(0, MAX_UBS_VISIVEIS)
 				const restantes = nomes.length - visiveis.length
 

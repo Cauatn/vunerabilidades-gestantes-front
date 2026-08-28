@@ -79,17 +79,15 @@ export function GestantesPage() {
 
 				<DataTable
 					columns={columns}
-					data={isLoading ? undefined : data?.data}
+					data={data?.data}
 					isLoading={isLoading}
 					emptyStateTitle="Nenhuma gestante encontrada."
 					emptyStateDescription="Cadastre gestantes para poder acompanhá-las."
 				/>
 
-				<Pagination
-					page={page}
-					totalPages={data?.meta.totalPages ?? 1}
-					onPageChange={(next) => void setPage(next)}
-				/>
+				{data ? (
+					<Pagination page={page} totalPages={data.meta.totalPages} onPageChange={(next) => void setPage(next)} />
+				) : null}
 			</Page>
 
 			<GestanteSheet
