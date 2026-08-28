@@ -55,8 +55,8 @@ export function GestanteSheet({
 				? {
 						nome: gestante.name,
 						dataNascimento: gestante.birthDate.slice(0, 10),
-						cpf: gestante.cpf ?? '',
-						cns: gestante.cns ?? '',
+						cpf: gestante.identifier.type === 'CPF' ? gestante.identifier.value : '',
+						cns: gestante.identifier.type === 'SUS_CARD' ? gestante.identifier.value : '',
 						nomeMae: gestante.motherName ?? '',
 						telefone: gestante.phone ?? '',
 					}
@@ -65,11 +65,13 @@ export function GestanteSheet({
 	}, [open, gestante, nomeInicial, reset])
 
 	function submit(values: GestanteFormValues) {
+		const cpf = digits(values.cpf)
+		const cns = digits(values.cns)
 		onSubmit({
 			name: values.nome,
+			identifierType: cpf ? 'CPF' : 'SUS_CARD',
+			identifierValue: cpf || cns,
 			birthDate: values.dataNascimento,
-			cpf: digits(values.cpf) || undefined,
-			cns: digits(values.cns) || undefined,
 			motherName: values.nomeMae.trim() || undefined,
 			phone: digits(values.telefone) || undefined,
 		})

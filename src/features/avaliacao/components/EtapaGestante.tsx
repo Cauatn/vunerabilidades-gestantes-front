@@ -5,7 +5,7 @@ import { Divider } from '@/components/ui/divider'
 import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
-import { useCreateGestante } from '@/features/gestantes/composables/useGestantes'
+import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
 import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
 
 interface EtapaGestanteProps {
@@ -18,18 +18,14 @@ export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: Etapa
 	const [sheetAberto, setSheetAberto] = useState(false)
 	const [nomeBuscado, setNomeBuscado] = useState('')
 
-	const criar = useCreateGestante({
-		onSuccess: () => setSheetAberto(false),
-	})
+	const criar = useCreateGestante()
 
 	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
 
-	function handleCriarGestante(payload: CreateGestantePayload) {
-		criar.mutate(payload, {
-			onSuccess: (nova: Gestante) => {
-				if (nova?.id) onGestanteChange(nova.id)
-			},
-		})
+	async function handleCriarGestante(payload: CreateGestantePayload) {
+		const { data } = await criar.mutateAsync(payload)
+		onGestanteChange((data as Gestante).id)
+		setSheetAberto(false)
 	}
 
 	return (

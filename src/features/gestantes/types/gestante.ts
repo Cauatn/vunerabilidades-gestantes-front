@@ -1,30 +1,38 @@
-export type Vulnerabilidade = 'baixa' | 'moderada' | 'alta'
+export type IdentifierType = 'CPF' | 'SUS_CARD'
 
 export interface Gestante {
 	id: string
 	name: string
-	cpf: string | null
-	cns: string | null
+	identifier: { type: IdentifierType; value: string }
 	birthDate: string
-	motherName: string | null
 	phone: string | null
-	isActive: boolean
+	motherName: string | null
+	lastMenstrualPeriod: string | null
 	createdAt: string
 	updatedAt: string
 }
 
 export interface PaginatedGestantes {
-	data: Gestante[]
-	meta: { page: number; limit: number; total: number; totalPages: number }
+	items: Gestante[]
+	total: number
+	page: number
+	pageSize: number
 }
 
 export interface CreateGestantePayload {
 	name: string
-	cpf?: string
-	cns?: string
+	identifierType: IdentifierType
+	identifierValue: string
 	birthDate: string
-	motherName?: string
 	phone?: string
+	motherName?: string
+	lastMenstrualPeriod?: string
 }
 
-export type UpdateGestantePayload = Partial<CreateGestantePayload> & { isActive?: boolean }
+export interface UpdateGestantePayload {
+	name?: string
+	birthDate?: string
+	phone?: string | null
+	motherName?: string | null
+	lastMenstrualPeriod?: string | null
+}

@@ -8,12 +8,12 @@ import { UsuarioActionsCell } from './actionsCell'
 const MAX_UBS_VISIVEIS = 2
 
 interface CreateUsuariosColumnsParams {
-	onEdit: (usuario: Usuario) => void
+	onToggleStatus: (usuario: Usuario) => void
 	ubsNomePorId: Map<string, string>
 }
 
 export function createUsuariosColumns({
-	onEdit,
+	onToggleStatus,
 	ubsNomePorId,
 }: CreateUsuariosColumnsParams): ColumnDef<Usuario>[] {
 	return [
@@ -22,28 +22,24 @@ export function createUsuariosColumns({
 			header: 'Nome',
 			cell: ({ getValue }) => <span className="font-medium text-n-700">{getValue() as string}</span>,
 		},
-		{
-			accessorKey: 'email',
-			header: 'Email',
-		},
+		{ accessorKey: 'email', header: 'Email' },
 		{
 			accessorKey: 'role',
 			header: 'Categoria profissional',
-			cell: ({ getValue }) => CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[getValue() as Usuario['role']]],
+			cell: ({ getValue }) =>
+				CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[getValue() as Usuario['role']]],
 		},
 		{
 			id: 'ubs',
 			header: 'UBS de atendimento',
 			cell: ({ row }) => {
-				const ids = row.original.healthUnitIds
-				if (ids.length === 0) return <span className="text-n-400">-</span>
-
-				const nomes = ids.map((id) => ubsNomePorId.get(id)).filter((nome): nome is string => !!nome)
+				const nomes = row.original.healthUnitIds
+					.map((id) => ubsNomePorId.get(id))
+					.filter((nome): nome is string => !!nome)
 				if (nomes.length === 0) return <span className="text-n-400">-</span>
 
 				const visiveis = nomes.slice(0, MAX_UBS_VISIVEIS)
 				const restantes = nomes.length - visiveis.length
-
 				return (
 					<div className="flex flex-wrap items-center gap-1">
 						{visiveis.map((nome) => (
@@ -54,15 +50,6 @@ export function createUsuariosColumns({
 						{restantes > 0 ? <Badge variant="outline">+{restantes}</Badge> : null}
 					</div>
 				)
-			},
-		},
-		{
-			id: 'municipio',
-			header: 'Município',
-			cell: ({ row }) => {
-				const usuario = row.original
-				if (!usuario.regiaoMunicipio) return <span className="text-n-400">-</span>
-				return `${usuario.regiaoMunicipio}${usuario.regiaoUf ? ` - ${usuario.regiaoUf}` : ''}`
 			},
 		},
 		{
@@ -79,7 +66,7 @@ export function createUsuariosColumns({
 		},
 		{
 			id: 'actions',
-			cell: ({ row }) => <UsuarioActionsCell usuario={row.original} onEdit={onEdit} />,
+			cell: ({ row }) => <UsuarioActionsCell usuario={row.original} onToggleStatus={onToggleStatus} />,
 		},
 	]
 }

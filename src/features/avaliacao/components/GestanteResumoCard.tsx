@@ -27,10 +27,12 @@ export function GestanteResumoCard({ gestante, className }: GestanteResumoCardPr
 					<span className="font-semibold">Idade:</span> {calcularIdade(nascimento)}
 				</p>
 				<p>
-					<span className="font-semibold">CPF:</span> {gestante.cpf ?? '-'}
+					<span className="font-semibold">CPF:</span>{' '}
+					{gestante.identifier.type === 'CPF' ? gestante.identifier.value : '-'}
 				</p>
 				<p>
-					<span className="font-semibold">CNS:</span> {gestante.cns ?? '-'}
+					<span className="font-semibold">CNS:</span>{' '}
+					{gestante.identifier.type === 'SUS_CARD' ? gestante.identifier.value : '-'}
 				</p>
 			</div>
 		</div>

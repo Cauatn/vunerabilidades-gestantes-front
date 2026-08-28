@@ -1,17 +1,14 @@
 import { Outlet } from 'react-router-dom'
 
 import { AppSidebar } from '@/features/core/components/AppSidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 export function AppShell() {
 	return (
-		<SidebarProvider>
+		<div className="flex min-h-screen bg-n-0 text-n-800">
 			<AppSidebar />
-			<SidebarInset className="bg-n-0">
-				<div className="flex min-w-0 flex-1 flex-col overflow-auto p-page">
-					<Outlet />
-				</div>
-			</SidebarInset>
-		</SidebarProvider>
+			<main className="flex min-w-0 flex-1 flex-col gap-10 overflow-x-hidden p-10">
+				<Outlet />
+			</main>
+		</div>
 	)
 }

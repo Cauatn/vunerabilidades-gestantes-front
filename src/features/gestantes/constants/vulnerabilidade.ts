@@ -1,4 +1,4 @@
-import type { Vulnerabilidade } from '@/features/gestantes/types/gestante'
+export type Vulnerabilidade = 'baixa' | 'moderada' | 'alta'
 
 export const VULNERABILIDADE_LABEL: Record<Vulnerabilidade, string> = {
 	baixa: 'Baixa',

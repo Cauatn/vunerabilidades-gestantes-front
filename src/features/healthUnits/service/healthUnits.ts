@@ -4,10 +4,8 @@ import type {
 	UpdateHealthUnitPayload,
 } from '@/features/healthUnits/types/healthUnit'
 
-export const getHealthUnits = (params: { page?: number; limit?: number; search?: string | null; isActive?: boolean }) =>
+export const getHealthUnits = (params: { page?: number; pageSize?: number; name?: string | null }) =>
 	api.get('/health-units', { params })
-
-export const getHealthUnit = (id: string) => api.get(`/health-units/${id}`)
 
 export const createHealthUnit = (payload: CreateHealthUnitPayload) => api.post('/health-units', payload)
 

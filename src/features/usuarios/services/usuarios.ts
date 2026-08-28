@@ -1,25 +1,17 @@
 import { api } from '@/features/core/service/apiService'
-import type {
-	CreateUsuarioPayload,
-	UpdateUsuarioPayload,
-	UsuarioRole,
-	UsuarioStatus,
-} from '@/features/usuarios/types/usuario'
+import type { InviteUsuarioPayload, UsuarioRole, UsuarioStatus } from '@/features/usuarios/types/usuario'
 
 export const getUsuarios = (params: {
 	page?: number
-	limit?: number
+	pageSize?: number
 	search?: string | null
 	role?: UsuarioRole | null
-	status?: UsuarioStatus | null
 	healthUnitId?: string | null
 }) => api.get('/users', { params })
 
 export const getUsuario = (id: string) => api.get(`/users/${id}`)
 
-export const createUsuario = (payload: CreateUsuarioPayload) => api.post('/users', payload)
-
-export const updateUsuario = (id: string, payload: UpdateUsuarioPayload) => api.patch(`/users/${id}`, payload)
+export const inviteUsuario = (payload: InviteUsuarioPayload) => api.post('/invitations', payload)
 
 export const updateUsuarioStatus = (id: string, status: UsuarioStatus) =>
 	api.patch(`/users/${id}/status`, { status })

@@ -3,24 +3,26 @@ export interface HealthUnit {
 	name: string
 	city: string
 	state: string
-	cnes: string | null
 	address: string | null
-	isActive: boolean
+	active: boolean
 	createdAt: string
-	updatedAt: string
 }
 
 export interface PaginatedHealthUnits {
-	data: HealthUnit[]
-	meta: { page: number; limit: number; total: number; totalPages: number }
+	items: HealthUnit[]
+	total: number
+	page: number
+	pageSize: number
 }
 
 export interface CreateHealthUnitPayload {
 	name: string
+	code: string
 	city: string
 	state: string
-	cnes?: string
 	address?: string
 }
 
-export type UpdateHealthUnitPayload = Partial<CreateHealthUnitPayload> & { isActive?: boolean }
+export type UpdateHealthUnitPayload = Partial<Omit<CreateHealthUnitPayload, 'code'>> & {
+	active?: boolean
+}

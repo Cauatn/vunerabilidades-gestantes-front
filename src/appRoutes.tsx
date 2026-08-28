@@ -11,6 +11,8 @@ import { HistoricoPage } from '@/features/avaliacao/pages/HistoricoPage'
 import { ResultadoPage } from '@/features/avaliacao/pages/ResultadoPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { GestantesPage } from '@/features/gestantes/pages/GestantesPage'
+import { GestantesImprimirPage } from '@/features/gestantes/pages/GestantesImprimirPage'
+import { GestantesPerfilPage } from '@/features/gestantes/pages/GestantesPerfilPage'
 import { UsuariosPage } from '@/features/usuarios/pages/UsuariosPage'
 
 export function AppRoutes() {
@@ -19,11 +21,13 @@ export function AppRoutes() {
 			<Route path="/login" element={<LoginPage />} />
 
 			<Route element={<RequireAuth />}>
+				<Route path="/gestantes/:id/imprimir" element={<GestantesImprimirPage />} />
 				<Route path="/historico/:id/imprimir/visao-geral" element={<AvaliacaoImprimirVisaoGeralPage />} />
 				<Route path="/historico/:id/imprimir/visao-gestante" element={<AvaliacaoImprimirVisaoGestantePage />} />
 
 				<Route element={<AppShell />}>
 					<Route path="/" element={<GestantesPage />} />
+					<Route path="/gestantes/:id" element={<GestantesPerfilPage />} />
 					<Route path="/usuarios" element={<UsuariosPage />} />
 					<Route path="/formulario" element={<FormularioPage />} />
 					<Route path="/historico" element={<HistoricoPage />} />

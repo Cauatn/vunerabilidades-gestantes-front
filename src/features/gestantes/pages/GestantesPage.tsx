@@ -1,97 +1,103 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
-import { DataTable } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { PAGE_SIZE } from '@/features/core/constants/pagination'
+import { GestantesShell } from '@/features/gestantes/components/GestantesShell'
+import { GestantesTable } from '@/features/gestantes/components/GestantesTable'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
-import { createGestantesColumns } from '@/features/gestantes/components/gestantesDataTable/columns'
-import {
-	useCreateGestante,
-	useGestantesListagem,
-	useUpdateGestante,
-} from '@/features/gestantes/composables/useGestantes'
+import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
+import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
+import { useUpdateGestante } from '@/features/gestantes/composables/useUpdateGestante'
 import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
 
 export function GestantesPage() {
-	const { data, isLoading, page, setPage, busca, setBusca } = useGestantesListagem()
+	const navigate = useNavigate()
+	const { data, page, setPage, busca, setBusca } = useGetGestantes()
 
-	const [termoBusca, setTermoBusca] = useState(busca ?? '')
-	const [gestanteEmEdicao, setGestanteEmEdicao] = useState<Gestante | undefined>(undefined)
+	const [termo, setTermo] = useState(busca ?? '')
+	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
 	const [sheetOpen, setSheetOpen] = useState(false)
 
 	const criar = useCreateGestante({ onSuccess: () => setSheetOpen(false) })
 	const atualizar = useUpdateGestante({ onSuccess: () => setSheetOpen(false) })
 
-	function aplicarBusca() {
-		void setBusca(termoBusca.trim() || null)
+	function buscar() {
+		void setBusca(termo.trim() || null)
 		void setPage(1)
 	}
 
-	function abrirCriacao() {
-		setGestanteEmEdicao(undefined)
-		setSheetOpen(true)
-	}
-
 	function handleSubmit(payload: CreateGestantePayload) {
-		if (gestanteEmEdicao) {
-			atualizar.mutate({ id: gestanteEmEdicao.id, payload })
+		if (emEdicao) {
+			atualizar.mutate({
+				id: emEdicao.id,
+				payload: {
+					name: payload.name,
+					birthDate: payload.birthDate,
+					motherName: payload.motherName ?? null,
+					phone: payload.phone ?? null,
+				},
+			})
 		} else {
 			criar.mutate(payload)
 		}
 	}
 
-	const columns = createGestantesColumns({
-		onEdit: (gestante) => {
-			setGestanteEmEdicao(gestante)
-			setSheetOpen(true)
-		},
-		onVerDetalhes: (gestante) => {
-			setGestanteEmEdicao(gestante)
-			setSheetOpen(true)
-		},
-	})
+	const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
 
 	return (
 		<>
-			<Page
+			<GestantesShell
 				title="Gestantes"
-				description="Cadastro das gestantes acompanhadas — usado apenas para consulta de dados."
-				withButton
-				buttonText="Criar gestante"
-				buttonProps={{ onClick: abrirCriacao }}
+				subtitle="Gerencie as gestantes cadastradas no sistema."
+				action={{
+					label: 'Criar gestante',
+					onClick: () => {
+						setEmEdicao(undefined)
+						setSheetOpen(true)
+					},
+				}}
 			>
-				<div className="flex items-center gap-3">
-					<Input
-						placeholder="Buscar por nome, CPF ou CNS..."
-						value={termoBusca}
-						onChange={(event) => setTermoBusca(event.target.value)}
-						onKeyDown={(event) => {
-							if (event.key === 'Enter') aplicarBusca()
-						}}
-						className="flex-1"
-					/>
-					<Button type="button" onClick={aplicarBusca}>
-						Buscar
-					</Button>
+				<div className="flex flex-col gap-8">
+					<div className="flex items-end gap-3">
+						<Input
+							placeholder="Buscar por nome, CPF ou CNS..."
+							value={termo}
+							onChange={(event) => setTermo(event.target.value)}
+							onKeyDown={(event) => {
+								if (event.key === 'Enter') buscar()
+							}}
+							className="flex-1"
+						/>
+						<Button onClick={buscar}>Buscar</Button>
+						<Button variant="outline" className="font-bold text-n-600">
+							Filtros
+						</Button>
+					</div>
+
+					{data ? (
+						<GestantesTable
+							rows={data.items}
+							onVerPerfil={(row) => navigate(`/gestantes/${row.id}`)}
+							onEditar={(row) => {
+								setEmEdicao(row)
+								setSheetOpen(true)
+							}}
+						/>
+					) : null}
+
+					{data ? (
+						<div className="flex justify-center pt-4">
+							<Pagination page={page} totalPages={totalPages} onPageChange={(next) => void setPage(next)} />
+						</div>
+					) : null}
 				</div>
-
-				<DataTable
-					columns={columns}
-					data={data?.data}
-					isLoading={isLoading}
-					emptyStateTitle="Nenhuma gestante encontrada."
-					emptyStateDescription="Cadastre gestantes para poder acompanhá-las."
-				/>
-
-				{data ? (
-					<Pagination page={page} totalPages={data.meta.totalPages} onPageChange={(next) => void setPage(next)} />
-				) : null}
-			</Page>
+			</GestantesShell>
 
 			<GestanteSheet
-				gestante={gestanteEmEdicao}
+				gestante={emEdicao}
 				open={sheetOpen}
 				onOpenChange={setSheetOpen}
 				onSubmit={handleSubmit}

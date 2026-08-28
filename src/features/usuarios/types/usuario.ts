@@ -21,28 +21,20 @@ export interface Usuario {
 	role: UsuarioRole
 	status: UsuarioStatus
 	professionalRegistration: string | null
-	regiaoUf: string | null
-	regiaoMunicipio: string | null
 	healthUnitIds: string[]
 	currentHealthUnitId: string | null
-	firstAccess: boolean
 	createdAt: string
-	updatedAt: string
 }
 
 export interface PaginatedUsuarios {
-	data: Usuario[]
-	meta: { page: number; limit: number; total: number; totalPages: number }
+	items: Usuario[]
+	total: number
+	page: number
+	pageSize: number
 }
 
-export interface CreateUsuarioPayload {
+export interface InviteUsuarioPayload {
 	email: string
-	name?: string
 	role: UsuarioRole
-	professionalRegistration?: string
-	regiaoUf?: string
-	regiaoMunicipio?: string
 	healthUnitIds?: string[]
 }
-
-export type UpdateUsuarioPayload = Partial<Omit<CreateUsuarioPayload, 'email'>>
