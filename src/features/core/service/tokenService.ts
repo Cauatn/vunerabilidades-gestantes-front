@@ -17,7 +17,7 @@ interface JwtPayload {
 	sub: string
 	email: string
 	role: string
-	exp?: number
+	exp: number
 }
 
 const getCookieOptions = (expires: Date) => ({
@@ -46,26 +46,19 @@ export function getSessionUser(): SessionUser | null {
 }
 
 function tokenExpiry(token: string): Date {
-	try {
-		const { exp } = jwtDecode<JwtPayload>(token)
-		if (exp) return new Date(exp * 1000)
-	} catch {
-		/* token sem exp legível — cai no fallback */
-	}
-	return new Date(Date.now() + 8 * 60 * 60 * 1000)
+	return new Date(jwtDecode<JwtPayload>(token).exp * 1000)
 }
 
 export function handleUserSession(data: { accessToken: string; user: SessionUser }) {
-	const expires = tokenExpiry(data.accessToken)
-	Cookies.set(TOKEN_KEY, data.accessToken, getCookieOptions(expires))
-	Cookies.set(USER_KEY, JSON.stringify(data.user), getCookieOptions(expires))
+	const options = getCookieOptions(tokenExpiry(data.accessToken))
+	Cookies.set(TOKEN_KEY, data.accessToken, options)
+	Cookies.set(USER_KEY, JSON.stringify(data.user), options)
 	window.dispatchEvent(new CustomEvent('auth:session-changed'))
 }
 
 export function updateSessionUser(user: SessionUser) {
-	const token = getAccessToken()
-	const expires = token ? tokenExpiry(token) : new Date(Date.now() + 8 * 60 * 60 * 1000)
-	Cookies.set(USER_KEY, JSON.stringify(user), getCookieOptions(expires))
+	const options = getCookieOptions(tokenExpiry(getAccessToken()!))
+	Cookies.set(USER_KEY, JSON.stringify(user), options)
 	window.dispatchEvent(new CustomEvent('auth:session-changed'))
 }
 
