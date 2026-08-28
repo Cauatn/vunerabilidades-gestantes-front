@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import aplicacaoIllustration from '@/assets/illustrations/aplicacao-gestante.png'
+import aplicacaoIllustration from '@/assets/illustrations/login-gestante.svg'
 import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'

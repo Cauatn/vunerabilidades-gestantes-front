@@ -1,6 +1,7 @@
 import { Baby, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
+import { Logo } from '@/components/Logo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useSession } from '@/features/auth/composables/useSession'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
@@ -28,7 +29,14 @@ const items: NavItem[] = [
 			{ label: 'Histórico', to: '/historico' },
 		],
 	},
-	{ label: 'Instrumentos', icon: ClipboardPlus, to: '/configuracao' },
+	{
+		label: 'Instrumentos',
+		icon: ClipboardPlus,
+		children: [
+			{ label: 'Configurar questionário', to: '/configuracao' },
+			{ label: 'Configurar escala', to: '/configuracao/escala' },
+		],
+	},
 ]
 
 function iniciais(nome: string) {
@@ -52,15 +60,15 @@ export function AppSidebar() {
 	}
 
 	return (
-		<aside className="flex h-screen w-[252px] shrink-0 flex-col gap-4 border-r border-n-40 px-4 pt-4 pb-5">
-			<div className="flex h-[74px] items-center justify-between">
-				<span className="text-2xl font-bold text-n-900">Pré-Natal</span>
+		<aside className="flex h-screen w-[252px] shrink-0 flex-col gap-4 overflow-hidden border-r border-n-40 px-4 pt-4 pb-5">
+			<div className="flex h-[74px] shrink-0 items-center justify-between">
+				<Logo className="h-9 w-auto" />
 				<PanelLeftClose className="size-5 text-n-500" />
 			</div>
 
-			<div className="h-px w-full bg-n-40" />
+			<div className="h-px w-full shrink-0 bg-n-40" />
 
-			<nav className="flex flex-col gap-3.5">
+			<nav className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto">
 				{items.map((item) => {
 					const active = item.match ? item.match(pathname) : item.to === pathname
 					return (
@@ -89,6 +97,7 @@ export function AppSidebar() {
 											<NavLink
 												key={child.to}
 												to={child.to}
+												end
 												className={({ isActive }) =>
 													cn(isActive ? 'font-semibold text-t-500' : 'text-n-600 hover:text-n-800')
 												}
@@ -104,7 +113,7 @@ export function AppSidebar() {
 				})}
 			</nav>
 
-			<div className="mt-auto flex flex-col items-center gap-4">
+			<div className="flex shrink-0 flex-col items-center gap-4 pt-2">
 				{minhasUbs.length > 0 ? (
 					<Select
 						value={user?.currentHealthUnitId ?? undefined}

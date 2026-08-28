@@ -6,6 +6,7 @@ import { DataTable } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { PAGE_SIZE } from '@/features/core/constants/pagination'
+import { useSession } from '@/features/auth/composables/useSession'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import { UsuarioSheet } from '@/features/usuarios/components/UsuarioSheet'
 import { createUsuariosColumns } from '@/features/usuarios/components/usuariosDataTable/columns'
@@ -18,6 +19,7 @@ import type { InviteUsuarioPayload, Usuario } from '@/features/usuarios/types/us
 export function UsuariosPage() {
 	const { data, isLoading, page, setPage, busca, setBusca } = useGetUsuarios()
 	const { data: healthUnits } = useGetHealthUnits()
+	const { user } = useSession()
 
 	const [termo, setTermo] = useState(busca ?? '')
 	const [sheetOpen, setSheetOpen] = useState(false)
@@ -42,6 +44,8 @@ export function UsuariosPage() {
 	}
 
 	function handleToggleStatus(usuario: Usuario) {
+		// trava de segurança: ninguém altera o status da própria conta pelo front
+		if (usuario.id === user?.id) return
 		if (usuario.status === 'ACTIVE') inativar.mutate(usuario.id)
 		else ativar.mutate(usuario.id)
 	}

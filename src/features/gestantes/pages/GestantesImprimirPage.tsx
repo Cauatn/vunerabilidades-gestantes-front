@@ -1,21 +1,34 @@
 import { useParams } from 'react-router-dom'
 
+import { Logo } from '@/components/Logo'
+import { useSession } from '@/features/auth/composables/useSession'
 import { AvaliacoesTimeline } from '@/features/gestantes/components/AvaliacoesTimeline'
 import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoaisCard'
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 import { avaliacoesMock } from '@/features/gestantes/data/mock'
+import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 
 export function GestantesImprimirPage() {
 	const { id } = useParams<{ id: string }>()
 	const { data } = useGetGestante(id)
+	const { user } = useSession()
+	const { data: healthUnits } = useGetHealthUnits()
+
+	const agora = new Date()
+	const dataEmissao = `${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+	const emissorNome = user?.name ?? '—'
+	const ubsNome =
+		healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)?.name ?? '—'
 
 	return (
 		<div className="min-h-screen bg-n-0 text-n-800">
 			<div className="mx-auto flex max-w-[1440px] flex-col px-10 py-10">
-				<p className="text-center text-5xl font-bold text-black">Pré-Natal</p>
+				<div className="flex justify-center">
+					<Logo className="h-[122px] w-[162px]" />
+				</div>
 
-				<h1 className="mt-24 text-[44px] leading-[44px] font-semibold tracking-[0.15px] text-n-800">
+				<h1 className="mt-24 text-[44px] leading-[44px] font-semibold tracking-[0.15px] text-n-900">
 					{data ? `Perfil de ${data.name}` : 'Perfil'}
 				</h1>
 
@@ -32,7 +45,11 @@ export function GestantesImprimirPage() {
 				</div>
 
 				<footer className="mt-16 flex justify-end">
-					<p className="text-right text-xs leading-6 text-n-600">Documento gerado pelo sistema Pré-Natal.</p>
+					<div className="text-right text-sm leading-6 text-n-600">
+						<p>Emitido em: {dataEmissao}</p>
+						<p>Emissor: {emissorNome}</p>
+						<p>UBS: {ubsNome}</p>
+					</div>
 				</footer>
 			</div>
 		</div>
