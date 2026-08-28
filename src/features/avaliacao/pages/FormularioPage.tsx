@@ -17,7 +17,7 @@ import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
 import { calcularPontuacao, classificar } from '@/features/avaliacao/utils/calcularPontuacao'
-import { useGestantes } from '@/features/gestantes/composables/useGestantesStore'
+import { useGestantesOptions } from '@/features/gestantes/composables/useGestantes'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 
@@ -52,7 +52,7 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 export function FormularioPage() {
 	const navigate = useNavigate()
 	const { perguntas } = usePerguntas()
-	const { gestantes } = useGestantes()
+	const { data: gestantes = [] } = useGestantesOptions()
 
 	const [iniciado, setIniciado] = useState(false)
 	const [gestanteId, setGestanteId] = useState<string | null>(null)
@@ -156,7 +156,7 @@ export function FormularioPage() {
 								<Divider text="Resultado" />
 								{resultado && (
 									<ResultadoAvaliacao
-										nomeGestante={gestanteSelecionada?.nome ?? ''}
+										nomeGestante={gestanteSelecionada?.name ?? ''}
 										pontuacao={resultado.pontuacao}
 										classificacao={resultado.classificacao}
 									/>

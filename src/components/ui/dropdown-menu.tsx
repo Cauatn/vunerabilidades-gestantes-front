@@ -60,7 +60,7 @@ function DropdownMenuItem({
 			data-variant={variant}
 			className={cn(
 				"relative flex w-full cursor-default items-center gap-2 rounded-md px-2 py-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8",
-				'focus:bg-p-100 focus:text-p-600',
+				'focus:bg-t-100 focus:text-t-600',
 				'data-[variant=destructive]:text-danger data-[variant=destructive]:focus:bg-r-100 data-[variant=destructive]:focus:text-danger',
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-'])]:text-n-500 [&_svg:not([class*='size-'])]:size-4",
 				'data-[variant=destructive]:[&_svg]:text-danger',
@@ -82,7 +82,7 @@ function DropdownMenuCheckboxItem({
 			data-slot="dropdown-menu-checkbox-item"
 			className={cn(
 				"relative flex w-full cursor-default items-center gap-2 rounded-md py-2 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-				'focus:bg-p-100 focus:text-p-600',
+				'focus:bg-t-100 focus:text-t-600',
 				className,
 			)}
 			checked={checked}
@@ -112,7 +112,7 @@ function DropdownMenuRadioItem({
 			data-slot="dropdown-menu-radio-item"
 			className={cn(
 				"relative flex w-full cursor-default items-center gap-2 rounded-md py-2 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-				'focus:bg-p-100 focus:text-p-600',
+				'focus:bg-t-100 focus:text-t-600',
 				className,
 			)}
 			{...props}
@@ -166,7 +166,7 @@ function DropdownMenuSubTrigger({
 			data-inset={inset}
 			className={cn(
 				'flex cursor-default items-center rounded-md px-2 py-2 text-sm outline-hidden select-none data-[inset]:pl-8',
-				'focus:bg-p-100 focus:text-p-600 data-[state=open]:bg-p-100 data-[state=open]:text-p-600',
+				'focus:bg-t-100 focus:text-t-600 data-[state=open]:bg-t-100 data-[state=open]:text-t-600',
 				className,
 			)}
 			{...props}

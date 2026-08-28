@@ -1,8 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
-import { Badge } from '@/components/ui/badge'
 import { calcularIdade, formatarDataBr } from '@/features/core/utils/date'
-import { VULNERABILIDADE_BADGE_VARIANT, VULNERABILIDADE_LABEL } from '@/features/gestantes/constants/vulnerabilidade'
 import type { Gestante } from '@/features/gestantes/types/gestante'
 import { GestanteActionsCell } from './actionsCell'
 
@@ -17,39 +15,34 @@ export function createGestantesColumns({
 }: CreateGestantesColumnsParams): ColumnDef<Gestante>[] {
 	return [
 		{
-			accessorKey: 'nome',
+			accessorKey: 'name',
 			header: 'Nome',
 			cell: ({ getValue }) => <span className="font-medium text-n-700">{getValue() as string}</span>,
 		},
 		{
 			id: 'idade',
 			header: 'Idade',
-			cell: ({ row }) => calcularIdade(row.original.dataNascimento),
+			cell: ({ row }) => calcularIdade(row.original.birthDate),
 		},
 		{
-			accessorKey: 'dataNascimento',
+			accessorKey: 'birthDate',
 			header: 'Data de nascimento',
-			cell: ({ getValue }) => formatarDataBr(getValue() as string),
+			cell: ({ getValue }) => formatarDataBr((getValue() as string).slice(0, 10)),
 		},
 		{
 			accessorKey: 'cpf',
 			header: 'CPF',
+			cell: ({ getValue }) => (getValue() as string | null) ?? <span className="text-n-400">-</span>,
 		},
 		{
 			accessorKey: 'cns',
 			header: 'CNS',
+			cell: ({ getValue }) => (getValue() as string | null) ?? <span className="text-n-400">-</span>,
 		},
 		{
-			accessorKey: 'vulnerabilidade',
-			header: 'Vulnerabilidade',
-			cell: ({ getValue }) => {
-				const vulnerabilidade = getValue() as Gestante['vulnerabilidade']
-				return (
-					<Badge variant={VULNERABILIDADE_BADGE_VARIANT[vulnerabilidade]}>
-						{VULNERABILIDADE_LABEL[vulnerabilidade]}
-					</Badge>
-				)
-			},
+			accessorKey: 'motherName',
+			header: 'Nome da mãe',
+			cell: ({ getValue }) => (getValue() as string | null) ?? <span className="text-n-400">-</span>,
 		},
 		{
 			id: 'actions',

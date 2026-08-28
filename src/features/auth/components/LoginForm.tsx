@@ -6,37 +6,40 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Text } from '@/components/typography'
+import { useSignIn } from '@/features/auth/composables/useSignIn'
 import { loginSchema, type LoginFormValues } from '@/features/auth/validation/loginSchema'
 
 export function LoginForm() {
 	const navigate = useNavigate()
+	const signIn = useSignIn({ onSuccess: () => navigate('/', { replace: true }) })
+
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, isSubmitting },
+		formState: { errors },
 	} = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
-		defaultValues: { cpf: '', senha: '' },
+		defaultValues: { email: '', senha: '' },
 	})
 
-	function onSubmit() {
-	  //todo: aqui ta so mockup tem qeu redirecionar depois corretamente
-		navigate('/', { replace: true })
+	function onSubmit(values: LoginFormValues) {
+		signIn.mutate({ email: values.email, password: values.senha })
 	}
 
 	return (
 		<form className="flex w-full flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
 			<div className="flex flex-col gap-6">
 				<div className="space-y-1.5">
-					<Label htmlFor="login-cpf">CPF</Label>
+					<Label htmlFor="login-email">E-mail</Label>
 					<Input
-						id="login-cpf"
+						id="login-email"
+						type="email"
 						autoComplete="username"
 						placeholder="Digite..."
-						aria-invalid={!!errors.cpf}
-						{...register('cpf')}
+						aria-invalid={!!errors.email}
+						{...register('email')}
 					/>
-					{errors.cpf ? <p className="text-caption text-danger">{errors.cpf.message}</p> : null}
+					{errors.email ? <p className="text-caption text-danger">{errors.email.message}</p> : null}
 				</div>
 
 				<div className="space-y-1.5">
@@ -53,11 +56,17 @@ export function LoginForm() {
 				</div>
 			</div>
 
+			{signIn.isError ? (
+				<p className="text-caption text-danger">
+					Não foi possível entrar. Verifique o e-mail e a senha.
+				</p>
+			) : null}
+
 			<Text as="a" href="#" variant="link" className="-mt-2 self-start">
 				Esqueceu a senha?
 			</Text>
 
-			<Button type="submit" size="lg" className="w-full" isLoading={isSubmitting}>
+			<Button type="submit" size="lg" className="w-full" isLoading={signIn.isPending}>
 				Login
 			</Button>
 		</form>

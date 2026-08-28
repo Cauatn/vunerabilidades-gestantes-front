@@ -60,6 +60,15 @@
 	--b-600: #19438a;
 	--b-700: #2051a7;
 
+	--t-700: #0f6b5d;
+	--t-600: #138675;
+	--t-500: #18aa94;
+	--t-400: #20c5ad;
+	--t-300: #51e6d0;
+	--t-200: #a2f1e5;
+	--t-100: #dcf9f6;
+	--t-50: #eefcfa;
+
 	--color-n-0: var(--n-0);
 	--color-n-10: var(--n-10);
 	--color-n-20: var(--n-20);
@@ -114,6 +123,15 @@
 	--color-b-600: var(--b-600);
 	--color-b-700: var(--b-700);
 
+	--color-t-50: var(--t-50);
+	--color-t-100: var(--t-100);
+	--color-t-200: var(--t-200);
+	--color-t-300: var(--t-300);
+	--color-t-400: var(--t-400);
+	--color-t-500: var(--t-500);
+	--color-t-600: var(--t-600);
+	--color-t-700: var(--t-700);
+
 	--text-heading-1: 2.75rem;
 	--text-heading-1--line-height: 1.12;
 	--text-heading-2: 2rem;
@@ -132,13 +150,13 @@
 	--color-ink-subtle: var(--n-400);
 	--color-ink-faint: var(--n-300);
 
-	--color-brand: var(--p-500);
-	--color-brand-hover: var(--p-600);
-	--color-brand-pressed: var(--p-700);
-	--color-brand-muted: var(--p-100);
-	--color-brand-highlight: var(--p-200);
-	--color-brand-faint: var(--p-50);
-	--color-brand-on-accent: var(--p-300);
+	--color-brand: var(--t-600);
+	--color-brand-hover: var(--t-700);
+	--color-brand-pressed: var(--t-700);
+	--color-brand-muted: var(--t-100);
+	--color-brand-highlight: var(--t-200);
+	--color-brand-faint: var(--t-50);
+	--color-brand-on-accent: var(--t-300);
 
 	--color-accent-mint: var(--b-400);
 
@@ -259,10 +277,10 @@ body {
 	--sidebar-foreground: var(--color-ink);
 	--sidebar-primary: var(--color-brand);
 	--sidebar-primary-foreground: var(--n-0);
-	--sidebar-accent: var(--p-100);
-	--sidebar-accent-foreground: var(--p-600);
+	--sidebar-accent: var(--t-100);
+	--sidebar-accent-foreground: var(--t-600);
 	--sidebar-border: var(--n-40);
-	--sidebar-ring: var(--p-400);
+	--sidebar-ring: var(--t-400);
 }
 
 @layer base {
@@ -282,9 +300,9 @@ body {
 	}
 
 	.sidebar-nav-btn-active {
-		@apply !border !border-p-500/40 !bg-p-100 !font-semibold !text-p-600 shadow-none;
-		@apply active:!bg-p-200 active:!text-p-600;
-		@apply data-[active=true]:!bg-p-100 data-[active=true]:!font-semibold data-[active=true]:!text-p-600;
+		@apply !border !border-t-500/40 !bg-t-100 !font-semibold !text-t-600 shadow-none;
+		@apply active:!bg-t-200 active:!text-t-600;
+		@apply data-[active=true]:!bg-t-100 data-[active=true]:!font-semibold data-[active=true]:!text-t-600;
 	}
 
 	.sidebar-nav-btn-idle {
@@ -295,6 +313,6 @@ body {
 	}
 
 	.sidebar-footer-avatar {
-		@apply flex size-10 shrink-0 items-center justify-center rounded-full bg-p-400 text-base font-semibold text-n-0;
+		@apply flex size-10 shrink-0 items-center justify-center rounded-full bg-t-500 text-base font-semibold text-n-0;
 	}
 }

@@ -1,5 +1,4 @@
 import { DoorOpen, House, PanelLeft, PanelLeftClose, Settings, Stethoscope, Users } from 'lucide-react'
-import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import {
@@ -15,7 +14,11 @@ import {
 } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { UNIDADES_SAUDE } from '@/features/core/constants/unidadesSaude'
+import { useSession } from '@/features/auth/composables/useSession'
+import { useHealthUnits } from '@/features/healthUnits/composables/useHealthUnits'
+import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useUsuarios'
+import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
+import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
 import { cn } from '@/lib/utils'
 
 const navItems: { url: string; title: string; icon: React.ReactNode }[] = [
@@ -46,17 +49,32 @@ function SidebarCollapseTrigger() {
 	)
 }
 
+function iniciais(nome: string): string {
+	const partes = nome.trim().split(/\s+/)
+	return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? (partes[partes.length - 1][0] ?? '') : ''}`.toUpperCase()
+}
+
 export function AppSidebar() {
 	const location = useLocation()
 	const navigate = useNavigate()
-	const [unidade, setUnidade] = useState(UNIDADES_SAUDE[0])
+	const { user, logout } = useSession()
+	const { data: healthUnits } = useHealthUnits({ activeOnly: true })
+	const trocarUbs = useSetCurrentHealthUnit()
+
+	const minhasUbs = healthUnits?.data.filter((unit) => user?.healthUnitIds.includes(unit.id)) ?? []
+	const categoria = user ? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]] : ''
+
+	function sair() {
+		logout()
+		navigate('/login', { replace: true })
+	}
 
 	return (
 		<Sidebar collapsible="icon" className="border-r border-n-40 **:data-[sidebar=sidebar]:border-0">
 			<SidebarHeader className="gap-0 border-b border-n-30 p-4">
 				<div className="flex w-full items-center justify-between gap-2 group-data-[collapsible=icon]:justify-center">
 					<div className="min-w-0 group-data-[collapsible=icon]:hidden">
-						<span className="block truncate text-2xl font-bold tracking-tight text-p-600">Pré-Natal</span>
+						<span className="block truncate text-2xl font-bold tracking-tight text-t-600">Pré-Natal</span>
 					</div>
 					<SidebarCollapseTrigger />
 				</div>
@@ -103,7 +121,7 @@ export function AppSidebar() {
 												key={item.url}
 												to={item.url}
 												className={cn(
-													isActive ? 'font-semibold text-p-600' : 'font-normal text-n-600 hover:text-n-800',
+													isActive ? 'font-semibold text-t-600' : 'font-normal text-n-600 hover:text-n-800',
 												)}
 											>
 												{item.title}
@@ -140,25 +158,30 @@ export function AppSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter className="gap-4 border-t border-n-30 p-4 group-data-[collapsible=icon]:hidden">
-				<Select value={unidade} onValueChange={setUnidade}>
-					<SelectTrigger className="w-full">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{UNIDADES_SAUDE.map((nome) => (
-							<SelectItem key={nome} value={nome}>
-								{nome}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				{minhasUbs.length > 0 ? (
+					<Select
+						value={user?.currentHealthUnitId ?? undefined}
+						onValueChange={(next) => trocarUbs.mutate(next)}
+					>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Selecione a UBS" />
+						</SelectTrigger>
+						<SelectContent>
+							{minhasUbs.map((unit) => (
+								<SelectItem key={unit.id} value={unit.id}>
+									{unit.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				) : null}
 
 				<div className="flex items-center justify-between gap-2">
 					<div className="flex min-w-0 items-center gap-3">
-						<div className="sidebar-footer-avatar">JV</div>
+						<div className="sidebar-footer-avatar">{user ? iniciais(user.name) : '--'}</div>
 						<div className="min-w-0">
-							<p className="truncate text-sm font-semibold text-n-700">José Victor</p>
-							<p className="truncate text-xs text-n-500">Administrador</p>
+							<p className="truncate text-sm font-semibold text-n-700">{user?.name ?? ''}</p>
+							<p className="truncate text-xs text-n-500">{categoria}</p>
 						</div>
 					</div>
 					<Button
@@ -166,7 +189,7 @@ export function AppSidebar() {
 						variant="ghost"
 						size="icon"
 						className="size-8 shrink-0 text-n-700 hover:bg-n-20"
-						onClick={() => navigate('/login')}
+						onClick={sair}
 						aria-label="Sair"
 					>
 						<DoorOpen className="size-5" />

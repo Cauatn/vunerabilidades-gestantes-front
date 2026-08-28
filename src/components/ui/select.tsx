@@ -110,7 +110,7 @@ function SelectContent({
 					{withErasingOption && (
 						<SelectPrimitive.Item
 							value={NONE_VALUE}
-							className="relative flex w-full cursor-default items-center gap-2 rounded-md px-2 py-3 text-base text-n-400 outline-hidden select-none focus:bg-p-100 focus:text-p-600 md:py-1.5 md:text-sm"
+							className="relative flex w-full cursor-default items-center gap-2 rounded-md px-2 py-3 text-base text-n-400 outline-hidden select-none focus:bg-t-100 focus:text-t-600 md:py-1.5 md:text-sm"
 						>
 							<SelectPrimitive.ItemText>Limpar seleção</SelectPrimitive.ItemText>
 						</SelectPrimitive.Item>
@@ -133,7 +133,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
 			data-slot="select-item"
 			className={cn(
 				"relative flex w-full cursor-default items-center gap-2 rounded-md py-3 pr-8 pl-2 text-base outline-hidden select-none md:py-1.5 md:text-sm",
-				'focus:bg-p-100 focus:text-p-600',
+				'focus:bg-t-100 focus:text-t-600',
 				'data-disabled:pointer-events-none data-disabled:opacity-50',
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-'])]:text-n-500 [&_svg:not([class*='size-'])]:size-4",
 				'*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2',

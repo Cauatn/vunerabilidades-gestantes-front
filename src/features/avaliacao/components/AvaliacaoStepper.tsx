@@ -18,20 +18,20 @@ export function AvaliacaoStepper({ steps, activeIndex, className }: AvaliacaoSte
 			<div className="flex items-center py-px">
 				{steps.map((_, indice) => (
 					<Fragment key={indice}>
-						<div className={cn('h-px flex-1', segmentoPreenchido(indice) ? 'bg-p-400' : 'bg-n-30')} />
+						<div className={cn('h-px flex-1', segmentoPreenchido(indice) ? 'bg-t-400' : 'bg-n-30')} />
 						<div
 							className={cn(
 								'flex size-7 shrink-0 items-center justify-center rounded-full border-[1.5px] text-sm font-semibold',
-								indice < activeIndex && 'border-p-400 bg-p-400 text-white',
-								indice === activeIndex && 'border-solid border-p-400 text-p-400',
-								indice > activeIndex && 'border-dashed border-p-400 text-p-400',
+								indice < activeIndex && 'border-(--t-400) bg-t-400 text-white',
+								indice === activeIndex && 'border-solid border-(--t-400) text-t-400',
+								indice > activeIndex && 'border-dashed border-(--t-400) text-t-400',
 							)}
 						>
 							{indice + 1}
 						</div>
 					</Fragment>
 				))}
-				<div className={cn('h-px flex-1', segmentoPreenchido(steps.length) ? 'bg-p-400' : 'bg-n-30')} />
+				<div className={cn('h-px flex-1', segmentoPreenchido(steps.length) ? 'bg-t-400' : 'bg-n-30')} />
 			</div>
 
 			<div className="flex w-full text-center text-caption text-n-600">

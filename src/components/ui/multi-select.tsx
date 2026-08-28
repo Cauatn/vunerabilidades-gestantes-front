@@ -69,12 +69,12 @@ export function MultiSelect({ options, value, onValueChange, placeholder = 'Sele
 							key={option}
 							type="button"
 							onClick={() => toggle(option)}
-							className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm text-n-700 outline-hidden hover:bg-p-100 hover:text-p-600"
+							className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm text-n-700 outline-hidden hover:bg-t-100 hover:text-t-600"
 						>
 							<span
 								className={cn(
 									'flex size-4 shrink-0 items-center justify-center rounded border border-n-200',
-									selecionado && 'border-p-500 bg-p-500 text-n-0',
+									selecionado && 'border-(--t-500) bg-t-500 text-n-0',
 								)}
 							>
 								{selecionado && <Check className="size-3" />}

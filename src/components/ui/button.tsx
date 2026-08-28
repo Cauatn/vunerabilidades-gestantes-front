@@ -19,7 +19,7 @@ const buttonVariants = cva(
 				ghost: 'hover:bg-n-20 hover:text-accent-foreground dark:hover:bg-n-20/50',
 				link: 'text-primary underline-offset-4 hover:underline',
 				default:
-					'border-transparent bg-accent-mint font-bold tracking-[0.2px] text-white shadow-xs hover:bg-brand-hover active:bg-brand-pressed focus-visible:border-transparent focus-visible:ring-accent-mint/40 dark:focus-visible:ring-accent-mint/40 bg-p-400 hover:bg-p-600 active:bg-p-700',
+					'border-transparent bg-accent-mint font-bold tracking-[0.2px] text-white shadow-xs hover:bg-brand-hover active:bg-brand-pressed focus-visible:border-transparent focus-visible:ring-accent-mint/40 dark:focus-visible:ring-accent-mint/40 bg-t-500 hover:bg-t-600 active:bg-t-700',
 				warning:
 					'border-transparent bg-y-400 font-bold tracking-[0.2px] text-white shadow-xs hover:bg-y-600 active:bg-y-700 focus-visible:border-transparent focus-visible:ring-y-400/40',
 				danger: 'border-transparent bg-r-500 font-bold tracking-[0.2px] text-white shadow-xs hover:bg-r-600 active:bg-r-700 focus-visible:border-transparent focus-visible:ring-r-500/40',
