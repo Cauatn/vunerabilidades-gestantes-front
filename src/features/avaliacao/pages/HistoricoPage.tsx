@@ -7,7 +7,7 @@ import { Page } from '@/components/Layout/Page'
 import { formatarDataBr } from '@/features/core/utils/date'
 import { type HistoricoAplicacao, HISTORICO } from '@/features/avaliacao/utils/avaliacaoMock'
 import { VULNERABILIDADE_BADGE_VARIANT, VULNERABILIDADE_LABEL } from '@/features/gestantes/constants/vulnerabilidade'
-import type { Vulnerabilidade } from '@/features/gestantes/types/gestante'
+import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
 
 const columns: ColumnDef<HistoricoAplicacao>[] = [
 	{

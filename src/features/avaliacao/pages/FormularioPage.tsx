@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import aplicacaoIllustration from '@/assets/illustrations/aplicacao-gestante.png'
+import aplicacaoIllustration from '@/assets/illustrations/login-gestante.svg'
 import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
@@ -17,7 +17,7 @@ import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
 import { calcularPontuacao, classificar } from '@/features/avaliacao/utils/calcularPontuacao'
-import { useGestantes } from '@/features/gestantes/composables/useGestantesStore'
+import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 
@@ -52,7 +52,8 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 export function FormularioPage() {
 	const navigate = useNavigate()
 	const { perguntas } = usePerguntas()
-	const { gestantes } = useGestantes()
+	const { data: gestantesPage } = useGetGestantes()
+	const gestantes = gestantesPage?.items ?? []
 
 	const [iniciado, setIniciado] = useState(false)
 	const [gestanteId, setGestanteId] = useState<string | null>(null)
@@ -156,7 +157,7 @@ export function FormularioPage() {
 								<Divider text="Resultado" />
 								{resultado && (
 									<ResultadoAvaliacao
-										nomeGestante={gestanteSelecionada?.nome ?? ''}
+										nomeGestante={gestanteSelecionada?.name ?? ''}
 										pontuacao={resultado.pontuacao}
 										classificacao={resultado.classificacao}
 									/>

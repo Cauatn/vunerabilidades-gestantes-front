@@ -5,9 +5,8 @@ import { Divider } from '@/components/ui/divider'
 import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
-import { useGestantes } from '@/features/gestantes/composables/useGestantesStore'
-import type { Gestante } from '@/features/gestantes/types/gestante'
-import type { GestanteFormValues } from '@/features/gestantes/validation/gestanteSchema'
+import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
+import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
 
 interface EtapaGestanteProps {
 	gestantes: Gestante[]
@@ -16,15 +15,16 @@ interface EtapaGestanteProps {
 }
 
 export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: EtapaGestanteProps) {
-	const { addGestante } = useGestantes()
 	const [sheetAberto, setSheetAberto] = useState(false)
 	const [nomeBuscado, setNomeBuscado] = useState('')
 
+	const criar = useCreateGestante()
+
 	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
 
-	function handleCriarGestante(dados: GestanteFormValues) {
-		const id = addGestante(dados)
-		onGestanteChange(id)
+	async function handleCriarGestante(payload: CreateGestantePayload) {
+		const { data } = await criar.mutateAsync(payload)
+		onGestanteChange((data as Gestante).id)
 		setSheetAberto(false)
 	}
 
@@ -39,7 +39,7 @@ export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: Etapa
 				<FieldContent>
 					<Combobox
 						id="avaliacao-gestante"
-						options={gestantes.map((gestante) => ({ value: gestante.id, label: gestante.nome }))}
+						options={gestantes.map((gestante) => ({ value: gestante.id, label: gestante.name }))}
 						value={gestanteId ?? undefined}
 						onValueChange={onGestanteChange}
 						emptyMessage="Nenhuma gestante encontrada."
@@ -58,6 +58,7 @@ export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: Etapa
 				open={sheetAberto}
 				onOpenChange={setSheetAberto}
 				onSubmit={handleCriarGestante}
+				isSubmitting={criar.isPending}
 				nomeInicial={nomeBuscado}
 			/>
 		</div>

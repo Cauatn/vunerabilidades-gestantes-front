@@ -84,7 +84,7 @@ export function Combobox({
 								onClick={() => selecionar(option)}
 								className={cn(
 									'flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-hidden',
-									isSelected ? 'bg-p-100 font-semibold text-p-600' : 'text-n-700 hover:bg-p-50',
+									isSelected ? 'bg-t-100 font-semibold text-t-600' : 'text-n-700 hover:bg-t-50',
 								)}
 							>
 								{option.label}
@@ -104,7 +104,7 @@ export function Combobox({
 							onCreateNew(busca.trim())
 							setOpen(false)
 						}}
-						className="flex w-full items-center gap-2 rounded-md border-t border-n-30 px-2 py-2.5 text-left text-sm font-semibold text-p-500 outline-hidden hover:bg-p-50"
+						className="flex w-full items-center gap-2 rounded-md border-t border-n-30 px-2 py-2.5 text-left text-sm font-semibold text-t-500 outline-hidden hover:bg-t-50"
 					>
 						<Plus className="size-4" />
 						{createNewLabel}

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -9,84 +9,85 @@ import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { ESTADOS, getMunicipios } from '@/features/core/constants/localizacao'
-import { UNIDADES_SAUDE } from '@/features/core/constants/unidadesSaude'
+import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import {
 	CATEGORIA_PROFISSIONAL_LABEL,
 	CATEGORIA_PROFISSIONAL_OPCOES,
-	REGISTRO_PROFISSIONAL_LABEL,
 } from '@/features/usuarios/constants/categoriaProfissional'
-import type { Usuario } from '@/features/usuarios/types/usuario'
+import { CATEGORIA_TO_ROLE, type InviteUsuarioPayload } from '@/features/usuarios/types/usuario'
 import { usuarioSchema, type UsuarioFormValues } from '@/features/usuarios/validation/usuarioSchema'
 
 const VALORES_VAZIOS: UsuarioFormValues = {
-	nome: '',
 	email: '',
-	cpf: '',
 	categoriaProfissional: 'medico',
-	registroUf: '',
-	registroDigitos: '',
-	regiaoUf: '',
-	regiaoMunicipio: '',
 	ubsAtendimento: [],
 }
 
 interface UsuarioSheetProps {
-	usuario?: Usuario
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	onSubmit: (dados: UsuarioFormValues) => void
+	onSubmit: (payload: InviteUsuarioPayload) => void
+	isSubmitting?: boolean
 }
 
-export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit }: UsuarioSheetProps) {
-	const isEdit = !!usuario
+export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: UsuarioSheetProps) {
+	const { data: healthUnits } = useGetHealthUnits()
+
+	const ubsIdPorNome = useMemo(() => {
+		const map = new Map<string, string>()
+		healthUnits?.items.forEach((unit) => map.set(unit.name, unit.id))
+		return map
+	}, [healthUnits])
+
+	const opcoesUbs = useMemo(() => healthUnits?.items.map((unit) => unit.name) ?? [], [healthUnits])
+
 	const {
 		register,
 		handleSubmit,
 		reset,
 		control,
 		watch,
-		setValue,
 		formState: { errors },
 	} = useForm<UsuarioFormValues>({
 		resolver: zodResolver(usuarioSchema),
 		defaultValues: VALORES_VAZIOS,
 	})
 
-	const categoriaProfissional = watch('categoriaProfissional')
-	const regiaoUf = watch('regiaoUf')
-	const isAdministrador = categoriaProfissional === 'administrador'
-	const registroLabel = REGISTRO_PROFISSIONAL_LABEL[categoriaProfissional] ?? 'Registro'
+	const isAdministrador = watch('categoriaProfissional') === 'administrador'
 
 	useEffect(() => {
-		if (open) reset(usuario ?? VALORES_VAZIOS)
-	}, [open, usuario, reset])
+		if (open) reset(VALORES_VAZIOS)
+	}, [open, reset])
+
+	function submit(values: UsuarioFormValues) {
+		const role = CATEGORIA_TO_ROLE[values.categoriaProfissional]
+		onSubmit({
+			email: values.email,
+			role,
+			healthUnitIds:
+				role === 'ADMIN'
+					? undefined
+					: values.ubsAtendimento
+							.map((nome) => ubsIdPorNome.get(nome))
+							.filter((id): id is string => !!id),
+		})
+	}
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar usuário' : 'Criar usuário'}</SheetTitle>
+					<SheetTitle>Criar usuário</SheetTitle>
 				</SheetHeader>
 
 				<form
 					id="usuario-form"
 					className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
-					onSubmit={handleSubmit(onSubmit)}
+					onSubmit={handleSubmit(submit)}
 				>
 					<Divider text="Informações gerais" />
 
 					<FieldGroup>
-						<Field>
-							<FieldLabel htmlFor="usuario-nome" required>
-								Nome
-							</FieldLabel>
-							<FieldContent>
-								<Input id="usuario-nome" placeholder="Digite..." aria-invalid={!!errors.nome} {...register('nome')} />
-								<FieldError errors={[errors.nome]} />
-							</FieldContent>
-						</Field>
-
 						<Field>
 							<FieldLabel htmlFor="usuario-email" required>
 								Email
@@ -100,16 +101,6 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit }: UsuarioS
 									{...register('email')}
 								/>
 								<FieldError errors={[errors.email]} />
-							</FieldContent>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="usuario-cpf" required>
-								CPF
-							</FieldLabel>
-							<FieldContent>
-								<Input id="usuario-cpf" placeholder="Digite..." aria-invalid={!!errors.cpf} {...register('cpf')} />
-								<FieldError errors={[errors.cpf]} />
 							</FieldContent>
 						</Field>
 
@@ -140,151 +131,35 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit }: UsuarioS
 						</Field>
 					</FieldGroup>
 
-					{!isAdministrador && (
-						<>
-							<Divider text={registroLabel} />
-
-							<FieldGroup className="grid grid-cols-2 gap-3 space-y-0">
-								<Field>
-									<FieldLabel htmlFor="usuario-registro-uf" required>
-										UF
-									</FieldLabel>
-									<FieldContent>
-										<Controller
-											name="registroUf"
-											control={control}
-											render={({ field }) => (
-												<Select value={field.value} onValueChange={field.onChange}>
-													<SelectTrigger id="usuario-registro-uf" className="w-full" aria-invalid={!!errors.registroUf}>
-														<SelectValue placeholder="Selecione" />
-													</SelectTrigger>
-													<SelectContent>
-														{ESTADOS.map((estado) => (
-															<SelectItem key={estado.uf} value={estado.uf}>
-																{estado.uf}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											)}
+					{!isAdministrador ? (
+						<Field>
+							<FieldLabel htmlFor="usuario-ubs" required>
+								UBSs de atendimento
+							</FieldLabel>
+							<FieldContent>
+								<Controller
+									name="ubsAtendimento"
+									control={control}
+									render={({ field }) => (
+										<MultiSelect
+											id="usuario-ubs"
+											options={opcoesUbs}
+											value={field.value}
+											onValueChange={field.onChange}
 										/>
-										<FieldError errors={[errors.registroUf]} />
-									</FieldContent>
-								</Field>
-
-								<Field>
-									<FieldLabel htmlFor="usuario-registro-digitos" required>
-										Dígitos
-									</FieldLabel>
-									<FieldContent>
-										<Input
-											id="usuario-registro-digitos"
-											placeholder="Digite..."
-											aria-invalid={!!errors.registroDigitos}
-											{...register('registroDigitos')}
-										/>
-										<FieldError errors={[errors.registroDigitos]} />
-									</FieldContent>
-								</Field>
-							</FieldGroup>
-
-							<Divider text="Região de atuação" />
-
-							<FieldGroup className="grid grid-cols-2 gap-3 space-y-0">
-								<Field>
-									<FieldLabel htmlFor="usuario-regiao-uf" required>
-										UF
-									</FieldLabel>
-									<FieldContent>
-										<Controller
-											name="regiaoUf"
-											control={control}
-											render={({ field }) => (
-												<Select
-													value={field.value}
-													onValueChange={(next) => {
-														field.onChange(next)
-														setValue('regiaoMunicipio', '')
-													}}
-												>
-													<SelectTrigger id="usuario-regiao-uf" className="w-full" aria-invalid={!!errors.regiaoUf}>
-														<SelectValue placeholder="Selecione" />
-													</SelectTrigger>
-													<SelectContent>
-														{ESTADOS.map((estado) => (
-															<SelectItem key={estado.uf} value={estado.uf}>
-																{estado.uf}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											)}
-										/>
-										<FieldError errors={[errors.regiaoUf]} />
-									</FieldContent>
-								</Field>
-
-								<Field>
-									<FieldLabel htmlFor="usuario-regiao-municipio" required>
-										Município
-									</FieldLabel>
-									<FieldContent>
-										<Controller
-											name="regiaoMunicipio"
-											control={control}
-											render={({ field }) => (
-												<Select value={field.value} onValueChange={field.onChange} disabled={!regiaoUf}>
-													<SelectTrigger
-														id="usuario-regiao-municipio"
-														className="w-full"
-														aria-invalid={!!errors.regiaoMunicipio}
-													>
-														<SelectValue placeholder="Selecione" />
-													</SelectTrigger>
-													<SelectContent>
-														{getMunicipios(regiaoUf).map((municipio) => (
-															<SelectItem key={municipio} value={municipio}>
-																{municipio}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											)}
-										/>
-										<FieldError errors={[errors.regiaoMunicipio]} />
-									</FieldContent>
-								</Field>
-							</FieldGroup>
-
-							<Field>
-								<FieldLabel htmlFor="usuario-ubs" required>
-									UBSs de atendimento
-								</FieldLabel>
-								<FieldContent>
-									<Controller
-										name="ubsAtendimento"
-										control={control}
-										render={({ field }) => (
-											<MultiSelect
-												id="usuario-ubs"
-												options={UNIDADES_SAUDE}
-												value={field.value}
-												onValueChange={field.onChange}
-											/>
-										)}
-									/>
-									<FieldError errors={[errors.ubsAtendimento]} />
-								</FieldContent>
-							</Field>
-						</>
-					)}
+									)}
+								/>
+								<FieldError errors={[errors.ubsAtendimento]} />
+							</FieldContent>
+						</Field>
+					) : null}
 				</form>
 
 				<SheetFooter className="p-0">
 					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 						Cancelar
 					</Button>
-					<Button type="submit" form="usuario-form">
+					<Button type="submit" form="usuario-form" isLoading={isSubmitting}>
 						Confirmar
 					</Button>
 				</SheetFooter>

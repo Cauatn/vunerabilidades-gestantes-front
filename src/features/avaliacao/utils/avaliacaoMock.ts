@@ -1,7 +1,7 @@
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { AvaliacaoDetalhe, CategoriaRespostas, RecomendacaoGestante } from '@/features/avaliacao/types/historico'
 import { calcularIdade } from '@/features/core/utils/date'
-import type { Vulnerabilidade } from '@/features/gestantes/types/gestante'
+import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
 
 export interface HistoricoAplicacao {
 	id: string

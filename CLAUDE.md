@@ -24,14 +24,26 @@ Componentes base (button, input, label, card, badge, etc.) seguem o padrão shad
 
 Tokens de cor/raio ficam em `src/index.css` (`@theme inline` + variáveis `:root`/`.dark`). Para novas cores/tokens, adicione ali — não em componentes individuais.
 
+### Tailwind v4 — armadilhas conhecidas
+
+- **NUNCA use `border-t-*`, `border-b-*`, `border-r-*`, `border-l-*`, `border-x-*`, `border-y-*` como COR.** As famílias de cor `t`/`b`/`r`/`l`/`x`/`y` colidem com os atalhos de **direção de borda** do Tailwind: `border-t-300` vira `border-top-width: 300px` (um bloco gigante), não "cor da borda `t-300`". Idem `divide-x-*`/`divide-y-*`. Para cor de borda com essas famílias, use a sintaxe de var: **`border-(--color-t-300)`** → `border-color: var(--color-t-300)`. As famílias `n`/`g`/`p`/`o` não colidem (`border-n-40` funciona como cor).
+- **Só existem os _stops_ de cor declarados no `@theme`.** Por família: `n` 0–900; `t`/`p`/`g` 50–700; `r` **só 100,500,600,700**; `y` **só 100,400,600,700**; `b` **só 50,100,200,400,600,700**; `o` só 100,400. Usar um stop inexistente (`bg-r-200`, `text-y-500`) **não gera CSS nenhum**, sem erro. Confira `--color-<familia>-<n>` no `index.css` antes de usar.
+- Valores arbitrários (`text-[44px]`, `w-[252px]`, `gap-13`) **funcionam** — no CSS gerado saem escapados (`.text-\[44px\]`), então não é bug se um `grep` simples não achar.
+- Ao criar arquivos novos ou renomear pastas de `src/`, **reinicie o `vite dev`** (`rm -rf node_modules/.vite`). O scanner de conteúdo + HMR às vezes ficam com o grafo velho e o CSS sai quebrado até o restart.
+- `cn()` (`tailwind-merge`) pode descartar classes que julga conflitantes — se um utilitário "sumiu", cheque se outro da mesma categoria está na mesma string.
+
 ## Services (`services/`)
 
 - Apenas `api.get/post/patch/delete` — sem `.then`, sem mappers, sem builders de payload.
+- Tipar a resposta no próprio verbo: `api.get<PaginatedUsers>(...)`, `api.get<User>(...)`. O composable não faz `as` no `select`.
+- Listagem recebe um único `List<Plural>Params` (ver Types), nunca um objeto inline.
 
 ```ts
 // ✅
-export const getUsers = (page: number, limit: number) =>
-  api.get('/users', { params: { page, limit } })
+export const getUsers = (params: ListUsersParams) =>
+  api.get<PaginatedUsers>('/users', { params })
+
+export const getUser = (id: string) => api.get<User>(`/users/${id}`)
 
 // ❌ buildCreateUserPayload, mapUserToX, unwrap manual de response.data
 ```
@@ -42,14 +54,50 @@ Instância do axios em `src/lib/api.ts`.
 
 Tipos da feature ficam em **um arquivo por domínio** (ex.: `types/user.ts`). Não criar arquivos `*Api.ts` separados.
 
+Paginação: `PaginationParams` e `Paginated<T>` vêm de `@/features/core/types/pagination.ts`. Cada listagem define `List<Plural>Params = PaginationParams & { ...filtros }` e `Paginated<Plural> = Paginated<Entidade>` no arquivo da feature. Filtros são opcionais e sem `| null`.
+
 ## Composables
 
-- **`useQuery`**: unwrap e transformação no `select`.
-- **`useMutation`**: `mutationFn` chama o service; invalidação de cache no `onSuccess`.
-- Query keys exportadas no composable de listagem.
-- **Paginação e filtros usam `nuqs`** (`useQueryState`/`useQueryStates`) dentro do composable — nunca `useState` na página.
-- "Filtro vazio" é `null` em todas as camadas — o axios descarta params `null` na query string.
+- **Um composable por arquivo.** Nome do arquivo = nome do hook.
+- **Nomes**: query de listagem `useGet<Plural>`, query de item `useGet<Singular>`, mutations `useCreate<X>` / `useUpdate<X>` / `useDeactivate<X>` / `use<Verbo><X>`.
+- **`useQuery`**: o unwrap de `response.data` e qualquer transformação vão no `select` — **nunca `.then`** no `queryFn`.
+- **`useMutation`**: `useMutation` **não tem `select`**. O `mutationFn` só chama o service: `mutationFn: (payload) => service(payload)` (ou `mutationFn: service`). Nunca desembrulha, nunca `.then`, nunca `async` só pra pegar `.data`. Quem precisa do corpo desestrutura no ponto de uso — `const { data } = await mutation.mutateAsync(payload)` — ou dentro do próprio `onSuccess` (`onSuccess: ({ data }) => …`). Invalidação de cache no `onSuccess`, seguida de `options?.onSuccess?.()`.
+- **Query key** de cada feature é exportada do arquivo `useGet<Plural>` (ex.: `export const usuariosQueryKey = ['users']`); as mutations importam de lá.
+- **Paginação e filtros usam `nuqs`** (`useQueryState`/`useQueryStates`) dentro do composable de listagem — nunca `useState` na página.
+- `PAGE_SIZE` vem de `@/features/core/constants/pagination.ts` (padrão 50) — não redefinir por feature.
+- "Filtro vazio" é string vazia (`parseAsString.withDefault('')`) — o tipo do filtro é `string`, sem `| null`, e o axios descarta params `''` na query string. Sem `| null` em params de listagem.
 - Não espalhe `?? valorPadrão` na página só para cobrir o loading do React Query: o componente aceita `data` opcional e renderiza seu próprio `Skeleton` quando `undefined`.
+
+```ts
+// useGetUsuarios.ts
+export const usuariosQueryKey = ['users']
+
+export function useGetUsuarios() {
+	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1))
+	const query = useQuery({
+		queryKey: [...usuariosQueryKey, { page }],
+		queryFn: () => getUsuarios({ page, pageSize: PAGE_SIZE }),
+		select: (response) => response.data,
+	})
+	return { ...query, page, setPage }
+}
+
+// useUpdateUsuarioStatus.ts
+export function useUpdateUsuarioStatus(options?: { onSuccess?: () => void }) {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: ({ id, status }: { id: string; status: UsuarioStatus }) =>
+			updateUsuarioStatus(id, status),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: usuariosQueryKey })
+			options?.onSuccess?.()
+		},
+	})
+}
+
+// uso quando precisa do corpo:
+// const { data } = await criarGestante.mutateAsync(payload)
+```
 
 ## Utils
 
@@ -61,4 +109,4 @@ Tipos da feature ficam em **um arquivo por domínio** (ex.: `types/user.ts`). N�
 
 - Arquivos em **camelCase** (`createUserModal.tsx`).
 - Não exportar helpers não usados fora do módulo.
-- Commits: mensagens concisas em português, sem co-autoria do Claude.
+- Commits: mensagens concisas em português. **Nunca** adicione `Co-Authored-By: Claude` nem qualquer trailer de co-autoria do Claude.

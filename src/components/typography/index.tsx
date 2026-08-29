@@ -60,7 +60,7 @@ function Text<TAs extends React.ElementType = 'span'>({
 		<Tag
 			className={cn(
 				variant === 'link' &&
-					'text-caption tracking-wide text-p-600 underline-offset-4 hover:underline',
+					'text-caption tracking-wide text-t-600 underline-offset-4 hover:underline',
 				className,
 			)}
 			{...props}

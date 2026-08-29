@@ -1,87 +1,100 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
+import { PAGE_SIZE } from '@/features/core/constants/pagination'
+import { useSession } from '@/features/auth/composables/useSession'
+import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import { UsuarioSheet } from '@/features/usuarios/components/UsuarioSheet'
 import { createUsuariosColumns } from '@/features/usuarios/components/usuariosDataTable/columns'
-import { useUsuariosListagem } from '@/features/usuarios/composables/useUsuariosListagem'
-import { useUsuarios, type UsuarioFormValues } from '@/features/usuarios/composables/useUsuariosStore'
-import type { Usuario } from '@/features/usuarios/types/usuario'
+import { useActivateUsuario } from '@/features/usuarios/composables/useActivateUsuario'
+import { useDeactivateUsuario } from '@/features/usuarios/composables/useDeactivateUsuario'
+import { useGetUsuarios } from '@/features/usuarios/composables/useGetUsuarios'
+import { useInviteUsuario } from '@/features/usuarios/composables/useInviteUsuario'
+import type { InviteUsuarioPayload, Usuario } from '@/features/usuarios/types/usuario'
 
 export function UsuariosPage() {
-	const { usuarios, addUsuario, updateUsuario } = useUsuarios()
-	const { termoBusca, setTermoBusca, aplicarBusca, page, setPage, totalPages, usuariosPagina } =
-		useUsuariosListagem(usuarios)
+	const { data, isLoading, page, setPage, busca, setBusca } = useGetUsuarios()
+	const { data: healthUnits } = useGetHealthUnits()
+	const { user } = useSession()
 
-	const [usuarioEmEdicao, setUsuarioEmEdicao] = useState<Usuario | undefined>(undefined)
-	const [dialogOpen, setDialogOpen] = useState(false)
+	const [termo, setTermo] = useState(busca)
+	const [sheetOpen, setSheetOpen] = useState(false)
 
-	function abrirCriacao() {
-		setUsuarioEmEdicao(undefined)
-		setDialogOpen(true)
+	const convidar = useInviteUsuario({ onSuccess: () => setSheetOpen(false) })
+	const inativar = useDeactivateUsuario()
+	const ativar = useActivateUsuario()
+
+	const ubsNomePorId = useMemo(() => {
+		const map = new Map<string, string>()
+		healthUnits?.items.forEach((unit) => map.set(unit.id, unit.name))
+		return map
+	}, [healthUnits])
+
+	function buscar() {
+		void setBusca(termo.trim())
+		void setPage(1)
 	}
 
-	function handleSubmit(dados: UsuarioFormValues) {
-		if (usuarioEmEdicao) {
-			updateUsuario(usuarioEmEdicao.id, dados)
-		} else {
-			addUsuario(dados)
-		}
-		setDialogOpen(false)
+	function handleInvite(payload: InviteUsuarioPayload) {
+		convidar.mutate(payload)
 	}
 
-	const columns = createUsuariosColumns({
-		onEdit: (usuario) => {
-			setUsuarioEmEdicao(usuario)
-			setDialogOpen(true)
-		},
-	})
+	function handleToggleStatus(usuario: Usuario) {
+		// trava de segurança: ninguém altera o status da própria conta pelo front
+		if (usuario.id === user?.id) return
+		if (usuario.status === 'ACTIVE') inativar.mutate(usuario.id)
+		else ativar.mutate(usuario.id)
+	}
+
+	const columns = createUsuariosColumns({ onToggleStatus: handleToggleStatus, ubsNomePorId })
+	const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
 
 	return (
 		<>
 			<Page
 				title="Usuários"
-				description="Gerencie os usuários cadastrados no sistema."
+				description="Gerencie os profissionais e suas UBS de atuação."
 				withButton
 				buttonText="Criar usuário"
-				buttonProps={{ onClick: abrirCriacao }}
+				buttonProps={{ onClick: () => setSheetOpen(true) }}
 			>
 				<div className="flex items-center gap-3">
 					<Input
-						placeholder="Digite..."
-						value={termoBusca}
-						onChange={(event) => setTermoBusca(event.target.value)}
+						placeholder="Buscar por nome ou e-mail..."
+						value={termo}
+						onChange={(event) => setTermo(event.target.value)}
 						onKeyDown={(event) => {
-							if (event.key === 'Enter') aplicarBusca()
+							if (event.key === 'Enter') buscar()
 						}}
 						className="flex-1"
 					/>
-					<Button type="button" onClick={aplicarBusca}>
+					<Button type="button" onClick={buscar}>
 						Buscar
-					</Button>
-					<Button type="button" variant="outline">
-						Filtros
 					</Button>
 				</div>
 
 				<DataTable
 					columns={columns}
-					data={usuariosPagina}
+					data={data?.items}
+					isLoading={isLoading}
 					emptyStateTitle="Nenhum usuário encontrado."
-					emptyStateDescription="Cadastre usuários para dar acesso ao sistema."
+					emptyStateDescription="Convide profissionais para dar acesso ao sistema."
 				/>
 
-				<Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+				{data ? (
+					<Pagination page={page} totalPages={totalPages} onPageChange={(next) => void setPage(next)} />
+				) : null}
 			</Page>
 
 			<UsuarioSheet
-				usuario={usuarioEmEdicao}
-				open={dialogOpen}
-				onOpenChange={setDialogOpen}
-				onSubmit={handleSubmit}
+				open={sheetOpen}
+				onOpenChange={setSheetOpen}
+				onSubmit={handleInvite}
+				isSubmitting={convidar.isPending}
 			/>
 		</>
 	)

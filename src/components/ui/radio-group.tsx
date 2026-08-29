@@ -30,16 +30,16 @@ function RadioGroupItem({
 			onClick={onSelect}
 			className={cn(
 				'flex w-full items-center gap-2 rounded-lg border px-[18px] py-[14px] text-left text-sm transition-colors',
-				selected ? 'border-p-500 bg-p-50 font-semibold text-n-700' : 'border-n-100 font-normal text-n-700 hover:bg-n-10',
+				selected ? 'border-(--t-500) bg-t-50 font-semibold text-n-700' : 'border-n-100 font-normal text-n-700 hover:bg-n-10',
 			)}
 		>
 			<span
 				className={cn(
 					'flex size-4 shrink-0 items-center justify-center rounded-full border-2',
-					selected ? 'border-p-500' : 'border-n-200',
+					selected ? 'border-(--t-500)' : 'border-n-200',
 				)}
 			>
-				{selected && <span className="size-2 rounded-full bg-p-500" />}
+				{selected && <span className="size-2 rounded-full bg-t-500" />}
 			</span>
 			{label}
 		</button>
