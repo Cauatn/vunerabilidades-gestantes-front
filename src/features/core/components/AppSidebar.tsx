@@ -1,4 +1,5 @@
-import { Baby, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
+import { Baby, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { Logo } from '@/components/Logo'
@@ -10,12 +11,14 @@ import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/cate
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
 import { cn } from '@/lib/utils'
 
+type NavChild = { label: string; to: string }
+
 type NavItem = {
 	label: string
 	icon: typeof UsersRound
 	to?: string
 	match?: (pathname: string) => boolean
-	children?: { label: string; to: string }[]
+	children?: NavChild[]
 }
 
 const items: NavItem[] = [
@@ -44,6 +47,21 @@ function iniciais(nome: string) {
 	return `${partes[0]?.[0] ?? ''}${partes.length > 1 ? (partes[partes.length - 1][0] ?? '') : ''}`.toUpperCase()
 }
 
+function pathMatches(url: string, pathname: string) {
+	return pathname === url || pathname.startsWith(`${url}/`)
+}
+
+/** subitem com URL mais específica que casa com a rota atual */
+function activeChildUrl(children: NavChild[], pathname: string) {
+	let best: string | null = null
+	for (const child of children) {
+		if (pathMatches(child.to, pathname) && child.to.length > (best?.length ?? -1)) {
+			best = child.to
+		}
+	}
+	return best
+}
+
 export function AppSidebar() {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
@@ -68,49 +86,14 @@ export function AppSidebar() {
 
 			<div className="h-px w-full shrink-0 bg-n-40" />
 
-			<nav className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto">
-				{items.map((item) => {
-					const active = item.match ? item.match(pathname) : item.to === pathname
-					return (
-						<div key={item.label}>
-							{item.to ? (
-								<NavLink to={item.to} className={navClass(active)}>
-									<item.icon className={cn('size-5', active ? 'text-t-500' : 'text-n-700')} />
-									<span
-										className={cn('flex-1 text-sm', active ? 'font-semibold text-t-500' : 'text-n-700')}
-									>
-										{item.label}
-									</span>
-								</NavLink>
-							) : (
-								<div className={navClass(false)}>
-									<item.icon className="size-5 text-n-700" />
-									<span className="flex-1 text-sm text-n-700">{item.label}</span>
-								</div>
-							)}
-
-							{item.children ? (
-								<div className="mt-2 flex gap-2.5 px-2">
-									<span className="w-px self-stretch bg-n-40" />
-									<div className="flex flex-col justify-center gap-2 py-0.5 text-xs">
-										{item.children.map((child) => (
-											<NavLink
-												key={child.to}
-												to={child.to}
-												end
-												className={({ isActive }) =>
-													cn(isActive ? 'font-semibold text-t-500' : 'text-n-600 hover:text-n-800')
-												}
-											>
-												{child.label}
-											</NavLink>
-										))}
-									</div>
-								</div>
-							) : null}
-						</div>
-					)
-				})}
+			<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+				{items.map((item) =>
+					item.children ? (
+						<NavGroup key={item.label} item={item} pathname={pathname} />
+					) : (
+						<NavRow key={item.label} item={item} pathname={pathname} />
+					),
+				)}
 			</nav>
 
 			<div className="flex shrink-0 flex-col items-center gap-4 pt-2">
@@ -134,9 +117,7 @@ export function AppSidebar() {
 
 				<div className="flex w-full items-center justify-between">
 					<div className="flex min-w-0 items-center gap-3">
-						<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-t-500 text-base font-semibold text-n-0">
-							{user ? iniciais(user.name) : '--'}
-						</span>
+						<span className="sidebar-footer-avatar">{user ? iniciais(user.name) : '--'}</span>
 						<div className="min-w-0 leading-none">
 							<p className="truncate text-sm font-semibold text-n-700">{user?.name ?? ''}</p>
 							<p className="mt-1.5 truncate text-xs text-n-500">{categoria}</p>
@@ -151,9 +132,78 @@ export function AppSidebar() {
 	)
 }
 
-function navClass(active: boolean) {
+/** Item simples (rota única), mesmos tamanhos/espaçamentos do vinea. */
+function NavRow({ item, pathname }: { item: NavItem; pathname: string }) {
+	const active = item.match ? item.match(pathname) : pathMatches(item.to!, pathname)
+
+	return (
+		<NavLink to={item.to!} className={navBtnClass(active)}>
+			<span className="flex size-5 shrink-0 items-center justify-center">
+				<item.icon className="size-5" />
+			</span>
+			<span className="min-w-0 flex-1 truncate text-sm">{item.label}</span>
+		</NavLink>
+	)
+}
+
+/** Item com subitens: abre/fecha conforme a rota, subitens no mesmo padrão do vinea. */
+function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
+	const children = item.children!
+	const activeUrl = activeChildUrl(children, pathname)
+	const groupActive = activeUrl != null
+	const groupHref = children[0].to
+	const [open, setOpen] = useState(groupActive)
+
+	useEffect(() => {
+		if (groupActive) setOpen(true)
+	}, [groupActive])
+
+	return (
+		<div>
+			<NavLink
+				to={groupHref}
+				className={navBtnClass(groupActive)}
+				onClick={() => setOpen(true)}
+			>
+				<span className="flex size-5 shrink-0 items-center justify-center">
+					<item.icon className="size-5" />
+				</span>
+				<span className="min-w-0 flex-1 truncate text-sm">{item.label}</span>
+				<ChevronRight
+					className={cn('size-4 shrink-0 text-n-500 transition-transform duration-200', open && 'rotate-90')}
+				/>
+			</NavLink>
+
+			<div
+				className={cn(
+					'grid transition-[grid-template-rows] duration-200 ease-out',
+					open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+				)}
+			>
+				<div className="overflow-hidden">
+					<div className="mx-3.5 mt-1 flex flex-col gap-1 border-l border-n-40 px-2.5 py-0.5">
+						{children.map((child) => (
+							<NavLink
+								key={child.to}
+								to={child.to}
+								className={cn(
+									'flex h-7 items-center gap-2 rounded-lg px-2 text-sm',
+									child.to === activeUrl ? 'sidebar-nav-sub-btn-active' : 'sidebar-nav-sub-btn-idle',
+								)}
+							>
+								<span className="min-w-0 flex-1 truncate">{child.label}</span>
+							</NavLink>
+						))}
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function navBtnClass(active: boolean) {
 	return cn(
-		'flex items-center gap-2 rounded-lg px-4 py-3',
-		active && 'border border-(--color-t-300) bg-t-100',
+		'sidebar-nav-item-icon flex h-12 w-full items-center gap-2 rounded-lg border px-3',
+		active ? 'sidebar-nav-btn-active' : 'sidebar-nav-btn-idle',
 	)
 }

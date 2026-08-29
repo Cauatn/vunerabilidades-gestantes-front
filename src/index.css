@@ -312,6 +312,15 @@ body {
 		@apply data-[active=true]:!bg-transparent data-[active=true]:!font-normal data-[active=true]:!text-n-700;
 	}
 
+	.sidebar-nav-sub-btn-idle {
+		@apply font-normal text-n-700;
+		@apply hover:bg-n-20;
+	}
+
+	.sidebar-nav-sub-btn-active {
+		@apply font-semibold text-t-600;
+	}
+
 	.sidebar-footer-avatar {
 		@apply flex size-10 shrink-0 items-center justify-center rounded-full bg-t-500 text-base font-semibold text-n-0;
 	}
