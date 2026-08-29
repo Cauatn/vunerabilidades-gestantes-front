@@ -35,11 +35,15 @@ Tokens de cor/raio ficam em `src/index.css` (`@theme inline` + variáveis `:root
 ## Services (`services/`)
 
 - Apenas `api.get/post/patch/delete` — sem `.then`, sem mappers, sem builders de payload.
+- Tipar a resposta no próprio verbo: `api.get<PaginatedUsers>(...)`, `api.get<User>(...)`. O composable não faz `as` no `select`.
+- Listagem recebe um único `List<Plural>Params` (ver Types), nunca um objeto inline.
 
 ```ts
 // ✅
-export const getUsers = (page: number, limit: number) =>
-  api.get('/users', { params: { page, limit } })
+export const getUsers = (params: ListUsersParams) =>
+  api.get<PaginatedUsers>('/users', { params })
+
+export const getUser = (id: string) => api.get<User>(`/users/${id}`)
 
 // ❌ buildCreateUserPayload, mapUserToX, unwrap manual de response.data
 ```
@@ -50,6 +54,8 @@ Instância do axios em `src/lib/api.ts`.
 
 Tipos da feature ficam em **um arquivo por domínio** (ex.: `types/user.ts`). Não criar arquivos `*Api.ts` separados.
 
+Paginação: `PaginationParams` e `Paginated<T>` vêm de `@/features/core/types/pagination.ts`. Cada listagem define `List<Plural>Params = PaginationParams & { ...filtros }` e `Paginated<Plural> = Paginated<Entidade>` no arquivo da feature. Filtros são opcionais e sem `| null`.
+
 ## Composables
 
 - **Um composable por arquivo.** Nome do arquivo = nome do hook.
@@ -59,7 +65,7 @@ Tipos da feature ficam em **um arquivo por domínio** (ex.: `types/user.ts`). N�
 - **Query key** de cada feature é exportada do arquivo `useGet<Plural>` (ex.: `export const usuariosQueryKey = ['users']`); as mutations importam de lá.
 - **Paginação e filtros usam `nuqs`** (`useQueryState`/`useQueryStates`) dentro do composable de listagem — nunca `useState` na página.
 - `PAGE_SIZE` vem de `@/features/core/constants/pagination.ts` (padrão 50) — não redefinir por feature.
-- "Filtro vazio" é `null` em todas as camadas — o axios descarta params `null` na query string.
+- "Filtro vazio" é string vazia (`parseAsString.withDefault('')`) — o tipo do filtro é `string`, sem `| null`, e o axios descarta params `''` na query string. Sem `| null` em params de listagem.
 - Não espalhe `?? valorPadrão` na página só para cobrir o loading do React Query: o componente aceita `data` opcional e renderiza seu próprio `Skeleton` quando `undefined`.
 
 ```ts
@@ -71,7 +77,7 @@ export function useGetUsuarios() {
 	const query = useQuery({
 		queryKey: [...usuariosQueryKey, { page }],
 		queryFn: () => getUsuarios({ page, pageSize: PAGE_SIZE }),
-		select: (response) => response.data as PaginatedUsuarios,
+		select: (response) => response.data,
 	})
 	return { ...query, page, setPage }
 }

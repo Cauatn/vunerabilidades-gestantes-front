@@ -17,7 +17,7 @@ export function GestantesPage() {
 	const navigate = useNavigate()
 	const { data, page, setPage, busca, setBusca } = useGetGestantes()
 
-	const [termo, setTermo] = useState(busca ?? '')
+	const [termo, setTermo] = useState(busca)
 	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
 	const [sheetOpen, setSheetOpen] = useState(false)
 
@@ -25,7 +25,7 @@ export function GestantesPage() {
 	const atualizar = useUpdateGestante({ onSuccess: () => setSheetOpen(false) })
 
 	function buscar() {
-		void setBusca(termo.trim() || null)
+		void setBusca(termo.trim())
 		void setPage(1)
 	}
 

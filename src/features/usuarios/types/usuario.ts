@@ -1,3 +1,5 @@
+import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
+
 export type UsuarioRole = 'ADMIN' | 'DOCTOR' | 'NURSE'
 export type UsuarioStatus = 'ACTIVE' | 'INACTIVE'
 export type CategoriaProfissional = 'administrador' | 'medico' | 'enfermeiro'
@@ -26,12 +28,13 @@ export interface Usuario {
 	createdAt: string
 }
 
-export interface PaginatedUsuarios {
-	items: Usuario[]
-	total: number
-	page: number
-	pageSize: number
+export type ListUsuariosParams = PaginationParams & {
+	search?: string
+	role?: UsuarioRole
+	healthUnitId?: string
 }
+
+export type PaginatedUsuarios = Paginated<Usuario>
 
 export interface InviteUsuarioPayload {
 	email: string

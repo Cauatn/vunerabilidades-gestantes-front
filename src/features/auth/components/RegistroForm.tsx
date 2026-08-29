@@ -19,6 +19,7 @@ import {
 	type RegistroFormValues,
 } from '@/features/auth/validation/registroSchema'
 
+// TODO: TROCAR ISSO PARA CATEGORIAS COM ID
 const CATEGORIAS_ENFERMAGEM = ['Enfermeiro(a)', 'Obstetriz', 'Técnico(a) de enfermagem']
 
 export function RegistroForm() {
@@ -44,7 +45,7 @@ export function RegistroForm() {
 		},
 	})
 
-	function onSubmit() {
+	const onSubmit = () => {
 		navigate('/login')
 	}
 
@@ -53,8 +54,8 @@ export function RegistroForm() {
 			<section className="flex flex-col gap-3">
 				<Divider text="Informações gerais" />
 				<div className="space-y-1.5">
-					<Label htmlFor="reg-nome">
-						Nome <span className="text-r-500">*</span>
+					<Label htmlFor="reg-nome" required>
+						Nome
 					</Label>
 					<Input
 						id="reg-nome"
@@ -69,10 +70,8 @@ export function RegistroForm() {
 			<section className="flex flex-col gap-3">
 				<Divider text={conselhoLabel} />
 				<div className="flex items-start gap-3">
-					<div className="w-[150px] space-y-1.5">
-						<Label>
-							UF <span className="text-r-500">*</span>
-						</Label>
+					<div className="w-38 space-y-1.5">
+						<Label required>UF</Label>
 						<Controller
 							control={control}
 							name="conselhoUf"
@@ -96,8 +95,8 @@ export function RegistroForm() {
 						) : null}
 					</div>
 					<div className="flex-1 space-y-1.5">
-						<Label htmlFor="reg-numero">
-							Número <span className="text-r-500">*</span>
+						<Label htmlFor="reg-numero" required>
+							Número
 						</Label>
 						<Input
 							id="reg-numero"
@@ -112,9 +111,7 @@ export function RegistroForm() {
 				</div>
 				{isEnfermeiro ? (
 					<div className="space-y-1.5">
-						<Label>
-							Categoria <span className="text-r-500">*</span>
-						</Label>
+						<Label required>Categoria</Label>
 						<Controller
 							control={control}
 							name="categoriaConselho"
@@ -140,8 +137,8 @@ export function RegistroForm() {
 			<section className="flex flex-col gap-3">
 				<Divider text="Segurança" />
 				<div className="space-y-1.5">
-					<Label htmlFor="reg-senha">
-						Senha <span className="text-r-500">*</span>
+					<Label htmlFor="reg-senha" required>
+						Senha
 					</Label>
 					<Input
 						id="reg-senha"
@@ -153,8 +150,8 @@ export function RegistroForm() {
 					{errors.senha ? <p className="text-caption text-danger">{errors.senha.message}</p> : null}
 				</div>
 				<div className="space-y-1.5">
-					<Label htmlFor="reg-confirmar">
-						Confirmar senha <span className="text-r-500">*</span>
+					<Label htmlFor="reg-confirmar" required>
+						Confirmar senha
 					</Label>
 					<Input
 						id="reg-confirmar"

@@ -1,6 +1,9 @@
+import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
+
 export interface HealthUnit {
 	id: string
 	name: string
+	code: string
 	city: string
 	state: string
 	address: string | null
@@ -8,12 +11,12 @@ export interface HealthUnit {
 	createdAt: string
 }
 
-export interface PaginatedHealthUnits {
-	items: HealthUnit[]
-	total: number
-	page: number
-	pageSize: number
+export type ListHealthUnitsParams = PaginationParams & {
+	name?: string
+	active?: boolean
 }
+
+export type PaginatedHealthUnits = Paginated<HealthUnit>
 
 export interface CreateHealthUnitPayload {
 	name: string
@@ -23,6 +26,10 @@ export interface CreateHealthUnitPayload {
 	address?: string
 }
 
-export type UpdateHealthUnitPayload = Partial<Omit<CreateHealthUnitPayload, 'code'>> & {
+export interface UpdateHealthUnitPayload {
+	name?: string
+	city?: string
+	state?: string
+	address?: string | null
 	active?: boolean
 }

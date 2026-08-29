@@ -21,7 +21,7 @@ export function UsuariosPage() {
 	const { data: healthUnits } = useGetHealthUnits()
 	const { user } = useSession()
 
-	const [termo, setTermo] = useState(busca ?? '')
+	const [termo, setTermo] = useState(busca)
 	const [sheetOpen, setSheetOpen] = useState(false)
 
 	const convidar = useInviteUsuario({ onSuccess: () => setSheetOpen(false) })
@@ -35,7 +35,7 @@ export function UsuariosPage() {
 	}, [healthUnits])
 
 	function buscar() {
-		void setBusca(termo.trim() || null)
+		void setBusca(termo.trim())
 		void setPage(1)
 	}
 

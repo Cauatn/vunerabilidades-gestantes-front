@@ -1,3 +1,5 @@
+import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
+
 export type IdentifierType = 'CPF' | 'SUS_CARD'
 
 export interface Gestante {
@@ -12,12 +14,11 @@ export interface Gestante {
 	updatedAt: string
 }
 
-export interface PaginatedGestantes {
-	items: Gestante[]
-	total: number
-	page: number
-	pageSize: number
+export type ListGestantesParams = PaginationParams & {
+	name?: string
 }
+
+export type PaginatedGestantes = Paginated<Gestante>
 
 export interface CreateGestantePayload {
 	name: string

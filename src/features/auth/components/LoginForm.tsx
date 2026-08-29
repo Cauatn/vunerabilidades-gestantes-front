@@ -21,7 +21,7 @@ export function LoginForm() {
 		defaultValues: { email: '', senha: '' },
 	})
 
-	function onSubmit(values: LoginFormValues) {
+	const onSubmit = (values: LoginFormValues) => {
 		signIn.mutate({ email: values.email, password: values.senha })
 	}
 
