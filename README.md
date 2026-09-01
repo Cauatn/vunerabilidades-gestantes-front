@@ -1,32 +1,67 @@
-# React + TypeScript + Vite
+<p align="center">
+  <img src="docs/logo-gestare.svg" width="200" alt="Gestare" />
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+# gestare-frontend
 
-Currently, two official plugins are available:
+Frontend do **Sistema de Avaliação de Vulnerabilidade no Pré-Natal** — interface web para os profissionais de saúde (médicos e enfermeiros) que aplicam o questionário de vulnerabilidade de gestantes nas Unidades Básicas de Saúde. A paciente é o objeto da avaliação e **não acessa a aplicação**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+O backend fica em [`gestare-backend`](https://barauna.univasf.edu.br/externo/gestare/gestare-backend).
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) com [Vite](https://vite.dev/)
+- [React Router](https://reactrouter.com/) para rotas
+- [TanStack Query](https://tanstack.com/query) e [TanStack Table](https://tanstack.com/table) para dados e listagens
+- [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) nos formulários
+- [Tailwind CSS 4](https://tailwindcss.com/) + componentes [Radix UI](https://www.radix-ui.com/) (padrão shadcn/ui)
+- [Axios](https://axios-http.com/) para o cliente HTTP
 
-## Expanding the Oxlint configuration
+## Requisitos
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- Node.js 20+
+- npm
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Setup
+
+```bash
+npm install
+cp .env.example .env
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Variável            | Uso                                                        |
+| ------------------- | --------------------------------------------------------- |
+| `VITE_API_BASE_URL` | base da API do backend (ex.: `http://localhost:3000/api`) |
+
+## Executando
+
+```bash
+npm run dev      # servidor de desenvolvimento com HMR
+npm run build    # build de produção em dist/
+npm run preview  # serve o build localmente
+npm run lint     # oxlint
+```
+
+## Docker
+
+Dois Dockerfiles, seguindo o mesmo padrão do restante da infraestrutura da UNIVASF:
+
+- **`Dockerfile`** — build multi-stage servido por nginx na porta `3000`, com fallback de SPA e proxy de `/api` para o serviço `backend` (uso local via `docker compose`).
+- **`Dockerfile.prod`** — usado no deploy da UNIVASF. Recebe `APP_BASE_PATH` (padrão `/gestare/`) e `VITE_API_BASE_URL` (padrão `/gestare-api`) como `--build-arg`; publica os assets sob o base path e serve na porta `80`. O roteamento de `/gestare-api` é feito pelo proxy reverso da infraestrutura.
+
+```bash
+docker compose up --build          # sobe só o frontend (porta 8080)
+```
+
+Para subir a stack completa (frontend + backend + MongoDB), use o `docker-compose.yml` na raiz do monorepo local.
+
+## Deploy
+
+`.gitlab-ci.yml` dispara o deploy no push:
+
+| Branch    | Runner                | Ambiente   |
+| --------- | --------------------- | ---------- |
+| `develop` | `deploy-gestare`      | homologação |
+| `main`    | `deploy-gestare-prod` | produção   |
+
+O job chama `sudo /root/docker_deploy/gestare/deploy.sh www "$CI_COMMIT_BRANCH"` no host de destino, que faz o `git pull` + `docker compose build` + `up -d`.

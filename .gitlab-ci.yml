@@ -1,0 +1,25 @@
+stages:
+  - deploy
+
+.deploy_base:
+  stage: deploy
+  script:
+    - sudo /root/docker_deploy/gestare/deploy.sh www "$CI_COMMIT_BRANCH"
+
+deploy-develop:
+  extends: .deploy_base
+  tags:
+    - deploy-gestare
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: on_success
+    - when: never
+
+deploy-main:
+  extends: .deploy_base
+  tags:
+    - deploy-gestare-prod
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never
