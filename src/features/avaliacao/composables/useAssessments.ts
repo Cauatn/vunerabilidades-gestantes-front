@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 
-import { getPatientAssessments, startAssessment, submitAssessment, type Assessment } from '@/features/avaliacao/services/assessments'
+import { getAssessment, getPatientAssessments, startAssessment, submitAssessment, type Assessment } from '@/features/avaliacao/services/assessments'
 import { getGestantes } from '@/features/gestantes/services/gestantes'
 
 export function useStartAssessment() {
@@ -16,6 +16,15 @@ export function usePatientAssessments(patientId?: string) {
 		queryKey: ['patient-assessments', patientId],
 		queryFn: () => getPatientAssessments(patientId!),
 		enabled: Boolean(patientId),
+	})
+}
+
+export function useAssessment(id?: string) {
+	return useQuery({
+		queryKey: ['assessment', id],
+		queryFn: () => getAssessment(id!),
+		enabled: Boolean(id),
+		select: (response) => response.data,
 	})
 }
 

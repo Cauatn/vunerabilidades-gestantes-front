@@ -41,7 +41,7 @@ export function GestantesPerfilPage() {
 
 				<section className="flex flex-col gap-3">
 					<SectionDivider label="Histórico de avaliações" />
-					<AvaliacoesTimeline items={avaliacoes} />
+					<AvaliacoesTimeline items={avaliacoes} onViewDetails={(assessmentId) => navigate(`/historico/${assessmentId}`)} />
 				</section>
 			</div>
 		</GestantesShell>

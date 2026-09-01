@@ -20,9 +20,10 @@ const badgeLabel: Record<Vulnerabilidade, string> = {
 
 type Props = {
 	items: AvaliacaoTimelineItem[]
+	onViewDetails?: (assessmentId: string) => void
 }
 
-export function AvaliacoesTimeline({ items }: Props) {
+export function AvaliacoesTimeline({ items, onViewDetails }: Props) {
 	return (
 		<div className="flex w-full max-w-[731px] flex-col">
 			{items.map((item, index) => {
@@ -53,9 +54,9 @@ export function AvaliacoesTimeline({ items }: Props) {
 								className="self-start"
 							/>
 							<p className="text-[11px] leading-6 text-n-600">{item.descricao}</p>
-							<a href="#" className="text-[11px] leading-6 text-b-400 underline">
+							<button type="button" onClick={() => onViewDetails?.(item.id)} className="text-left text-[11px] leading-6 text-b-400 underline">
 								Ver detalhamento da aplicação
-							</a>
+							</button>
 						</div>
 					</div>
 				)

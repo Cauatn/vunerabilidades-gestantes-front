@@ -18,6 +18,7 @@ export type Assessment = {
 		props?: { totalScore: number; vulnerabilityLevel: string }
 	}
 	recommendations: Array<{ id: string; text: string; order: number }>
+	answers: Array<{ id: string; questionStatement: string; optionLabel: string; score: number }>
 }
 
 export const startAssessment = (payload: { patientId: string; healthUnitId: string }) =>
@@ -28,6 +29,8 @@ export const submitAssessment = (payload: {
 	healthUnitId: string
 	answers: Array<{ questionId: string; optionId: string }>
 }) => api.post<Assessment>('/assessments', payload)
+
+export const getAssessment = (id: string) => api.get<Assessment>(`/assessments/${id}`)
 
 export const getPatientAssessments = (patientId: string, params = { page: 1, pageSize: 20 }) =>
 	api.get<{ assessments: { items: Assessment[]; total: number; page: number; pageSize: number } }>(
