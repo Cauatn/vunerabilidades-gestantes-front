@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 
-import { getAssessment, getPatientAssessments, startAssessment, submitAssessment, type Assessment } from '@/features/avaliacao/services/assessments'
+import { getAssessment, getPatientAssessments, startAssessment, submitAssessment, updateAssessmentRecommendations, type Assessment } from '@/features/avaliacao/services/assessments'
 import { getGestantes } from '@/features/gestantes/services/gestantes'
 
 export function useStartAssessment() {
@@ -9,6 +9,13 @@ export function useStartAssessment() {
 
 export function useSubmitAssessment() {
 	return useMutation({ mutationFn: submitAssessment })
+}
+
+export function useUpdateAssessmentRecommendations() {
+	return useMutation({
+		mutationFn: ({ id, recommendations }: { id: string; recommendations: Array<{ id?: string; text: string; order: number }> }) =>
+			updateAssessmentRecommendations(id, recommendations),
+	})
 }
 
 export function usePatientAssessments(patientId?: string) {

@@ -32,6 +32,11 @@ export const submitAssessment = (payload: {
 
 export const getAssessment = (id: string) => api.get<Assessment>(`/assessments/${id}`)
 
+export const updateAssessmentRecommendations = (
+	id: string,
+	recommendations: Array<{ id?: string; text: string; order: number }>,
+) => api.put<Assessment>(`/assessments/${id}/recommendations`, { recommendations })
+
 export const getPatientAssessments = (patientId: string, params = { page: 1, pageSize: 20 }) =>
 	api.get<{ assessments: { items: Assessment[]; total: number; page: number; pageSize: number } }>(
 		`/patients/${patientId}/assessments`,

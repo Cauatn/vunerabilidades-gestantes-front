@@ -14,7 +14,7 @@ import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResu
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
-import { useStartAssessment, useSubmitAssessment } from '@/features/avaliacao/composables/useAssessments'
+import { useStartAssessment, useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
 import { assessmentResult } from '@/features/avaliacao/services/assessments'
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
@@ -58,6 +58,7 @@ export function FormularioPage() {
 	const { user } = useSession()
 	const iniciarAvaliacao = useStartAssessment()
 	const enviarAvaliacao = useSubmitAssessment()
+	const atualizarRecomendacoes = useUpdateAssessmentRecommendations()
 	const { data: gestantesPage } = useGetGestantes()
 	const gestantes = gestantesPage?.items ?? []
 
@@ -69,6 +70,7 @@ export function FormularioPage() {
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
 	const [resultado, setResultado] = useState<{ pontuacao: number; classificacao: Classificacao } | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
+	const [assessmentId, setAssessmentId] = useState<string | null>(null)
 	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
 	const [erro, setErro] = useState<string | null>(null)
 	const perguntas = perguntasAplicacao ?? perguntasConfiguradas
@@ -143,6 +145,7 @@ export function FormularioPage() {
 				classificacao: toClassificacao(result.vulnerabilityLevel ?? 'BAIXA'),
 			})
 			setRecomendacoes(data.recommendations.map((item) => ({ id: item.id, titulo: item.text, observacoes: '' })))
+			setAssessmentId(data.id)
 			setConfirmarCalculoAberto(false)
 			setEtapa(totalEtapasPerguntas)
 		} catch {
@@ -155,16 +158,36 @@ export function FormularioPage() {
 		navigate('/historico')
 	}
 
+	function persistRecomendacoes(next: RecomendacaoGestante[]) {
+		if (!assessmentId) return
+		void atualizarRecomendacoes.mutateAsync({
+			id: assessmentId,
+			recommendations: next.map((item, order) => ({ id: /^[a-f\d]{24}$/i.test(item.id) ? item.id : undefined, text: [item.titulo, item.observacoes].filter(Boolean).join('\n'), order })),
+		})
+	}
+
 	function handleAddRecomendacao(dados: { titulo: string; observacoes: string }) {
-		setRecomendacoes((atual) => [...atual, { id: crypto.randomUUID(), ...dados }])
+		setRecomendacoes((atual) => {
+			const next = [...atual, { id: crypto.randomUUID(), ...dados }]
+			persistRecomendacoes(next)
+			return next
+		})
 	}
 
 	function handleUpdateRecomendacao(id: string, dados: { titulo: string; observacoes: string }) {
-		setRecomendacoes((atual) => atual.map((item) => (item.id === id ? { ...item, ...dados } : item)))
+		setRecomendacoes((atual) => {
+			const next = atual.map((item) => (item.id === id ? { ...item, ...dados } : item))
+			persistRecomendacoes(next)
+			return next
+		})
 	}
 
 	function handleRemoveRecomendacao(id: string) {
-		setRecomendacoes((atual) => atual.filter((item) => item.id !== id))
+		setRecomendacoes((atual) => {
+			const next = atual.filter((item) => item.id !== id)
+			persistRecomendacoes(next)
+			return next
+		})
 	}
 
 	async function handleGestanteChange(id: string) {
