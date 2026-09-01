@@ -16,6 +16,8 @@ import { PerguntaCard } from '@/features/instrumentos/components/PerguntaCard'
 import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import { usePublishQuestionario } from '@/features/instrumentos/composables/usePublishQuestionario'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -41,6 +43,7 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
 	const config = useQuestionarioConfig()
+	const publicar = usePublishQuestionario()
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
@@ -63,7 +66,13 @@ export function ConfigurarQuestionarioPage() {
 			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
+			publicarDisabled={publicar.isPending}
 		>
+			{publicar.isError ? (
+				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
+					{apiErrorMessage(publicar.error, 'Não foi possível publicar o questionário.')}
+				</p>
+			) : null}
 			<SecaoTabs
 				config={config}
 				onRemoverSecao={(id) => setRemocao({ tipo: 'secao', id })}
@@ -116,7 +125,9 @@ export function ConfigurarQuestionarioPage() {
 				titulo="Publicar nova versão"
 				descricao="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
 				confirmarLabel="Publicar"
-				onConfirmar={() => setPublicarAberto(false)}
+				onConfirmar={() => {
+					publicar.mutate(config.secoes, { onSuccess: () => setPublicarAberto(false) })
+				}}
 			/>
 
 			<ConfirmacaoModal
