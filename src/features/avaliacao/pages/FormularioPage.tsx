@@ -114,6 +114,10 @@ export function FormularioPage() {
 
 	function handleProxima() {
 		if (isUltimaEtapaPerguntas) {
+			if (!user?.currentHealthUnitId) {
+				setErro('Selecione uma UBS atual no seu perfil antes de calcular o resultado.')
+				return
+			}
 			setConfirmarCalculoAberto(true)
 			return
 		}
@@ -121,7 +125,11 @@ export function FormularioPage() {
 	}
 
 	async function handleConfirmarCalculo() {
-		if (!gestanteId || !user?.currentHealthUnitId) return
+		if (!gestanteId || !user?.currentHealthUnitId) {
+			setConfirmarCalculoAberto(false)
+			setErro('Selecione uma UBS atual no seu perfil antes de calcular o resultado.')
+			return
+		}
 		try {
 			const { data } = await enviarAvaliacao.mutateAsync({
 				patientId: gestanteId,
