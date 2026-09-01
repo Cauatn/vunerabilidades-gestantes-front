@@ -67,11 +67,9 @@ export async function publishQuestionnaire(secoes: SecaoConfig[]): Promise<void>
 		reuseOpenDraft: true,
 	})
 
-	await Promise.all(
-		draft.data.questions.map((question) =>
-			api.delete(`/questionnaires/versions/${draft.data.id}/questions/${question.id}`),
-		),
-	)
+	for (const question of draft.data.questions) {
+		await api.delete(`/questionnaires/versions/${draft.data.id}/questions/${question.id}`)
+	}
 
 
 	await publishQuestions(draft.data.id, secoes)

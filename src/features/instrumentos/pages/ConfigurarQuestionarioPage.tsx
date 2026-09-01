@@ -124,9 +124,11 @@ export function ConfigurarQuestionarioPage() {
 				tom="warning"
 				titulo="Publicar nova versão"
 				descricao="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
-				confirmarLabel="Publicar"
-				onConfirmar={() => {
-					publicar.mutate(config.secoes, { onSuccess: () => setPublicarAberto(false) })
+			confirmarLabel="Publicar"
+			onConfirmar={() => {
+					if (publicar.isPending) return
+					setPublicarAberto(false)
+					publicar.mutate(config.secoes)
 				}}
 			/>
 
