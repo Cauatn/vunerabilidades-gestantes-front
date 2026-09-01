@@ -1,0 +1,32 @@
+import { api } from '@/features/core/service/apiService'
+
+export type AssessmentQuestion = {
+	id: string
+	section: string
+	statement: string
+	required: boolean
+	options: Array<{ id: string; label: string; score: number }>
+}
+
+export type Assessment = {
+	id: string
+	patientId: string
+	appliedAt: string
+	result: { totalScore: number; vulnerabilityLevel: string }
+	recommendations: Array<{ id: string; text: string; order: number }>
+}
+
+export const startAssessment = (payload: { patientId: string; healthUnitId: string }) =>
+	api.post<{ questionnaire: { questions: AssessmentQuestion[] } }>('/assessments/start', payload)
+
+export const submitAssessment = (payload: {
+	patientId: string
+	healthUnitId: string
+	answers: Array<{ questionId: string; optionId: string }>
+}) => api.post<Assessment>('/assessments', payload)
+
+export const getPatientAssessments = (patientId: string, params = { page: 1, pageSize: 20 }) =>
+	api.get<{ assessments: { items: Assessment[]; total: number; page: number; pageSize: number } }>(
+		`/patients/${patientId}/assessments`,
+		{ params },
+	)

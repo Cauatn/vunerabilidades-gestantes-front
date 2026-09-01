@@ -14,10 +14,12 @@ import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResu
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
+import { useStartAssessment, useSubmitAssessment } from '@/features/avaliacao/composables/useAssessments'
 import type { Classificacao } from '@/features/avaliacao/constants'
+import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
-import { calcularPontuacao, classificar } from '@/features/avaliacao/utils/calcularPontuacao'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
+import { useSession } from '@/features/auth/composables/useSession'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 
@@ -51,7 +53,10 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 
 export function FormularioPage() {
 	const navigate = useNavigate()
-	const { perguntas } = usePerguntas()
+	const { perguntas: perguntasConfiguradas } = usePerguntas()
+	const { user } = useSession()
+	const iniciarAvaliacao = useStartAssessment()
+	const enviarAvaliacao = useSubmitAssessment()
 	const { data: gestantesPage } = useGetGestantes()
 	const gestantes = gestantesPage?.items ?? []
 
@@ -63,6 +68,9 @@ export function FormularioPage() {
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
 	const [resultado, setResultado] = useState<{ pontuacao: number; classificacao: Classificacao } | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
+	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
+	const [erro, setErro] = useState<string | null>(null)
+	const perguntas = perguntasAplicacao ?? perguntasConfiguradas
 
 	const categorias = useMemo(() => {
 		const vistas = new Set<string>()
@@ -112,11 +120,24 @@ export function FormularioPage() {
 		setEtapa((atual) => atual + 1)
 	}
 
-	function handleConfirmarCalculo() {
-		const pontuacao = calcularPontuacao(respostas, perguntas)
-		setResultado({ pontuacao, classificacao: classificar(pontuacao) })
-		setConfirmarCalculoAberto(false)
-		setEtapa(totalEtapasPerguntas)
+	async function handleConfirmarCalculo() {
+		if (!gestanteId || !user?.currentHealthUnitId) return
+		try {
+			const { data } = await enviarAvaliacao.mutateAsync({
+				patientId: gestanteId,
+				healthUnitId: user.currentHealthUnitId,
+				answers: Object.entries(respostas).map(([questionId, optionId]) => ({ questionId, optionId })),
+			})
+			setResultado({
+				pontuacao: data.result.totalScore,
+				classificacao: toClassificacao(data.result.vulnerabilityLevel),
+			})
+			setRecomendacoes(data.recommendations.map((item) => ({ id: item.id, titulo: item.text, observacoes: '' })))
+			setConfirmarCalculoAberto(false)
+			setEtapa(totalEtapasPerguntas)
+		} catch {
+			setErro('Não foi possível salvar a avaliação. Confira a UBS selecionada e tente novamente.')
+		}
 	}
 
 	function handleConfirmarFinalizacao() {
@@ -136,6 +157,30 @@ export function FormularioPage() {
 		setRecomendacoes((atual) => atual.filter((item) => item.id !== id))
 	}
 
+	async function handleGestanteChange(id: string) {
+		setGestanteId(id)
+		setErro(null)
+		if (!user?.currentHealthUnitId) {
+			setErro('Selecione uma UBS atual no seu perfil antes de aplicar o formulário.')
+			return
+		}
+		try {
+			const { data } = await iniciarAvaliacao.mutateAsync({ patientId: id, healthUnitId: user.currentHealthUnitId })
+			setPerguntasAplicacao(
+				data.questionnaire.questions.map((question) => ({
+					id: question.id,
+					categoria: question.section,
+					texto: question.statement,
+					opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
+				})),
+			)
+			setRespostas({})
+			setEtapa(0)
+		} catch {
+			setErro('Não foi possível carregar o formulário publicado para esta aplicação.')
+		}
+	}
+
 	return (
 		<Page
 			title="Avaliação da Escala Brasileira de Vulnerabilidade Social no Pré-Natal"
@@ -143,6 +188,7 @@ export function FormularioPage() {
 			className="flex-1"
 		>
 			<div className="flex flex-1 flex-col gap-4 overflow-hidden">
+				{erro ? <p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{erro}</p> : null}
 				<AvaliacaoStepper steps={etapasStepper} activeIndex={etapa} />
 
 				<div className="flex-1 space-y-10 overflow-y-auto py-3">
@@ -175,7 +221,7 @@ export function FormularioPage() {
 					) : (
 						<>
 							{isPrimeiraEtapa && (
-								<EtapaGestante gestantes={gestantes} gestanteId={gestanteId} onGestanteChange={setGestanteId} />
+								<EtapaGestante gestantes={gestantes} gestanteId={gestanteId} onGestanteChange={handleGestanteChange} />
 							)}
 							<EtapaPerguntas
 								perguntas={perguntasDaEtapa}
@@ -194,7 +240,7 @@ export function FormularioPage() {
 							<Button variant="outline" onClick={handleAnterior}>
 								Anterior
 							</Button>
-							<Button disabled={!podeAvancar} onClick={handleProxima}>
+							<Button disabled={!podeAvancar || iniciarAvaliacao.isPending || enviarAvaliacao.isPending} onClick={handleProxima}>
 								{isUltimaEtapaPerguntas ? 'Calcular' : 'Próxima'}
 							</Button>
 						</>
@@ -219,4 +265,11 @@ export function FormularioPage() {
 			/>
 		</Page>
 	)
+}
+
+function toClassificacao(level: string): Classificacao {
+	const normalized = level.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
+	if (normalized.includes('ALTA')) return 'ALTA'
+	if (normalized.includes('MODERADA') || normalized.includes('MEDIA')) return 'MODERADA'
+	return 'BAIXA'
 }
