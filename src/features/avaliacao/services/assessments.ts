@@ -5,6 +5,8 @@ export type AssessmentQuestion = {
 	section: string
 	statement: string
 	required: boolean
+	visibleWhenQuestionId?: string | null
+	visibleWhenOptionId?: string | null
 	options: Array<{ id: string; label: string; score: number }>
 }
 

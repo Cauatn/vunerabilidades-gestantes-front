@@ -74,18 +74,22 @@ export function FormularioPage() {
 	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
 	const [erro, setErro] = useState<string | null>(null)
 	const perguntas = perguntasAplicacao ?? perguntasConfiguradas
+	const perguntasVisiveis = useMemo(
+		() => perguntas.filter((pergunta) => !pergunta.visibleWhenQuestionId || respostas[pergunta.visibleWhenQuestionId] === pergunta.visibleWhenOptionId),
+		[perguntas, respostas],
+	)
 
 	const categorias = useMemo(() => {
 		const vistas = new Set<string>()
 		const ordem: string[] = []
-		for (const pergunta of perguntas) {
+		for (const pergunta of perguntasVisiveis) {
 			if (!vistas.has(pergunta.categoria)) {
 				vistas.add(pergunta.categoria)
 				ordem.push(pergunta.categoria)
 			}
 		}
 		return ordem
-	}, [perguntas])
+	}, [perguntasVisiveis])
 
 	const etapasStepper = useMemo(() => [...categorias, ETAPA_RESULTADO_LABEL], [categorias])
 	const totalEtapasPerguntas = categorias.length
@@ -95,8 +99,8 @@ export function FormularioPage() {
 
 	const categoriaAtual = categorias[etapa]
 	const perguntasDaEtapa = useMemo(
-		() => perguntas.filter((pergunta) => pergunta.categoria === categoriaAtual),
-		[perguntas, categoriaAtual],
+		() => perguntasVisiveis.filter((pergunta) => pergunta.categoria === categoriaAtual),
+		[perguntasVisiveis, categoriaAtual],
 	)
 	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
 
@@ -137,7 +141,9 @@ export function FormularioPage() {
 			const { data } = await enviarAvaliacao.mutateAsync({
 				patientId: gestanteId,
 				healthUnitId: user.currentHealthUnitId,
-				answers: Object.entries(respostas).map(([questionId, optionId]) => ({ questionId, optionId })),
+				answers: Object.entries(respostas)
+					.filter(([questionId]) => perguntasVisiveis.some((pergunta) => pergunta.id === questionId))
+					.map(([questionId, optionId]) => ({ questionId, optionId })),
 			})
 			const result = assessmentResult(data.result)
 			setResultado({
@@ -205,6 +211,8 @@ export function FormularioPage() {
 					categoria: question.section,
 					texto: question.statement,
 					opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
+					visibleWhenQuestionId: question.visibleWhenQuestionId,
+					visibleWhenOptionId: question.visibleWhenOptionId,
 				})),
 			)
 			setRespostas({})
