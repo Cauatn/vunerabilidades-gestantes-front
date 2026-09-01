@@ -5,9 +5,18 @@ import { Badge } from '@/components/ui/badge'
 import { DataTable } from '@/components/ui/data-table'
 import { Page } from '@/components/Layout/Page'
 import { formatarDataBr } from '@/features/core/utils/date'
-import { type HistoricoAplicacao, HISTORICO } from '@/features/avaliacao/utils/avaliacaoMock'
 import { VULNERABILIDADE_BADGE_VARIANT, VULNERABILIDADE_LABEL } from '@/features/gestantes/constants/vulnerabilidade'
 import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
+import { useAssessmentsHistory } from '@/features/avaliacao/composables/useAssessments'
+import { assessmentResult } from '@/features/avaliacao/services/assessments'
+
+type HistoricoAplicacao = {
+	id: string
+	gestante: string
+	data: string
+	vulnerabilidade: Vulnerabilidade
+	aplicadoPor: string
+}
 
 const columns: ColumnDef<HistoricoAplicacao>[] = [
 	{
@@ -36,16 +45,36 @@ const columns: ColumnDef<HistoricoAplicacao>[] = [
 
 export function HistoricoPage() {
 	const navigate = useNavigate()
+	const { data: assessments, isLoading } = useAssessmentsHistory()
+	const historico: HistoricoAplicacao[] = (assessments ?? []).map((assessment) => {
+		const result = assessmentResult(assessment.result)
+		return {
+			id: assessment.id,
+			gestante: assessment.patientName,
+			data: assessment.appliedAt,
+			vulnerabilidade: toVulnerabilidade(result.vulnerabilityLevel ?? 'BAIXA'),
+			aplicadoPor: '—',
+		}
+	})
 
 	return (
 		<Page title="Histórico" description="Aplicações da Escala já realizadas.">
 			<DataTable
 				columns={columns}
-				data={HISTORICO}
+				data={historico}
+				isLoading={isLoading}
 				emptyStateTitle="Nenhuma aplicação registrada."
 				emptyStateDescription="As aplicações da escala aparecerão aqui."
 				onRowClick={(row) => navigate(`/historico/${row.id}`)}
 			/>
 		</Page>
 	)
+}
+
+function toVulnerabilidade(level: string): Vulnerabilidade {
+	const normalized = level.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+	if (normalized.includes('alta')) return 'alta'
+	if (normalized.includes('moderada')) return 'moderada'
+	if (normalized.includes('media')) return 'moderada'
+	return 'baixa'
 }
