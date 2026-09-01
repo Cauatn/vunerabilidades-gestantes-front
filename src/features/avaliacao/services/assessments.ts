@@ -12,7 +12,11 @@ export type Assessment = {
 	id: string
 	patientId: string
 	appliedAt: string
-	result: { totalScore: number; vulnerabilityLevel: string }
+	result: {
+		totalScore?: number
+		vulnerabilityLevel?: string
+		props?: { totalScore: number; vulnerabilityLevel: string }
+	}
 	recommendations: Array<{ id: string; text: string; order: number }>
 }
 
@@ -30,3 +34,7 @@ export const getPatientAssessments = (patientId: string, params = { page: 1, pag
 		`/patients/${patientId}/assessments`,
 		{ params },
 	)
+
+export function assessmentResult(result: Assessment['result']) {
+	return result.props ?? result
+}

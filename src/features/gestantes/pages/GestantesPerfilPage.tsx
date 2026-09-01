@@ -6,6 +6,7 @@ import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoais
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
+import { assessmentResult } from '@/features/avaliacao/services/assessments'
 import type { AvaliacaoTimelineItem, Vulnerabilidade } from '@/features/gestantes/data/mock'
 
 export function GestantesPerfilPage() {
@@ -13,13 +14,16 @@ export function GestantesPerfilPage() {
 	const { id } = useParams<{ id: string }>()
 	const { data } = useGetGestante(id)
 	const { data: historico } = usePatientAssessments(id)
-	const avaliacoes: AvaliacaoTimelineItem[] = (historico?.data.assessments.items ?? []).map((assessment) => ({
-		id: assessment.id,
-		data: new Intl.DateTimeFormat('pt-BR').format(new Date(assessment.appliedAt)),
-		titulo: `Avaliação #${assessment.id}`,
-		vulnerabilidade: toVulnerabilidade(assessment.result.vulnerabilityLevel),
-		descricao: `Pontuação: ${assessment.result.totalScore}.`,
-	}))
+	const avaliacoes: AvaliacaoTimelineItem[] = (historico?.data.assessments.items ?? []).map((assessment) => {
+		const result = assessmentResult(assessment.result)
+		return {
+			id: assessment.id,
+			data: new Intl.DateTimeFormat('pt-BR').format(new Date(assessment.appliedAt)),
+			titulo: `Avaliação #${assessment.id}`,
+			vulnerabilidade: toVulnerabilidade(result.vulnerabilityLevel ?? 'BAIXA'),
+			descricao: `Pontuação: ${result.totalScore ?? 0}.`,
+		}
+	})
 
 	return (
 		<GestantesShell
