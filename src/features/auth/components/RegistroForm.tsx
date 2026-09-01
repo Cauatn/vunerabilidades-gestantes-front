@@ -18,6 +18,8 @@ import {
 	registroSchema,
 	type RegistroFormValues,
 } from '@/features/auth/validation/registroSchema'
+import { useAcceptInvitation } from '@/features/auth/composables/useAcceptInvitation'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
 
 // TODO: TROCAR ISSO PARA CATEGORIAS COM ID
 const CATEGORIAS_ENFERMAGEM = ['Enfermeiro(a)', 'Obstetriz', 'Técnico(a) de enfermagem']
@@ -26,7 +28,9 @@ export function RegistroForm() {
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
 	const isEnfermeiro = searchParams.get('categoria') === 'enfermeiro'
+	const token = searchParams.get('token')
 	const conselhoLabel = isEnfermeiro ? 'COREN' : 'CRM'
+	const aceitarConvite = useAcceptInvitation({ onSuccess: () => navigate('/login', { replace: true }) })
 
 	const {
 		register,
@@ -45,12 +49,19 @@ export function RegistroForm() {
 		},
 	})
 
-	const onSubmit = () => {
-		navigate('/login')
+	const onSubmit = (values: RegistroFormValues) => {
+		if (!token) return
+		aceitarConvite.mutate({
+			token,
+			name: values.nome,
+			password: values.senha,
+			professionalRegistration: `${conselhoLabel}-${values.conselhoUf} ${values.conselhoNumero}`,
+		})
 	}
 
 	return (
 		<form className="flex w-full flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+			{!token ? <p className="text-caption text-danger">Convite inválido ou sem token de confirmação.</p> : null}
 			<section className="flex flex-col gap-3">
 				<Divider text="Informações gerais" />
 				<div className="space-y-1.5">
@@ -166,7 +177,12 @@ export function RegistroForm() {
 				</div>
 			</section>
 
-			<Button type="submit" size="lg" className="w-full">
+			{aceitarConvite.isError ? (
+				<p className="text-caption text-danger">
+					{apiErrorMessage(aceitarConvite.error, 'Não foi possível confirmar o convite.')}
+				</p>
+			) : null}
+			<Button type="submit" size="lg" className="w-full" isLoading={aceitarConvite.isPending} disabled={!token}>
 				Finalizar cadastro
 			</Button>
 		</form>

@@ -12,6 +12,7 @@ import { useCreateGestante } from '@/features/gestantes/composables/useCreateGes
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 import { useUpdateGestante } from '@/features/gestantes/composables/useUpdateGestante'
 import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
 
 export function GestantesPage() {
 	const navigate = useNavigate()
@@ -61,6 +62,7 @@ export function GestantesPage() {
 				}}
 			>
 				<div className="flex flex-col gap-8">
+					{criar.isError ? <p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{apiErrorMessage(criar.error, 'Não foi possível cadastrar a gestante.')}</p> : null}
 					<div className="flex items-end gap-3">
 						<Input
 							placeholder="Buscar por nome, CPF ou CNS..."
