@@ -64,6 +64,7 @@ export async function publishQuestionnaire(secoes: SecaoConfig[]): Promise<void>
 	const active = await api.get<QuestionnaireVersion>('/questionnaires/active')
 	const draft = await api.post<QuestionnaireVersion>('/questionnaires/versions', {
 		cloneFromVersionId: active.data.id,
+		reuseOpenDraft: true,
 	})
 
 	await Promise.all(
