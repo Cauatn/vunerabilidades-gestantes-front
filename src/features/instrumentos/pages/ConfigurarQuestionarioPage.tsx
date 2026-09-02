@@ -6,7 +6,7 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ConfirmacaoModal } from '@/features/instrumentos/components/ConfirmacaoModal'
@@ -18,6 +18,7 @@ import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
 import { usePublishQuestionario } from '@/features/instrumentos/composables/usePublishQuestionario'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
+import { getQuestionnaireConfiguration } from '@/features/instrumentos/service/questionarioService'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -44,6 +45,7 @@ export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
 	const config = useQuestionarioConfig()
 	const publicar = usePublishQuestionario()
+	const [carregado, setCarregado] = useState(false)
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
@@ -52,6 +54,13 @@ export function ConfigurarQuestionarioPage() {
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 	const perguntas = config.secaoAtiva?.perguntas ?? []
 	const perguntasIds = perguntas.map((pergunta) => pergunta.id)
+
+	useEffect(() => {
+		if (carregado) return
+		void getQuestionnaireConfiguration()
+			.then((secoes) => config.substituirSecoes(secoes))
+			.finally(() => setCarregado(true))
+	}, [carregado, config])
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event

@@ -1,10 +1,7 @@
 export type TipoPergunta =
-	| 'categorica_ordinal'
-	| 'categorica_nominal'
 	| 'dicotomica'
 	| 'dicotomica_complementar'
 	| 'multipla'
-	| 'numerica'
 
 export interface OpcaoResposta {
 	id: string

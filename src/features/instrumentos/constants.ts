@@ -1,6 +1,6 @@
 import type { TipoPergunta } from './types/questionario'
 
-export const TIPO_PERGUNTA_LABEL: Record<TipoPergunta, string> = {
+export const TIPO_PERGUNTA_LABEL: Record<string, string> = {
 	categorica_ordinal: 'Categórica ordinal',
 	categorica_nominal: 'Categórica nominal',
 	dicotomica: 'Dicotômica',
@@ -9,7 +9,7 @@ export const TIPO_PERGUNTA_LABEL: Record<TipoPergunta, string> = {
 	numerica: 'Numérica',
 }
 
-export const TIPO_PERGUNTA_OPCOES = Object.keys(TIPO_PERGUNTA_LABEL) as TipoPergunta[]
+export const TIPO_PERGUNTA_OPCOES: TipoPergunta[] = ['dicotomica', 'dicotomica_complementar', 'multipla']
 
 /** o tipo "dicotômica + complementar" habilita o bloco condicional "Se sim" */
 export const TIPO_COM_CONDICIONAL: TipoPergunta = 'dicotomica_complementar'

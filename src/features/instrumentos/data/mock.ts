@@ -18,7 +18,7 @@ export const QUESTIONARIO_INICIAL: SecaoConfig[] = [
 				id: 'vspn01',
 				codigo: 'VSPN01',
 				enunciado: 'Qual foi o maior nível de estudo que você concluiu?',
-				tipo: 'categorica_ordinal',
+				tipo: 'multipla',
 				opcoes: [
 					opcao('Não estudou', 7),
 					opcao('Fundamental incompleto', 6),
@@ -33,7 +33,7 @@ export const QUESTIONARIO_INICIAL: SecaoConfig[] = [
 				id: 'vspn02',
 				codigo: 'VSPN02',
 				enunciado: 'Atualmente, você está trabalhando?',
-				tipo: 'categorica_nominal',
+				tipo: 'multipla',
 				opcoes: [
 					opcao('Sim, com carteira assinada', 7),
 					opcao('Sim, sem carteira assinada', 6),

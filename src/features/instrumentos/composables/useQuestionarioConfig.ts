@@ -25,7 +25,7 @@ function novaPergunta(codigo = ''): PerguntaConfig {
 		id: crypto.randomUUID(),
 		codigo,
 		enunciado: '',
-		tipo: 'categorica_ordinal',
+		tipo: 'multipla',
 		opcoes: [novaOpcao(), novaOpcao()],
 	}
 }
@@ -84,6 +84,10 @@ export function useQuestionarioConfig() {
 		secaoAtiva,
 		secaoAtivaId: secaoAtiva?.id ?? '',
 		selecionarSecao: setSecaoAtivaId,
+		substituirSecoes(novasSecoes: SecaoConfig[]) {
+			setSecoes(novasSecoes)
+			setSecaoAtivaId(novasSecoes[0]?.id ?? '')
+		},
 
 		addSecao() {
 			const secao: SecaoConfig = {

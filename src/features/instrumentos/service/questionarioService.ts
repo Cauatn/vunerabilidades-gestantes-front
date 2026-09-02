@@ -1,10 +1,19 @@
 import { api } from '@/features/core/service/apiService'
 
-import type { SecaoConfig } from '../types/questionario'
+import type { PerguntaConfig, SecaoConfig, TipoPergunta } from '../types/questionario'
 
 type QuestionnaireVersion = {
 	id: string
-	questions: Array<{ id: string }>
+	questions: Array<QuestionnaireQuestion>
+}
+
+type QuestionnaireQuestion = {
+	id: string
+	section: string
+	statement: string
+	type: 'YES_NO' | 'MULTIPLE_CHOICE'
+	options: Array<{ id: string; label: string; score: number }>
+	visibleWhenQuestionId?: string | null
 }
 
 type PublishedQuestion = {
@@ -20,6 +29,46 @@ type AnswerOptionPayload = {
 
 function questionType(tipo: string): 'YES_NO' | 'MULTIPLE_CHOICE' {
 	return tipo === 'dicotomica' ? 'YES_NO' : 'MULTIPLE_CHOICE'
+}
+
+function configQuestionType(question: QuestionnaireQuestion): TipoPergunta {
+	return question.type === 'YES_NO' ? 'dicotomica' : 'multipla'
+}
+
+function toConfigQuestion(question: QuestionnaireQuestion): PerguntaConfig {
+	return {
+		id: question.id,
+		codigo: '',
+		enunciado: question.statement,
+		tipo: configQuestionType(question),
+		opcoes: question.options.map((option) => ({
+			id: option.id,
+			texto: option.label,
+			pontuavel: option.score !== 0,
+			pontuacao: option.score,
+		})),
+	}
+}
+
+export async function getQuestionnaireConfiguration(): Promise<SecaoConfig[]> {
+	const { data } = await api.get<QuestionnaireVersion>('/questionnaires/active')
+	const questions = new Map(data.questions.map((question) => [question.id, toConfigQuestion(question)]))
+	for (const question of data.questions) {
+		if (!question.visibleWhenQuestionId) continue
+		const parent = questions.get(question.visibleWhenQuestionId)
+		const child = questions.get(question.id)
+		if (!parent || !child) continue
+		parent.tipo = 'dicotomica_complementar'
+		parent.subPerguntas = [...(parent.subPerguntas ?? []), child]
+	}
+	const sections = new Map<string, SecaoConfig>()
+	for (const question of data.questions) {
+		if (question.visibleWhenQuestionId) continue
+		const section = sections.get(question.section) ?? { id: question.section, nome: question.section, perguntas: [] }
+		section.perguntas.push(questions.get(question.id)!)
+		sections.set(question.section, section)
+	}
+	return [...sections.values()]
 }
 
 async function publishQuestions(versionId: string, secoes: SecaoConfig[]) {
