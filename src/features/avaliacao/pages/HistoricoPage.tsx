@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table'
+import { Info } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
@@ -39,6 +40,15 @@ export function HistoricoPage() {
 
 	return (
 		<Page title="Histórico" description="Aplicações da Escala já realizadas.">
+			<div className="mb-4 flex items-start gap-2 rounded-lg border border-(--color-b-200) bg-b-100 px-5 py-4 text-sm text-b-400">
+				<Info className="mt-0.5 size-5 shrink-0" />
+				<span>
+					Dados de demonstração. A busca global de atendimentos (por gestante, profissional, UBS e
+					período) depende do endpoint <code>GET /assessments</code>, ainda não implementado no
+					backend. O histórico real por gestante já está disponível no perfil dela.
+				</span>
+			</div>
+
 			<DataTable
 				columns={columns}
 				data={HISTORICO}

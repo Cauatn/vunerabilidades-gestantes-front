@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { isAxiosError } from 'axios'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import aplicacaoIllustration from '@/assets/illustrations/login-gestante.svg'
@@ -9,19 +10,41 @@ import { AvaliacaoStepper } from '@/features/avaliacao/components/AvaliacaoStepp
 import { ConfirmarCalculoModal } from '@/features/avaliacao/components/ConfirmarCalculoModal'
 import { ConfirmarFinalizacaoModal } from '@/features/avaliacao/components/ConfirmarFinalizacaoModal'
 import { EtapaGestante } from '@/features/avaliacao/components/EtapaGestante'
-import { EtapaPerguntas } from '@/features/avaliacao/components/EtapaPerguntas'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
+import { PerguntasEtapa } from '@/features/avaliacao/components/PerguntasEtapa'
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
-import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
-import type { Classificacao } from '@/features/avaliacao/constants'
+import { useStartAssessment } from '@/features/avaliacao/composables/useStartAssessment'
+import { useSubmitAssessment } from '@/features/avaliacao/composables/useSubmitAssessment'
+import { useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useUpdateAssessmentRecommendations'
+import { classificarNivel } from '@/features/avaliacao/utils/vulnerabilidade'
+import type { Assessment, StartAssessmentResponse } from '@/features/avaliacao/types/assessment'
+import type { Question } from '@/features/instrumentos/types/questionnaire'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
-import { calcularPontuacao, classificar } from '@/features/avaliacao/utils/calcularPontuacao'
+import { useSession } from '@/features/auth/composables/useSession'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
+import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 
-function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
+function mensagemErro(erro: unknown, fallback: string): string {
+	if (isAxiosError(erro)) {
+		const corpo = erro.response?.data as { message?: string | string[] } | undefined
+		const msg = Array.isArray(corpo?.message) ? corpo?.message.join(' ') : corpo?.message
+		return msg || fallback
+	}
+	return fallback
+}
+
+function AvisoInicial({
+	onIniciar,
+	carregando,
+	erro,
+}: {
+	onIniciar: () => void
+	carregando: boolean
+	erro: string | null
+}) {
 	return (
 		<Page
 			title="Avaliação da Escala Brasileira de Vulnerabilidade Social no Pré-Natal"
@@ -41,8 +64,10 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 					</p>
 				</div>
 
-				<Button size="lg" onClick={onIniciar}>
-					Iniciar
+				{erro ? <p className="max-w-2xl text-sm text-r-600">{erro}</p> : null}
+
+				<Button size="lg" onClick={onIniciar} disabled={carregando}>
+					{carregando ? 'Carregando…' : 'Iniciar'}
 				</Button>
 			</div>
 		</Page>
@@ -51,54 +76,104 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 
 export function FormularioPage() {
 	const navigate = useNavigate()
-	const { perguntas } = usePerguntas()
+	const { user } = useSession()
 	const { data: gestantesPage } = useGetGestantes()
+	const { data: healthUnitsPage } = useGetHealthUnits()
 	const gestantes = gestantesPage?.items ?? []
 
-	const [iniciado, setIniciado] = useState(false)
+	const start = useStartAssessment()
+	const submit = useSubmitAssessment()
+
+	const [atendimentoId, setAtendimentoId] = useState('')
+	const atualizarRecomendacoes = useUpdateAssessmentRecommendations(atendimentoId)
+
 	const [gestanteId, setGestanteId] = useState<string | null>(null)
+	const [dadosInicio, setDadosInicio] = useState<StartAssessmentResponse | null>(null)
 	const [respostas, setRespostas] = useState<Record<string, string>>({})
 	const [etapa, setEtapa] = useState(0)
 	const [confirmarCalculoAberto, setConfirmarCalculoAberto] = useState(false)
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
-	const [resultado, setResultado] = useState<{ pontuacao: number; classificacao: Classificacao } | null>(null)
+	const [atendimento, setAtendimento] = useState<Assessment | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
+	const [erroInicio, setErroInicio] = useState<string | null>(null)
+	const [erroSubmit, setErroSubmit] = useState<string | null>(null)
 
-	const categorias = useMemo(() => {
-		const vistas = new Set<string>()
+	const healthUnitId = user?.currentHealthUnitId ?? null
+	const ubsAtual = healthUnitsPage?.items.find((unit) => unit.id === healthUnitId)
+
+	const perguntas = useMemo(
+		() => [...(dadosInicio?.questionnaire.questions ?? [])].sort((a, b) => a.order - b.order),
+		[dadosInicio],
+	)
+
+	const perguntaVisivel = useCallback(
+		(pergunta: Question) =>
+			!pergunta.visibleWhenQuestionId ||
+			respostas[pergunta.visibleWhenQuestionId] === pergunta.visibleWhenOptionId,
+		[respostas],
+	)
+
+	const secoes = useMemo(() => {
 		const ordem: string[] = []
 		for (const pergunta of perguntas) {
-			if (!vistas.has(pergunta.categoria)) {
-				vistas.add(pergunta.categoria)
-				ordem.push(pergunta.categoria)
-			}
+			if (!ordem.includes(pergunta.section)) ordem.push(pergunta.section)
 		}
 		return ordem
 	}, [perguntas])
 
-	const etapasStepper = useMemo(() => [...categorias, ETAPA_RESULTADO_LABEL], [categorias])
-	const totalEtapasPerguntas = categorias.length
+	const etapasStepper = useMemo(() => [...secoes, ETAPA_RESULTADO_LABEL], [secoes])
+	const totalEtapasPerguntas = secoes.length
 	const isEtapaResultado = etapa >= totalEtapasPerguntas
-	const isPrimeiraEtapa = etapa === 0
 	const isUltimaEtapaPerguntas = etapa === totalEtapasPerguntas - 1
 
-	const categoriaAtual = categorias[etapa]
+	const secaoAtual = secoes[etapa]
 	const perguntasDaEtapa = useMemo(
-		() => perguntas.filter((pergunta) => pergunta.categoria === categoriaAtual),
-		[perguntas, categoriaAtual],
+		() => perguntas.filter((pergunta) => pergunta.section === secaoAtual && perguntaVisivel(pergunta)),
+		[perguntas, secaoAtual, perguntaVisivel],
 	)
-	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
 
-	const todasRespondidasNaEtapa = perguntasDaEtapa.every((pergunta) => !!respostas[pergunta.id])
-	const podeAvancar = (!isPrimeiraEtapa || !!gestanteId) && todasRespondidasNaEtapa
+	const todasRespondidasNaEtapa = perguntasDaEtapa.every(
+		(pergunta) => !pergunta.required || !!respostas[pergunta.id],
+	)
+	const podeAvancar = todasRespondidasNaEtapa
 
-	if (!iniciado) {
-		return <AvisoInicial onIniciar={() => setIniciado(true)} />
+	if (!dadosInicio) {
+		return (
+			<AvisoInicial
+				carregando={start.isPending}
+				erro={erroInicio}
+				onIniciar={() => {
+					setErroInicio(null)
+					if (!gestanteId) {
+						setErroInicio('Selecione a gestante antes de iniciar.')
+						return
+					}
+					if (!healthUnitId) {
+						setErroInicio('Defina a UBS de atendimento na barra lateral antes de iniciar.')
+						return
+					}
+					start.mutate(
+						{ patientId: gestanteId, healthUnitId },
+						{
+							onSuccess: ({ data }) => {
+								setDadosInicio(data)
+								setRespostas({})
+								setEtapa(0)
+							},
+							onError: (erro) =>
+								setErroInicio(
+									mensagemErro(erro, 'Não foi possível abrir o atendimento.'),
+								),
+						},
+					)
+				}}
+			/>
+		)
 	}
 
 	function handleAnterior() {
 		if (etapa === 0) {
-			setIniciado(false)
+			setDadosInicio(null)
 			return
 		}
 		setEtapa((atual) => atual - 1)
@@ -113,15 +188,34 @@ export function FormularioPage() {
 	}
 
 	function handleConfirmarCalculo() {
-		const pontuacao = calcularPontuacao(respostas, perguntas)
-		setResultado({ pontuacao, classificacao: classificar(pontuacao) })
 		setConfirmarCalculoAberto(false)
-		setEtapa(totalEtapasPerguntas)
-	}
+		setErroSubmit(null)
+		const visiveis = new Set(
+			perguntas.filter((pergunta) => perguntaVisivel(pergunta)).map((pergunta) => pergunta.id),
+		)
+		const answers = Object.entries(respostas)
+			.filter(([questionId]) => visiveis.has(questionId))
+			.map(([questionId, optionId]) => ({ questionId, optionId }))
 
-	function handleConfirmarFinalizacao() {
-		setConfirmarFinalizarAberto(false)
-		navigate('/historico')
+		submit.mutate(
+			{ patientId: gestanteId as string, healthUnitId: healthUnitId as string, answers },
+			{
+				onSuccess: ({ data }) => {
+					setAtendimento(data)
+					setAtendimentoId(data.id)
+					setRecomendacoes(
+						data.recommendations.map((rec) => ({
+							id: rec.id,
+							titulo: rec.text,
+							observacoes: '',
+						})),
+					)
+					setEtapa(totalEtapasPerguntas)
+				},
+				onError: (erro) =>
+					setErroSubmit(mensagemErro(erro, 'Não foi possível calcular o resultado.')),
+			},
+		)
 	}
 
 	function handleAddRecomendacao(dados: { titulo: string; observacoes: string }) {
@@ -136,6 +230,14 @@ export function FormularioPage() {
 		setRecomendacoes((atual) => atual.filter((item) => item.id !== id))
 	}
 
+	const classificacao = atendimento
+		? classificarNivel(
+				atendimento.result.vulnerabilityLevel,
+				atendimento.snapshot.vulnerabilityBands,
+				atendimento.result.vulnerabilityBandId,
+			)
+		: 'BAIXA'
+
 	return (
 		<Page
 			title="Avaliação da Escala Brasileira de Vulnerabilidade Social no Pré-Natal"
@@ -146,26 +248,24 @@ export function FormularioPage() {
 				<AvaliacaoStepper steps={etapasStepper} activeIndex={etapa} />
 
 				<div className="flex-1 space-y-10 overflow-y-auto py-3">
-					{isEtapaResultado ? (
+					{isEtapaResultado && atendimento ? (
 						<>
 							<div className="flex flex-col gap-3">
 								<Divider text="Dados da gestante" />
-								{gestanteSelecionada && <GestanteResumoCard gestante={gestanteSelecionada} />}
+								<GestanteResumoCard gestante={dadosInicio.patient} />
 							</div>
 
 							<div className="flex flex-col gap-3">
 								<Divider text="Resultado" />
-								{resultado && (
-									<ResultadoAvaliacao
-										nomeGestante={gestanteSelecionada?.name ?? ''}
-										pontuacao={resultado.pontuacao}
-										classificacao={resultado.classificacao}
-									/>
-								)}
+								<ResultadoAvaliacao
+									nomeGestante={dadosInicio.patient.name}
+									pontuacao={atendimento.result.totalScore}
+									classificacao={classificacao}
+								/>
 							</div>
 
 							<RecomendacoesGestante
-								classificacao={resultado?.classificacao ?? 'BAIXA'}
+								classificacao={classificacao}
 								recomendacoes={recomendacoes}
 								onAdd={handleAddRecomendacao}
 								onUpdate={handleUpdateRecomendacao}
@@ -174,18 +274,30 @@ export function FormularioPage() {
 						</>
 					) : (
 						<>
-							{isPrimeiraEtapa && (
-								<EtapaGestante gestantes={gestantes} gestanteId={gestanteId} onGestanteChange={setGestanteId} />
+							{etapa === 0 && (
+								<>
+									<EtapaGestante
+										gestantes={gestantes}
+										gestanteId={gestanteId}
+										onGestanteChange={setGestanteId}
+									/>
+									<p className="text-sm text-n-600">
+										<span className="font-semibold">UBS de atendimento: </span>
+										{ubsAtual?.name ?? '—'}
+									</p>
+								</>
 							)}
-							<EtapaPerguntas
+							<PerguntasEtapa
 								perguntas={perguntasDaEtapa}
 								respostas={respostas}
-								onResponder={(perguntaId, opcaoId) =>
-									setRespostas((atual) => ({ ...atual, [perguntaId]: opcaoId }))
+								onResponder={(questionId, optionId) =>
+									setRespostas((atual) => ({ ...atual, [questionId]: optionId }))
 								}
 							/>
 						</>
 					)}
+
+					{erroSubmit ? <p className="text-sm text-r-600">{erroSubmit}</p> : null}
 				</div>
 
 				<div className="mt-auto flex items-center justify-end gap-3 border-t border-n-30 pt-6">
@@ -194,7 +306,7 @@ export function FormularioPage() {
 							<Button variant="outline" onClick={handleAnterior}>
 								Anterior
 							</Button>
-							<Button disabled={!podeAvancar} onClick={handleProxima}>
+							<Button disabled={!podeAvancar || submit.isPending} onClick={handleProxima}>
 								{isUltimaEtapaPerguntas ? 'Calcular' : 'Próxima'}
 							</Button>
 						</>
@@ -215,7 +327,34 @@ export function FormularioPage() {
 			<ConfirmarFinalizacaoModal
 				open={confirmarFinalizarAberto}
 				onOpenChange={setConfirmarFinalizarAberto}
-				onConfirmar={handleConfirmarFinalizacao}
+				onConfirmar={() => {
+					if (!atendimento) {
+						setConfirmarFinalizarAberto(false)
+						navigate('/historico')
+						return
+					}
+					const payload = {
+						recommendations: recomendacoes
+							.map((rec, index) => ({
+								id: /^[0-9a-f]{24}$/i.test(rec.id) ? rec.id : undefined,
+								text: rec.titulo.trim(),
+								order: index,
+							}))
+							.filter((rec) => rec.text),
+					}
+					atualizarRecomendacoes.mutate(payload, {
+						onSuccess: () => {
+							setConfirmarFinalizarAberto(false)
+							navigate(`/historico/${atendimento.id}`)
+						},
+						onError: (erro) => {
+							setConfirmarFinalizarAberto(false)
+							setErroSubmit(
+								mensagemErro(erro, 'Não foi possível salvar as recomendações.'),
+							)
+						},
+					})
+				}}
 			/>
 		</Page>
 	)

@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { COR_GRAU_PADRAO } from '../constants'
-import { ESCALA_GRAUS_INICIAIS } from '../data/mock'
 import type { GrauConfig, LimitesEscala, RecomendacaoConfig, ValidacaoEscala } from '../types/escala'
 import { reorderById } from '../utils/reorder'
 
@@ -44,9 +43,20 @@ function validar(limites: LimitesEscala, graus: GrauConfig[]): ValidacaoEscala {
 	return { gerais, porGrau }
 }
 
-export function useEscalaConfig() {
-	const [limites, setLimites] = useState<LimitesEscala>({ min: 0, max: 60 })
-	const [graus, setGraus] = useState<GrauConfig[]>(ESCALA_GRAUS_INICIAIS)
+interface EscalaInicial {
+	graus?: GrauConfig[]
+	max?: number
+}
+
+export function useEscalaConfig(inicial?: EscalaInicial) {
+	const [limites, setLimites] = useState<LimitesEscala>({ min: 0, max: inicial?.max ?? 0 })
+	const [graus, setGraus] = useState<GrauConfig[]>(inicial?.graus ?? [])
+
+	useEffect(() => {
+		if (!inicial) return
+		if (inicial.graus) setGraus(inicial.graus)
+		if (typeof inicial.max === 'number') setLimites((atual) => ({ ...atual, max: inicial.max as number }))
+	}, [inicial])
 
 	const validacao = useMemo(() => validar(limites, graus), [limites, graus])
 

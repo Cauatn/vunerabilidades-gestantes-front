@@ -5,12 +5,16 @@ import { AvaliacoesTimeline } from '@/features/gestantes/components/AvaliacoesTi
 import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoaisCard'
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
-import { avaliacoesMock } from '@/features/gestantes/data/mock'
+import { useGetHistoricoGestante } from '@/features/avaliacao/composables/useGetHistoricoGestante'
+import { atendimentoParaTimeline } from '@/features/gestantes/utils/atendimentoParaTimeline'
 
 export function GestantesPerfilPage() {
 	const navigate = useNavigate()
 	const { id } = useParams<{ id: string }>()
 	const { data } = useGetGestante(id)
+	const { data: historico } = useGetHistoricoGestante(id)
+
+	const itens = (historico?.assessments.items ?? []).map(atendimentoParaTimeline)
 
 	return (
 		<GestantesShell
@@ -28,7 +32,11 @@ export function GestantesPerfilPage() {
 
 				<section className="flex flex-col gap-3">
 					<SectionDivider label="Histórico de avaliações" />
-					<AvaliacoesTimeline items={avaliacoesMock} />
+					{itens.length > 0 ? (
+						<AvaliacoesTimeline items={itens} />
+					) : (
+						<p className="text-sm text-n-500">Nenhuma avaliação registrada para esta gestante.</p>
+					)}
 				</section>
 			</div>
 		</GestantesShell>

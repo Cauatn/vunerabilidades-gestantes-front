@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import { QUESTIONARIO_INICIAL } from '../data/mock'
 import type { OpcaoResposta, PerguntaConfig, SecaoConfig } from '../types/questionario'
 import { reorderById } from '../utils/reorder'
 
@@ -42,9 +41,15 @@ function removerPergunta(perguntas: PerguntaConfig[], id: string): PerguntaConfi
 		)
 }
 
-export function useQuestionarioConfig() {
-	const [secoes, setSecoes] = useState<SecaoConfig[]>(QUESTIONARIO_INICIAL)
-	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(QUESTIONARIO_INICIAL[0]?.id ?? '')
+export function useQuestionarioConfig(inicial?: SecaoConfig[]) {
+	const [secoes, setSecoes] = useState<SecaoConfig[]>(inicial ?? [])
+	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(inicial?.[0]?.id ?? '')
+
+	useEffect(() => {
+		if (!inicial) return
+		setSecoes(inicial)
+		setSecaoAtivaId(inicial[0]?.id ?? '')
+	}, [inicial])
 
 	const secaoAtiva = useMemo(
 		() => secoes.find((secao) => secao.id === secaoAtivaId) ?? secoes[0],

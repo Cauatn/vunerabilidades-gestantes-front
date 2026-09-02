@@ -1,7 +1,8 @@
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { isAxiosError } from 'axios'
 import { CircleAlert, Info, X } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
@@ -14,23 +15,51 @@ import { GrauVulnerabilidadeCard } from '../components/GrauVulnerabilidadeCard'
 import { InstrumentoLayout } from '../components/InstrumentoLayout'
 import { LimitesRange } from '../components/LimitesRange'
 import { SortableItem } from '../components/SortableItem'
-import { PONTUACAO_SUGERIDA } from '../constants'
 import { useEscalaConfig } from '../composables/useEscalaConfig'
+import { useGetQuestionarioAtivo } from '../composables/useGetQuestionarioAtivo'
+import { usePublicarQuestionario } from '../composables/usePublicarQuestionario'
+import { PublicacaoInvalidaError } from '../utils/publicarQuestionario'
+import { pontuacaoMaxima, versaoParaGraus, versaoParaSecoes } from '../utils/questionarioMapper'
 
 type Remocao = { tipo: 'grau' | 'recomendacao'; grauId: string; recId?: string }
 
+function mensagemErro(erro: unknown): string {
+	if (erro instanceof PublicacaoInvalidaError) return erro.message
+	if (isAxiosError(erro)) {
+		const corpo = erro.response?.data as { message?: string | string[] } | undefined
+		const msg = Array.isArray(corpo?.message) ? corpo?.message.join(' ') : corpo?.message
+		return msg || 'Não foi possível publicar a nova versão.'
+	}
+	return 'Não foi possível publicar a nova versão.'
+}
+
 export function ConfigurarEscalaPage() {
 	const navigate = useNavigate()
-	const config = useEscalaConfig()
+	const { data: ativo, isLoading } = useGetQuestionarioAtivo()
+
+	const secoesVigentes = useMemo(() => (ativo ? versaoParaSecoes(ativo) : []), [ativo])
+	const pontuacaoSugerida = useMemo(() => pontuacaoMaxima(secoesVigentes), [secoesVigentes])
+	const escalaInicial = useMemo(
+		() => (ativo ? { graus: versaoParaGraus(ativo), max: pontuacaoSugerida } : undefined),
+		[ativo, pontuacaoSugerida],
+	)
+	const config = useEscalaConfig(escalaInicial)
 
 	const [avisoVisivel, setAvisoVisivel] = useState(true)
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
 	const [descartarAberto, setDescartarAberto] = useState(false)
+	const [erroPublicacao, setErroPublicacao] = useState<string | null>(null)
+
+	const publicar = usePublicarQuestionario({
+		onSuccess: () => {
+			setPublicarAberto(false)
+			navigate('/configuracao')
+		},
+	})
 
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 	const grausIds = config.graus.map((g) => g.id)
-
 	const temErro = config.validacao.gerais.length > 0
 
 	function handleDragEnd(e: DragEndEvent) {
@@ -39,15 +68,41 @@ export function ConfigurarEscalaPage() {
 		config.reordenarGraus(String(active.id), String(over.id))
 	}
 
+	function handlePublicar() {
+		setErroPublicacao(null)
+		publicar.mutate(
+			{ secoes: secoesVigentes, graus: config.graus, versaoVigente: ativo },
+			{
+				onError: (erro) => {
+					setPublicarAberto(false)
+					setErroPublicacao(mensagemErro(erro))
+				},
+			},
+		)
+	}
+
 	return (
 		<InstrumentoLayout
-			versao="Versão atual v1.1.0"
+			versao={
+				ativo
+					? `Versão atual v${ativo.versionNumber}`
+					: isLoading
+						? 'Carregando…'
+						: 'Nenhuma versão publicada'
+			}
 			titulo="Configurar escala"
 			descricao="Defina os intervalos de pontuação de cada grau de vulnerabilidade e as recomendações associadas."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
-			publicarDisabled={temErro}
+			publicarDisabled={temErro || publicar.isPending || config.graus.length === 0}
 		>
+			{erroPublicacao ? (
+				<div className="flex items-start gap-2 rounded-lg border border-danger bg-r-100 px-5 py-4 text-sm text-r-600">
+					<CircleAlert className="mt-0.5 size-5 shrink-0" />
+					<span>{erroPublicacao}</span>
+				</div>
+			) : null}
+
 			{temErro ? (
 				<div className="flex items-start gap-2 rounded-lg border border-danger bg-r-100 px-5 py-4 text-sm text-r-600">
 					<CircleAlert className="mt-0.5 size-5 shrink-0" />
@@ -67,7 +122,7 @@ export function ConfigurarEscalaPage() {
 						<div className="flex items-center gap-2 text-sm font-medium text-b-400">
 							<Info className="size-5 shrink-0" />
 							<span>
-								A versão mais atual do formulário soma {PONTUACAO_SUGERIDA} pontos. Se a escala
+								A versão mais atual do formulário soma {pontuacaoSugerida} pontos. Se a escala
 								definir um teto diferente, pontuações fora dele ficarão sem grau.
 							</span>
 						</div>
@@ -87,7 +142,7 @@ export function ConfigurarEscalaPage() {
 							idPrefix="escala"
 						/>
 					</div>
-					<Button type="button" onClick={() => config.usarPontuacaoSugerida(PONTUACAO_SUGERIDA)}>
+					<Button type="button" onClick={() => config.usarPontuacaoSugerida(pontuacaoSugerida)}>
 						Usar pontuação sugerida
 					</Button>
 				</div>
@@ -121,19 +176,14 @@ export function ConfigurarEscalaPage() {
 					</SortableContext>
 				</DndContext>
 
-				<DashedAddButton
-					label="Adicionar grau de vulnerabilidade"
-					onClick={config.addGrau}
-				/>
+				<DashedAddButton label="Adicionar grau de vulnerabilidade" onClick={config.addGrau} />
 			</div>
 
 			<ConfirmacaoModal
 				open={!!remocao}
 				onOpenChange={(o) => !o && setRemocao(null)}
 				tom="danger"
-				titulo={
-					remocao?.tipo === 'grau' ? 'Remover grau de vulnerabilidade' : 'Remover recomendação'
-				}
+				titulo={remocao?.tipo === 'grau' ? 'Remover grau de vulnerabilidade' : 'Remover recomendação'}
 				descricao={
 					remocao?.tipo === 'grau'
 						? 'Ao clicar em remover você estará removendo o grau de vulnerabilidade e todas as recomendações associadas a ele. Essa ação não pode ser desfeita.'
@@ -154,8 +204,8 @@ export function ConfigurarEscalaPage() {
 				tom="warning"
 				titulo="Publicar nova versão"
 				descricao="Ao publicar as alterações, uma nova versão da escala será disponibilizada. As avaliações já registradas não serão afetadas."
-				confirmarLabel="Publicar"
-				onConfirmar={() => setPublicarAberto(false)}
+				confirmarLabel={publicar.isPending ? 'Publicando…' : 'Publicar'}
+				onConfirmar={handlePublicar}
 			/>
 
 			<ConfirmacaoModal

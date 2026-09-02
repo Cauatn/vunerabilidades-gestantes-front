@@ -6,7 +6,9 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useState } from 'react'
+import { isAxiosError } from 'axios'
+import { CircleAlert } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ConfirmacaoModal } from '@/features/instrumentos/components/ConfirmacaoModal'
@@ -15,7 +17,11 @@ import { InstrumentoLayout } from '@/features/instrumentos/components/Instrument
 import { PerguntaCard } from '@/features/instrumentos/components/PerguntaCard'
 import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
+import { useGetQuestionarioAtivo } from '@/features/instrumentos/composables/useGetQuestionarioAtivo'
+import { usePublicarQuestionario } from '@/features/instrumentos/composables/usePublicarQuestionario'
 import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import { PublicacaoInvalidaError } from '@/features/instrumentos/utils/publicarQuestionario'
+import { versaoParaGraus, versaoParaSecoes } from '@/features/instrumentos/utils/questionarioMapper'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -38,13 +44,35 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 	opcao: 'Remover opção de resposta',
 }
 
+function mensagemErro(erro: unknown): string {
+	if (erro instanceof PublicacaoInvalidaError) return erro.message
+	if (isAxiosError(erro)) {
+		const corpo = erro.response?.data as { message?: string | string[] } | undefined
+		const msg = Array.isArray(corpo?.message) ? corpo?.message.join(' ') : corpo?.message
+		return msg || 'Não foi possível publicar a nova versão.'
+	}
+	return 'Não foi possível publicar a nova versão.'
+}
+
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
-	const config = useQuestionarioConfig()
+	const { data: ativo, isLoading } = useGetQuestionarioAtivo()
+
+	const secoesIniciais = useMemo(() => (ativo ? versaoParaSecoes(ativo) : undefined), [ativo])
+	const grausVigentes = useMemo(() => (ativo ? versaoParaGraus(ativo) : []), [ativo])
+	const config = useQuestionarioConfig(secoesIniciais)
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
 	const [descartarAberto, setDescartarAberto] = useState(false)
+	const [erroPublicacao, setErroPublicacao] = useState<string | null>(null)
+
+	const publicar = usePublicarQuestionario({
+		onSuccess: () => {
+			setPublicarAberto(false)
+			navigate('/')
+		},
+	})
 
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 	const perguntas = config.secaoAtiva?.perguntas ?? []
@@ -56,18 +84,42 @@ export function ConfigurarQuestionarioPage() {
 		config.reordenarPerguntas(String(active.id), String(over.id))
 	}
 
+	function handlePublicar() {
+		setErroPublicacao(null)
+		publicar.mutate(
+			{ secoes: config.secoes, graus: grausVigentes, versaoVigente: ativo },
+			{
+				onError: (erro) => {
+					setPublicarAberto(false)
+					setErroPublicacao(mensagemErro(erro))
+				},
+			},
+		)
+	}
+
 	return (
 		<InstrumentoLayout
-			versao="Versão atual v1.1.0"
+			versao={
+				ativo
+					? `Versão atual v${ativo.versionNumber}`
+					: isLoading
+						? 'Carregando…'
+						: 'Nenhuma versão publicada'
+			}
 			titulo="Configurar questionário"
 			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
+			publicarDisabled={publicar.isPending || config.secoes.length === 0}
 		>
-			<SecaoTabs
-				config={config}
-				onRemoverSecao={(id) => setRemocao({ tipo: 'secao', id })}
-			/>
+			{erroPublicacao ? (
+				<div className="flex items-start gap-2 rounded-lg border border-danger bg-r-100 px-5 py-4 text-sm text-r-600">
+					<CircleAlert className="mt-0.5 size-5 shrink-0" />
+					<span>{erroPublicacao}</span>
+				</div>
+			) : null}
+
+			<SecaoTabs config={config} onRemoverSecao={(id) => setRemocao({ tipo: 'secao', id })} />
 
 			<div className="flex flex-col gap-3">
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
@@ -115,8 +167,8 @@ export function ConfigurarQuestionarioPage() {
 				tom="warning"
 				titulo="Publicar nova versão"
 				descricao="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
-				confirmarLabel="Publicar"
-				onConfirmar={() => setPublicarAberto(false)}
+				confirmarLabel={publicar.isPending ? 'Publicando…' : 'Publicar'}
+				onConfirmar={handlePublicar}
 			/>
 
 			<ConfirmacaoModal

@@ -8,11 +8,29 @@ import { AvaliacaoRespostas } from '@/features/avaliacao/components/AvaliacaoRes
 import { DadosGestanteCard } from '@/features/avaliacao/components/DadosGestanteCard'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { ResumoAplicacaoCard } from '@/features/avaliacao/components/ResumoAplicacaoCard'
-import { criarAvaliacaoDetalheMock } from '@/features/avaliacao/utils/avaliacaoMock'
+import { useGetAssessment } from '@/features/avaliacao/composables/useGetAssessment'
+import { montarAvaliacaoDetalhe } from '@/features/avaliacao/utils/avaliacaoDetalhe'
+import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
+import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
+import { useGetUsuario } from '@/features/usuarios/composables/useGetUsuario'
 
 export function AvaliacaoDetalhePage() {
 	const { id = '' } = useParams<{ id: string }>()
-	const avaliacao = criarAvaliacaoDetalheMock(id)
+	const { data: atendimento, isLoading, isError } = useGetAssessment(id)
+	const { data: gestante } = useGetGestante(atendimento?.patientId)
+	const { data: aplicador } = useGetUsuario(atendimento?.appliedByUserId)
+	const { data: healthUnitsPage } = useGetHealthUnits()
+
+	if (isLoading) {
+		return <Page title="Avaliação" description="Carregando atendimento…" />
+	}
+
+	if (isError || !atendimento) {
+		return <Page title="Avaliação" description="Atendimento não encontrado." />
+	}
+
+	const ubsNome = healthUnitsPage?.items.find((unit) => unit.id === atendimento.healthUnitId)?.name
+	const avaliacao = montarAvaliacaoDetalhe(atendimento, { gestante, aplicador, ubsNome })
 
 	return (
 		<Page

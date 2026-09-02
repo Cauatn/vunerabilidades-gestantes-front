@@ -1,4 +1,5 @@
 import { FileText } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 import { cn } from '@/lib/utils'
 import { VulnerabilidadeBadge } from '@/features/gestantes/components/VulnerabilidadeBadge'
@@ -53,9 +54,12 @@ export function AvaliacoesTimeline({ items }: Props) {
 								className="self-start"
 							/>
 							<p className="text-[11px] leading-6 text-n-600">{item.descricao}</p>
-							<a href="#" className="text-[11px] leading-6 text-b-400 underline">
+							<Link
+								to={`/historico/${item.id}`}
+								className="text-[11px] leading-6 text-b-400 underline"
+							>
 								Ver detalhamento da aplicação
-							</a>
+							</Link>
 						</div>
 					</div>
 				)
