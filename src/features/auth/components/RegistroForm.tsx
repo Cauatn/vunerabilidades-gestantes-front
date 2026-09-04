@@ -20,9 +20,7 @@ import {
 } from '@/features/auth/validation/registroSchema'
 import { useAcceptInvitation } from '@/features/auth/composables/useAcceptInvitation'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
-
-// TODO: TROCAR ISSO PARA CATEGORIAS COM ID
-const CATEGORIAS_ENFERMAGEM = ['Enfermeiro(a)', 'Obstetriz', 'Técnico(a) de enfermagem']
+import { CATEGORIAS_ENFERMAGEM } from '../constants/nursingCategories'
 
 export function RegistroForm() {
 	const navigate = useNavigate()
@@ -55,8 +53,14 @@ export function RegistroForm() {
 			token,
 			name: values.nome,
 			password: values.senha,
-			professionalRegistration: `${conselhoLabel}-${values.conselhoUf} ${values.conselhoNumero}`,
+			professionalRegistration: buildProfessionalRegistrationData(values),
 		})
+	}
+
+	function buildProfessionalRegistrationData(values: RegistroFormValues) {
+		const data = `${conselhoLabel}-${values.conselhoUf} ${values.conselhoNumero}`;
+		if (isEnfermeiro) return `${data}-${values.categoriaConselho}`;
+		return data;
 	}
 
 	return (
@@ -133,8 +137,8 @@ export function RegistroForm() {
 									</SelectTrigger>
 									<SelectContent>
 										{CATEGORIAS_ENFERMAGEM.map((cat) => (
-											<SelectItem key={cat} value={cat}>
-												{cat}
+											<SelectItem key={cat.name} value={cat.key}>
+												{cat.name}
 											</SelectItem>
 										))}
 									</SelectContent>
