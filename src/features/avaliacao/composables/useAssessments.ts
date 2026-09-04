@@ -1,54 +1,54 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-
-import { getAssessment, getPatientAssessments, startAssessment, submitAssessment, updateAssessmentRecommendations, type Assessment } from '@/features/avaliacao/services/assessments'
-import { getGestantes } from '@/features/gestantes/services/gestantes'
+import {
+	getAssessment,
+	getAssessments,
+	getPatientAssessments,
+	startAssessment,
+	submitAssessment,
+	updateAssessmentRecommendations,
+} from "@/features/avaliacao/services/assessments";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useStartAssessment() {
-	return useMutation({ mutationFn: startAssessment })
+	return useMutation({ mutationFn: startAssessment });
 }
 
 export function useSubmitAssessment() {
-	return useMutation({ mutationFn: submitAssessment })
+	return useMutation({ mutationFn: submitAssessment });
 }
 
 export function useUpdateAssessmentRecommendations() {
 	return useMutation({
-		mutationFn: ({ id, recommendations }: { id: string; recommendations: Array<{ id?: string; text: string; order: number }> }) =>
-			updateAssessmentRecommendations(id, recommendations),
-	})
+		mutationFn: ({
+			id,
+			recommendations,
+		}: {
+			id: string;
+			recommendations: Array<{ id?: string; text: string; order: number }>;
+		}) => updateAssessmentRecommendations(id, recommendations),
+	});
 }
 
 export function usePatientAssessments(patientId?: string) {
 	return useQuery({
-		queryKey: ['patient-assessments', patientId],
+		queryKey: ["patient-assessments", patientId],
 		queryFn: () => getPatientAssessments(patientId!),
 		enabled: Boolean(patientId),
-	})
+	});
 }
 
 export function useAssessment(id?: string) {
 	return useQuery({
-		queryKey: ['assessment', id],
+		queryKey: ["assessment", id],
 		queryFn: () => getAssessment(id!),
 		enabled: Boolean(id),
 		select: (response) => response.data,
-	})
+	});
 }
 
-export type AssessmentHistoryEntry = Assessment & { patientName: string }
-
-export function useAssessmentsHistory() {
+export function useAssessments() {
 	return useQuery({
-		queryKey: ['assessments-history'],
-		queryFn: async (): Promise<AssessmentHistoryEntry[]> => {
-			const { data: patients } = await getGestantes({ page: 1, pageSize: 100 })
-			const pages = await Promise.all(
-				patients.items.map(async (patient) => {
-					const { data } = await getPatientAssessments(patient.id, { page: 1, pageSize: 100 })
-					return data.assessments.items.map((assessment) => ({ ...assessment, patientName: patient.name }))
-				}),
-			)
-			return pages.flat().sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime())
-		},
-	})
+		queryKey: ["assessments"],
+		queryFn: () => getAssessments(),
+		select: (response) => response.data,
+	});
 }

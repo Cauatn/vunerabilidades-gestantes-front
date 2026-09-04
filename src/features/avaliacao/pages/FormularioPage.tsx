@@ -15,7 +15,6 @@ import { RecomendacoesGestante } from '@/features/avaliacao/components/Recomenda
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
 import { useStartAssessment, useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
-import { assessmentResult } from '@/features/avaliacao/services/assessments'
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
@@ -145,7 +144,7 @@ export function FormularioPage() {
 					.filter(([questionId]) => perguntasVisiveis.some((pergunta) => pergunta.id === questionId))
 					.map(([questionId, optionId]) => ({ questionId, optionId })),
 			})
-			const result = assessmentResult(data.result)
+			const result = data.result
 			setResultado({
 				pontuacao: result.totalScore ?? 0,
 				classificacao: toClassificacao(result.vulnerabilityLevel ?? 'BAIXA'),

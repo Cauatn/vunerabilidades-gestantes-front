@@ -1,10 +1,9 @@
 import { useParams } from 'react-router-dom'
 
-import { Divider } from '@/components/ui/divider'
 import { Page } from '@/components/Layout/Page'
+import { Divider } from '@/components/ui/divider'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { useAssessment } from '@/features/avaliacao/composables/useAssessments'
-import { assessmentResult } from '@/features/avaliacao/services/assessments'
 import type { Classificacao } from '@/features/avaliacao/constants'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 
@@ -16,7 +15,7 @@ export function AvaliacaoDetalhePage() {
 	if (isLoading) return <Page title="Avaliação" description="Carregando avaliação..." />
 	if (isError || !assessment) return <Page title="Avaliação" description="Não foi possível carregar esta avaliação." />
 
-	const result = assessmentResult(assessment.result)
+	const result = assessment.result
 	const classification = toClassificacao(result.vulnerabilityLevel ?? 'BAIXA')
 
 	return (
