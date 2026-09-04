@@ -1,5 +1,12 @@
 import { Badge } from "@/components/ui/badge";
-import { formatarDataBr } from "@/features/core/utils/date";
+import CellSubItem from "@/features/core/components/CellSubItem";
+import { calcularIdade, formatarDataBr } from "@/features/core/utils/date";
+import type { Gestante } from "@/features/gestantes/types/gestante";
+import type { HealthUnit } from "@/features/healthUnits/types/healthUnit";
+import {
+	CATEGORIA_TO_ROLE,
+	type Usuario,
+} from "@/features/usuarios/types/usuario";
 import type { ColumnDef } from "@tanstack/react-table";
 import AcoesTabelaAvaliacoes from "../components/AcoesTabelaAvaliacoes";
 import type { Assessment, QuestionnaireSnapshot } from "../types/assessment";
@@ -23,23 +30,62 @@ export const columns: ColumnDef<Assessment>[] = [
 			return <Badge variant="neutral">{questionnaireVersionId}</Badge>;
 		},
 	},
-	//TODO: colocar dados do aplicador quando o back retornar
 	{
-		accessorKey: "appliedByUserId",
+		accessorKey: "appliedByUser",
 		header: "Dados do aplicador",
+		cell({ getValue }) {
+			const appliedByUser = getValue() as Usuario;
+			const professionalRegistrationLabel =
+				appliedByUser.role === CATEGORIA_TO_ROLE.medico ? "CRM" : "COREN";
+
+			return (
+				<div className="space-y-0">
+					<CellSubItem label="Nome" value={appliedByUser.name} />
+					<CellSubItem label="Email" value={appliedByUser.email} />
+					<CellSubItem
+						label="Categoria profissional"
+						value={appliedByUser.role}
+					/>
+					<CellSubItem
+						label={professionalRegistrationLabel}
+						value={appliedByUser.professionalRegistration as string}
+					/>
+				</div>
+			);
+		},
 	},
-	//TODO: colocar dados da UBS quando o back retornar
 	{
-		accessorKey: "healthUnitId",
+		accessorKey: "healthUnit",
 		header: "UBS de aplicação",
+		cell({ getValue }) {
+			return (getValue() as HealthUnit).name;
+		},
 	},
-	//TODO: colocar dados da gestante quando o back retornar
 	{
-		accessorKey: "patientId",
-		header: "Gestante",
-		cell: ({ getValue }) => (
-			<span className="font-medium text-n-700">{getValue() as string}</span>
-		),
+		accessorKey: "patient",
+		header: "Dados da gestante",
+		cell: ({ getValue }) => {
+			const patient = getValue() as Gestante;
+
+			return (
+				<div className="space-y-0">
+					<CellSubItem label="Nome" value={patient.name} />
+					<CellSubItem
+						label="Idade"
+						value={calcularIdade(patient.birthDate).toString()}
+					/>
+					//TODO: colocar o cpf e cns da paciente
+					{/* <CellSubItem
+						label="Categoria profissional"
+						value={patient.}
+					/>
+					<CellSubItem
+						label={professionalRegistrationLabel}
+						value={appliedByUser.professionalRegistration as string}
+					/> */}
+				</div>
+			);
+		},
 	},
 	//TODO: a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{

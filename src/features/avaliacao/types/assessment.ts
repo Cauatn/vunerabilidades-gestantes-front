@@ -1,5 +1,8 @@
 import type { Classificacao } from "@/features/avaliacao/constants";
+import type { Gestante } from "@/features/gestantes/types/gestante";
+import type { HealthUnit } from "@/features/healthUnits/types/healthUnit";
 import type { VulnerabilityBand } from "@/features/instrumentos/types/escala";
+import type { Usuario } from "@/features/usuarios/types/usuario";
 
 export interface ResumoAplicacao {
 	dataAplicacao: string;
@@ -59,7 +62,7 @@ export interface AssessmentQuestion {
 	visibleWhenQuestionId?: string | null;
 }
 
-interface AssessmentRecommendation {
+export interface AssessmentRecommendation {
 	id: string;
 	text: string;
 	order: number;
@@ -92,10 +95,10 @@ export interface QuestionnaireSnapshot {
 
 export interface Assessment {
 	id: string;
-	patientId: string;
+	patient: Gestante;
 	appliedAt: string;
-	appliedByUserId: string;
-	healthUnitId: string;
+	appliedByUser: Usuario;
+	healthUnit: HealthUnit;
 	snapshot: QuestionnaireSnapshot;
 	answers: AssessmentAnswer[];
 	result: AssessmentResult;
