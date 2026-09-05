@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { PAGE_SIZE } from '@/features/core/constants/pagination'
-import { GestantesTable } from '@/features/gestantes/components/GestantesTable'
+import { createGestantesColumns } from '@/features/gestantes/components/gestantesDataTable/columns'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
 import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
@@ -49,6 +50,13 @@ export function GestantesPage() {
 	}
 
 	const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
+	const columns = createGestantesColumns({
+		onVerPerfil: (row) => navigate(`/gestantes/${row.id}`),
+		onEditar: (row) => {
+			setEmEdicao(row)
+			setSheetOpen(true)
+		},
+	})
 
 	return (
 		<>
@@ -83,16 +91,12 @@ export function GestantesPage() {
 						</Button>
 					</div>
 
-					{data ? (
-						<GestantesTable
-							rows={data.items}
-							onVerPerfil={(row) => navigate(`/gestantes/${row.id}`)}
-							onEditar={(row) => {
-								setEmEdicao(row)
-								setSheetOpen(true)
-							}}
-						/>
-					) : null}
+					<DataTable
+						columns={columns}
+						data={data?.items}
+						emptyStateTitle="Nenhuma gestante encontrada."
+						emptyStateDescription="Cadastre uma gestante para começar."
+					/>
 
 					{data ? (
 						<div className="flex justify-center pt-4">
