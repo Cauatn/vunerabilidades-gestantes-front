@@ -88,7 +88,6 @@ export default function DialogModal({
 						<Button
 							onClick={onCancelButtonClick}
 							variant="outline"
-							size="lg"
 							disabled={isOkButtonLoading}
 						>
 							{cancelButtonText}
@@ -100,7 +99,6 @@ export default function DialogModal({
 						variant={variant}
 						isLoading={isOkButtonLoading}
 						disabled={isOkButtonDisabled}
-						size="lg"
 					>
 						{okButtonText}
 					</Button>

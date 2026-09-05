@@ -1,33 +1,52 @@
-import { TriangleAlert } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogBody,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ConfirmarCalculoModalProps {
-	open: boolean
-	onOpenChange: (open: boolean) => void
-	onConfirmar: () => void
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	onConfirmar: () => void;
 }
 
-export function ConfirmarCalculoModal({ open, onOpenChange, onConfirmar }: ConfirmarCalculoModalProps) {
+export function ConfirmarCalculoModal({
+	open,
+	onOpenChange,
+	onConfirmar,
+}: ConfirmarCalculoModalProps) {
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent showCloseButton={false} className="max-w-[500px] gap-0 overflow-hidden p-0">
-				<div className="flex items-center gap-3 rounded-t-lg border-b border-(--y-400) bg-y-100 px-5 py-6">
-					<TriangleAlert className="size-7 shrink-0 text-y-400" />
+		<Dialog open={open} onOpenChange={onOpenChange} variant="warning">
+			<DialogContent
+				showCloseButton={false}
+				className="max-w-125 gap-0 overflow-hidden p-0"
+			>
+				<DialogHeader className="gap-3 p-4 text-left">
 					<DialogTitle className="text-[25px]">Calcular resultado</DialogTitle>
-				</div>
-
-				<DialogHeader className="items-start gap-3 p-4 text-left">
-					<p className="text-2xl leading-8 font-semibold text-n-800">Tem certeza que deseja continuar?</p>
-					<DialogDescription className="text-justify text-sm text-n-700">
-						Ao clicar em calcular as respostas para o formulário serão utilizadas para realizar o cálculo da
-						escala. Confirme as respostas antes de continuar.
-					</DialogDescription>
 				</DialogHeader>
 
-				<DialogFooter className="pb-[18px]">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+				<DialogBody>
+					<p className="text-2xl leading-8 font-semibold text-n-800">
+						Tem certeza que deseja continuar?
+					</p>
+					<DialogDescription className="text-justify text-sm text-n-700">
+						Ao clicar em calcular as respostas para o formulário serão
+						utilizadas para realizar o cálculo da escala. Confirme as respostas
+						antes de continuar.
+					</DialogDescription>
+				</DialogBody>
+
+				<DialogFooter className="pb-4.5">
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+					>
 						Cancelar
 					</Button>
 					<Button type="button" variant="warning" onClick={onConfirmar}>
@@ -36,5 +55,5 @@ export function ConfirmarCalculoModal({ open, onOpenChange, onConfirmar }: Confi
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	)
+	);
 }
