@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const digits = (value: string) => value.replace(/\D/g, '')
+import { onlyDigits } from '@/features/gestantes/utils/document'
 
 export const gestanteSchema = z
 	.object({
@@ -12,8 +12,8 @@ export const gestanteSchema = z
 		telefone: z.string(),
 	})
 	.superRefine((dados, ctx) => {
-		const cpf = digits(dados.cpf)
-		const cns = digits(dados.cns)
+		const cpf = onlyDigits(dados.cpf)
+		const cns = onlyDigits(dados.cns)
 
 		if (!cpf && !cns) {
 			ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'Informe o CPF ou o CNS.' })

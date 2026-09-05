@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { PAGE_SIZE } from '@/features/core/constants/pagination'
-import { GestantesShell } from '@/features/gestantes/components/GestantesShell'
 import { GestantesTable } from '@/features/gestantes/components/GestantesTable'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
 import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
@@ -36,6 +36,8 @@ export function GestantesPage() {
 				id: emEdicao.id,
 				payload: {
 					name: payload.name,
+					cpf: payload.cpf,
+					cns: payload.cns,
 					birthDate: payload.birthDate,
 					motherName: payload.motherName ?? null,
 					phone: payload.phone ?? null,
@@ -50,11 +52,12 @@ export function GestantesPage() {
 
 	return (
 		<>
-			<GestantesShell
+			<Page
 				title="Gestantes"
-				subtitle="Gerencie as gestantes cadastradas no sistema."
-				action={{
-					label: 'Criar gestante',
+				description="Gerencie as gestantes cadastradas no sistema."
+				withButton
+				buttonText="Criar gestante"
+				buttonProps={{
 					onClick: () => {
 						setEmEdicao(undefined)
 						setSheetOpen(true)
@@ -97,7 +100,7 @@ export function GestantesPage() {
 						</div>
 					) : null}
 				</div>
-			</GestantesShell>
+			</Page>
 
 			<GestanteSheet
 				gestante={emEdicao}
