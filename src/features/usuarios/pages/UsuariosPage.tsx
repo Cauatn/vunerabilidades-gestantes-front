@@ -15,6 +15,7 @@ import { useDeactivateUsuario } from '@/features/usuarios/composables/useDeactiv
 import { useGetUsuarios } from '@/features/usuarios/composables/useGetUsuarios'
 import { useInviteUsuario } from '@/features/usuarios/composables/useInviteUsuario'
 import type { InviteUsuarioPayload, Usuario } from '@/features/usuarios/types/usuario'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
 
 export function UsuariosPage() {
 	const { data, isLoading, page, setPage, busca, setBusca } = useGetUsuarios()
@@ -45,6 +46,7 @@ export function UsuariosPage() {
 
 	function handleToggleStatus(usuario: Usuario) {
 		// trava de segurança: ninguém altera o status da própria conta pelo front
+		//TODO: adicionar toast para indicar sucesso ou não da operação
 		if (usuario.id === user?.id) return
 		if (usuario.status === 'ACTIVE') inativar.mutate(usuario.id)
 		else ativar.mutate(usuario.id)
@@ -76,6 +78,7 @@ export function UsuariosPage() {
 						Buscar
 					</Button>
 				</div>
+				{convidar.isError ? <p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{apiErrorMessage(convidar.error, 'Não foi possível enviar o convite.')}</p> : null}
 
 				<DataTable
 					columns={columns}

@@ -5,7 +5,9 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/components/Logo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useSession } from '@/features/auth/composables/useSession'
+import { Restricted } from '@/features/core/components/Restricted'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
+import type { Capability } from '@/features/roles/types/roles'
 import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useSetCurrentHealthUnit'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
@@ -19,10 +21,11 @@ type NavItem = {
 	to?: string
 	match?: (pathname: string) => boolean
 	children?: NavChild[]
+	capability?: Capability
 }
 
 const items: NavItem[] = [
-	{ label: 'Profissionais', icon: UsersRound, to: '/usuarios' },
+	{ label: 'Profissionais', icon: UsersRound, to: '/usuarios', capability: 'users.manage' },
 	{ label: 'Gestantes', icon: Baby, to: '/', match: (p) => p === '/' || p.startsWith('/gestantes') },
 	{
 		label: 'Avaliações',
@@ -35,6 +38,7 @@ const items: NavItem[] = [
 	{
 		label: 'Instrumentos',
 		icon: ClipboardPlus,
+		capability: 'questionnaire.configure',
 		children: [
 			{ label: 'Configurar questionário', to: '/configuracao' },
 			{ label: 'Configurar escala', to: '/configuracao/escala' },
@@ -87,13 +91,21 @@ export function AppSidebar() {
 			<div className="h-px w-full shrink-0 bg-n-40" />
 
 			<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
-				{items.map((item) =>
-					item.children ? (
+				{items.map((item) => {
+					const row = item.children ? (
 						<NavGroup key={item.label} item={item} pathname={pathname} />
 					) : (
 						<NavRow key={item.label} item={item} pathname={pathname} />
-					),
-				)}
+					)
+
+					if (!item.capability) return row
+
+					return (
+						<Restricted key={item.label} capability={item.capability}>
+							{row}
+						</Restricted>
+					)
+				})}
 			</nav>
 
 			<div className="flex shrink-0 flex-col items-center gap-4 pt-2">

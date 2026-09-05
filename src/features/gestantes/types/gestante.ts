@@ -1,11 +1,9 @@
 import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
 
-export type IdentifierType = 'CPF' | 'SUS_CARD'
-
 export interface Gestante {
 	id: string
 	name: string
-	identifier: { type: IdentifierType; value: string }
+	identifiers: { cpf: string | null; cns: string | null }
 	birthDate: string
 	phone: string | null
 	motherName: string | null
@@ -22,8 +20,8 @@ export type PaginatedGestantes = Paginated<Gestante>
 
 export interface CreateGestantePayload {
 	name: string
-	identifierType: IdentifierType
-	identifierValue: string
+	cpf?: string
+	cns?: string
 	birthDate: string
 	phone?: string
 	motherName?: string
@@ -32,6 +30,8 @@ export interface CreateGestantePayload {
 
 export interface UpdateGestantePayload {
 	name?: string
+	cpf?: string
+	cns?: string
 	birthDate?: string
 	phone?: string | null
 	motherName?: string | null

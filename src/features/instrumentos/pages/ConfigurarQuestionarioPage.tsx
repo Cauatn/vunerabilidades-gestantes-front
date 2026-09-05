@@ -6,7 +6,7 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ConfirmacaoModal } from '@/features/instrumentos/components/ConfirmacaoModal'
@@ -16,6 +16,10 @@ import { PerguntaCard } from '@/features/instrumentos/components/PerguntaCard'
 import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import { usePublishQuestionario } from '@/features/instrumentos/composables/usePublishQuestionario'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
+import { getActiveQuestionnaire } from '@/features/instrumentos/services/questionario'
+import { toSections } from '@/features/instrumentos/utils/questionarioMapper'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -41,6 +45,8 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
 	const config = useQuestionarioConfig()
+	const publicar = usePublishQuestionario()
+	const [carregado, setCarregado] = useState(false)
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
@@ -49,6 +55,13 @@ export function ConfigurarQuestionarioPage() {
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 	const perguntas = config.secaoAtiva?.perguntas ?? []
 	const perguntasIds = perguntas.map((pergunta) => pergunta.id)
+
+	useEffect(() => {
+		if (carregado) return
+		void getActiveQuestionnaire()
+			.then(({ data }) => config.substituirSecoes(toSections(data)))
+			.finally(() => setCarregado(true))
+	}, [carregado, config])
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event
@@ -63,7 +76,13 @@ export function ConfigurarQuestionarioPage() {
 			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
+			publicarDisabled={publicar.isPending}
 		>
+			{publicar.isError ? (
+				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
+					{apiErrorMessage(publicar.error, 'Não foi possível publicar o questionário.')}
+				</p>
+			) : null}
 			<SecaoTabs
 				config={config}
 				onRemoverSecao={(id) => setRemocao({ tipo: 'secao', id })}
@@ -115,8 +134,12 @@ export function ConfigurarQuestionarioPage() {
 				tom="warning"
 				titulo="Publicar nova versão"
 				descricao="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
-				confirmarLabel="Publicar"
-				onConfirmar={() => setPublicarAberto(false)}
+			confirmarLabel="Publicar"
+			onConfirmar={() => {
+					if (publicar.isPending) return
+					setPublicarAberto(false)
+					publicar.mutate(config.secoes)
+				}}
 			/>
 
 			<ConfirmacaoModal

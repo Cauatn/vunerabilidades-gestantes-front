@@ -22,6 +22,7 @@ export function AppRoutes() {
 		<Routes>
 			<Route path="/login" element={<LoginPage />} />
 			<Route path="/cadastro" element={<RegistroPage />} />
+			<Route path="/convite" element={<RegistroPage />} />
 
 			<Route element={<RequireAuth />}>
 				<Route path="/gestantes/:id/imprimir" element={<GestantesImprimirPage />} />

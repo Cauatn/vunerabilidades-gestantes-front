@@ -1,32 +1,40 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { Button } from '@/components/ui/button'
-import { Divider } from '@/components/ui/divider'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select'
-import { ESTADOS } from '@/features/core/constants/localizacao'
+} from "@/components/ui/select";
+import { useAcceptInvitation } from "@/features/auth/composables/useAcceptInvitation";
 import {
 	registroSchema,
 	type RegistroFormValues,
-} from '@/features/auth/validation/registroSchema'
-
-// TODO: TROCAR ISSO PARA CATEGORIAS COM ID
-const CATEGORIAS_ENFERMAGEM = ['Enfermeiro(a)', 'Obstetriz', 'Técnico(a) de enfermagem']
+} from "@/features/auth/validation/registroSchema";
+import { ESTADOS } from "@/features/core/constants/localizacao";
+import { apiErrorMessage } from "@/features/core/utils/apiError";
+import { CATEGORIA_TO_ROLE } from "@/features/usuarios/types/usuario";
+import { toast } from "sonner";
+import { CATEGORIAS_ENFERMAGEM } from "../constants/nursingCategories";
 
 export function RegistroForm() {
-	const navigate = useNavigate()
-	const [searchParams] = useSearchParams()
-	const isEnfermeiro = searchParams.get('categoria') === 'enfermeiro'
-	const conselhoLabel = isEnfermeiro ? 'COREN' : 'CRM'
+	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const isEnfermeiro =
+		searchParams.get("role") === CATEGORIA_TO_ROLE.enfermeiro;
+	const token = searchParams.get("token");
+	const conselhoLabel = isEnfermeiro ? "COREN" : "CRM";
+	const aceitarConvite = useAcceptInvitation({
+		onError: onAcceptError,
+		onSuccess: onAcceptSuccess,
+	});
 
 	const {
 		register,
@@ -36,21 +44,61 @@ export function RegistroForm() {
 	} = useForm<RegistroFormValues>({
 		resolver: zodResolver(registroSchema),
 		defaultValues: {
-			nome: '',
-			conselhoUf: '',
-			conselhoNumero: '',
-			categoriaConselho: '',
-			senha: '',
-			confirmarSenha: '',
+			nome: "",
+			conselhoUf: "",
+			conselhoNumero: "",
+			categoriaConselho: "",
+			senha: "",
+			confirmarSenha: "",
 		},
-	})
+	});
 
-	const onSubmit = () => {
-		navigate('/login')
+	const onSubmit = (values: RegistroFormValues) => {
+		if (!token) return;
+		aceitarConvite.mutate({
+			token,
+			name: values.nome,
+			password: values.senha,
+			professionalRegistration: buildProfessionalRegistrationData(values),
+		});
+	};
+
+	function onAcceptSuccess() {
+		toast.success(
+			"Convite aceito com sucesso. Faça login na sua conta para entrar na plataforma.",
+		);
+		navigate("/login", { replace: true });
+	}
+
+	function onAcceptError() {
+		toast.error(
+			apiErrorMessage(
+				aceitarConvite.error,
+				"Não foi possível confirmar o convite.",
+			),
+			{
+				description:
+					"Verifique seu dados e tente novamente. Se o erro persistir entre em contato com o suporte.",
+			},
+		);
+	}
+
+	function buildProfessionalRegistrationData(values: RegistroFormValues) {
+		const data = `${conselhoLabel}-${values.conselhoUf} ${values.conselhoNumero}`;
+		if (isEnfermeiro) return `${data}-${values.categoriaConselho}`;
+		return data;
 	}
 
 	return (
-		<form className="flex w-full flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+		<form
+			className="flex w-full flex-col gap-6"
+			onSubmit={handleSubmit(onSubmit)}
+		>
+			{!token ? (
+				<p className="text-caption text-danger">
+					Convite inválido ou sem token de confirmação.
+				</p>
+			) : null}
 			<section className="flex flex-col gap-3">
 				<Divider text="Informações gerais" />
 				<div className="space-y-1.5">
@@ -61,9 +109,11 @@ export function RegistroForm() {
 						id="reg-nome"
 						placeholder="Digite..."
 						aria-invalid={!!errors.nome}
-						{...register('nome')}
+						{...register("nome")}
 					/>
-					{errors.nome ? <p className="text-caption text-danger">{errors.nome.message}</p> : null}
+					{errors.nome ? (
+						<p className="text-caption text-danger">{errors.nome.message}</p>
+					) : null}
 				</div>
 			</section>
 
@@ -91,7 +141,9 @@ export function RegistroForm() {
 							)}
 						/>
 						{errors.conselhoUf ? (
-							<p className="text-caption text-danger">{errors.conselhoUf.message}</p>
+							<p className="text-caption text-danger">
+								{errors.conselhoUf.message}
+							</p>
 						) : null}
 					</div>
 					<div className="flex-1 space-y-1.5">
@@ -102,10 +154,12 @@ export function RegistroForm() {
 							id="reg-numero"
 							placeholder="Digite..."
 							aria-invalid={!!errors.conselhoNumero}
-							{...register('conselhoNumero')}
+							{...register("conselhoNumero")}
 						/>
 						{errors.conselhoNumero ? (
-							<p className="text-caption text-danger">{errors.conselhoNumero.message}</p>
+							<p className="text-caption text-danger">
+								{errors.conselhoNumero.message}
+							</p>
 						) : null}
 					</div>
 				</div>
@@ -122,8 +176,8 @@ export function RegistroForm() {
 									</SelectTrigger>
 									<SelectContent>
 										{CATEGORIAS_ENFERMAGEM.map((cat) => (
-											<SelectItem key={cat} value={cat}>
-												{cat}
+											<SelectItem key={cat.name} value={cat.key}>
+												{cat.name}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -145,9 +199,11 @@ export function RegistroForm() {
 						type="password"
 						placeholder="Digite..."
 						aria-invalid={!!errors.senha}
-						{...register('senha')}
+						{...register("senha")}
 					/>
-					{errors.senha ? <p className="text-caption text-danger">{errors.senha.message}</p> : null}
+					{errors.senha ? (
+						<p className="text-caption text-danger">{errors.senha.message}</p>
+					) : null}
 				</div>
 				<div className="space-y-1.5">
 					<Label htmlFor="reg-confirmar" required>
@@ -158,17 +214,25 @@ export function RegistroForm() {
 						type="password"
 						placeholder="Digite..."
 						aria-invalid={!!errors.confirmarSenha}
-						{...register('confirmarSenha')}
+						{...register("confirmarSenha")}
 					/>
 					{errors.confirmarSenha ? (
-						<p className="text-caption text-danger">{errors.confirmarSenha.message}</p>
+						<p className="text-caption text-danger">
+							{errors.confirmarSenha.message}
+						</p>
 					) : null}
 				</div>
 			</section>
 
-			<Button type="submit" size="lg" className="w-full">
+			<Button
+				type="submit"
+				size="lg"
+				className="w-full"
+				isLoading={aceitarConvite.isPending}
+				disabled={!token}
+			>
 				Finalizar cadastro
 			</Button>
 		</form>
-	)
+	);
 }
