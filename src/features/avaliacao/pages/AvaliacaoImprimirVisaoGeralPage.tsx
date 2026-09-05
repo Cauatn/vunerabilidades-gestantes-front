@@ -22,7 +22,14 @@ export function AvaliacaoImprimirVisaoGeralPage() {
 		>
 			<div className="flex flex-col gap-3">
 				<Divider text="Resumo da avaliação" />
-				<ResumoAplicacaoCard resumo={avaliacao.resumo} />
+				<ResumoAplicacaoCard
+					appliedAt={avaliacao.resumo.dataAplicacao}
+					ubs={avaliacao.resumo.ubs}
+					aplicador={avaliacao.resumo.aplicador}
+					categoriaProfissional={avaliacao.resumo.categoriaProfissional}
+					crmCoren={avaliacao.resumo.crmCoren}
+					email={avaliacao.resumo.email}
+				/>
 			</div>
 
 			<div className="flex flex-col gap-3">

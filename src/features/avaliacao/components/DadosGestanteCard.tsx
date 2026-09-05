@@ -1,5 +1,5 @@
 import { PregnantIcon } from '@/features/avaliacao/components/icons'
-import type { DadosGestante } from '@/features/avaliacao/types/historico'
+import type { DadosGestante } from '@/features/avaliacao/types/assessment'
 import { formatarDataBr } from '@/features/core/utils/date'
 
 interface DadosGestanteCardProps {

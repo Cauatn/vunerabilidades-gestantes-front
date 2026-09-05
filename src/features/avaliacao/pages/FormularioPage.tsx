@@ -13,15 +13,16 @@ import { EtapaPerguntas } from '@/features/avaliacao/components/EtapaPerguntas'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
-import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
 import { useStartAssessment, useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
-import type { Classificacao } from '@/features/avaliacao/constants'
+import type { Assessment } from '@/features/avaliacao/types/assessment'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
+import { toClassificacao } from '@/features/avaliacao/utils/classificacao'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 import { useSession } from '@/features/auth/composables/useSession'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
+const PERGUNTAS_VAZIAS: Pergunta[] = []
 
 function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 	return (
@@ -51,10 +52,8 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 	)
 }
 
-//TODO: formulário criado no backend só é mostrado quando seleciona uma gestante (antes de selecionar fica mostrando o mock)
 export function FormularioPage() {
 	const navigate = useNavigate()
-	const { perguntas: perguntasConfiguradas } = usePerguntas()
 	const { user } = useSession()
 	const iniciarAvaliacao = useStartAssessment()
 	const enviarAvaliacao = useSubmitAssessment()
@@ -68,12 +67,11 @@ export function FormularioPage() {
 	const [etapa, setEtapa] = useState(0)
 	const [confirmarCalculoAberto, setConfirmarCalculoAberto] = useState(false)
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
-	const [resultado, setResultado] = useState<{ pontuacao: number; classificacao: Classificacao } | null>(null)
+	const [assessment, setAssessment] = useState<Assessment | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
-	const [assessmentId, setAssessmentId] = useState<string | null>(null)
 	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
 	const [erro, setErro] = useState<string | null>(null)
-	const perguntas = perguntasAplicacao ?? perguntasConfiguradas
+	const perguntas = perguntasAplicacao ?? PERGUNTAS_VAZIAS
 	const perguntasVisiveis = useMemo(
 		() => perguntas.filter((pergunta) => !pergunta.visibleWhenQuestionId || respostas[pergunta.visibleWhenQuestionId] === pergunta.visibleWhenOptionId),
 		[perguntas, respostas],
@@ -93,7 +91,7 @@ export function FormularioPage() {
 
 	const etapasStepper = useMemo(() => [...categorias, ETAPA_RESULTADO_LABEL], [categorias])
 	const totalEtapasPerguntas = categorias.length
-	const isEtapaResultado = etapa >= totalEtapasPerguntas
+	const isEtapaResultado = perguntasAplicacao !== null && etapa >= totalEtapasPerguntas
 	const isPrimeiraEtapa = etapa === 0
 	const isUltimaEtapaPerguntas = etapa === totalEtapasPerguntas - 1
 
@@ -145,13 +143,8 @@ export function FormularioPage() {
 					.filter(([questionId]) => perguntasVisiveis.some((pergunta) => pergunta.id === questionId))
 					.map(([questionId, optionId]) => ({ questionId, optionId })),
 			})
-			const result = data.result
-			setResultado({
-				pontuacao: result.totalScore ?? 0,
-				classificacao: toClassificacao(result.vulnerabilityLevel ?? 'BAIXA'),
-			})
+			setAssessment(data)
 			setRecomendacoes(data.recommendations.map((item) => ({ id: item.id, titulo: item.text, observacoes: '' })))
-			setAssessmentId(data.id)
 			setConfirmarCalculoAberto(false)
 			setEtapa(totalEtapasPerguntas)
 		} catch {
@@ -165,9 +158,9 @@ export function FormularioPage() {
 	}
 
 	function persistRecomendacoes(next: RecomendacaoGestante[]) {
-		if (!assessmentId) return
+		if (!assessment) return
 		void atualizarRecomendacoes.mutateAsync({
-			id: assessmentId,
+			id: assessment.id,
 			recommendations: next.map((item, order) => ({ id: /^[a-f\d]{24}$/i.test(item.id) ? item.id : undefined, text: [item.titulo, item.observacoes].filter(Boolean).join('\n'), order })),
 		})
 	}
@@ -242,17 +235,17 @@ export function FormularioPage() {
 
 							<div className="flex flex-col gap-3">
 								<Divider text="Resultado" />
-								{resultado && (
+								{assessment && (
 									<ResultadoAvaliacao
 										nomeGestante={gestanteSelecionada?.name ?? ''}
-										pontuacao={resultado.pontuacao}
-										classificacao={resultado.classificacao}
+										pontuacao={assessment.result.totalScore}
+										classificacao={toClassificacao(assessment.result.vulnerabilityLevel)}
 									/>
 								)}
 							</div>
 
 							<RecomendacoesGestante
-								classificacao={resultado?.classificacao ?? 'BAIXA'}
+								classificacao={assessment ? toClassificacao(assessment.result.vulnerabilityLevel) : 'BAIXA'}
 								recomendacoes={recomendacoes}
 								onAdd={handleAddRecomendacao}
 								onUpdate={handleUpdateRecomendacao}
@@ -306,11 +299,4 @@ export function FormularioPage() {
 			/>
 		</Page>
 	)
-}
-
-function toClassificacao(level: string): Classificacao {
-	const normalized = level.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
-	if (normalized.includes('ALTA')) return 'ALTA'
-	if (normalized.includes('MODERADA') || normalized.includes('MEDIA')) return 'MODERADA'
-	return 'BAIXA'
 }

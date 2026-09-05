@@ -1,4 +1,4 @@
-import type { CategoriaRespostas } from '@/features/avaliacao/types/historico'
+import type { CategoriaRespostas } from '@/features/avaliacao/types/assessment'
 
 interface AvaliacaoRespostasProps {
 	categorias: CategoriaRespostas[]

@@ -9,7 +9,7 @@ import {
 } from "@/features/usuarios/types/usuario";
 import type { ColumnDef } from "@tanstack/react-table";
 import AcoesTabelaAvaliacoes from "../components/AcoesTabelaAvaliacoes";
-import type { Assessment } from "../types/assessment";
+import type { Assessment, AssessmentResult, QuestionnaireSnapshot } from "../types/assessment";
 
 export const columns: ColumnDef<Assessment>[] = [
 	{
@@ -26,8 +26,7 @@ export const columns: ColumnDef<Assessment>[] = [
 		accessorKey: "snapshot.props",
 		header: "Versão do questionário",
 		cell: ({ getValue }) => {
-			const data = getValue();
-			//TODO: corrigir tipagem
+			const data = getValue() as QuestionnaireSnapshot;
 			return <Badge variant="neutral">{data.versionNumber}</Badge>;
 		},
 	},
@@ -90,21 +89,19 @@ export const columns: ColumnDef<Assessment>[] = [
 	},
 	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result.props",
+		accessorKey: "result",
 		header: "Vulnerabilidade",
 		cell: ({ getValue }) => {
-			const data = getValue();
-			//TODO: corrigir tipagem
+			const data = getValue() as AssessmentResult;
 			return <Badge variant="neutral">{data.vulnerabilityLevel}</Badge>;
 		},
 	},
 	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result.props",
+		accessorKey: "result",
 		header: "Score",
 		cell: ({ getValue }) => {
-			const data = getValue();
-			//TODO: corrigir tipagem
+			const data = getValue() as AssessmentResult;
 			return <Badge variant="neutral">{data.totalScore}</Badge>;
 		},
 	},

@@ -1,21 +1,21 @@
 import { SquareTextIcon } from "@/features/avaliacao/components/icons";
-import { formatarDataBr } from "@/features/core/utils/date";
-import { CATEGORIA_PROFISSIONAL_LABEL } from "@/features/usuarios/constants/categoriaProfissional";
-import {
-	ROLE_TO_CATEGORIA,
-	type Usuario,
-} from "@/features/usuarios/types/usuario";
 
 interface ResumoAplicacaoCardProps {
-	applier: Usuario;
 	appliedAt: string;
 	ubs: string;
+	aplicador: string;
+	categoriaProfissional: string;
+	crmCoren: string | null;
+	email: string;
 }
 
 export function ResumoAplicacaoCard({
-	applier,
 	appliedAt,
 	ubs,
+	aplicador,
+	categoriaProfissional,
+	crmCoren,
+	email,
 }: ResumoAplicacaoCardProps) {
 	return (
 		<div className="flex w-full items-center gap-5 rounded-xl border border-(--b-200) bg-b-50 p-4">
@@ -33,18 +33,17 @@ export function ResumoAplicacaoCard({
 					<span className="font-semibold">UBS de aplicação:</span> {ubs}
 				</p>
 				<p>
-					<span className="font-semibold">Aplicador:</span> {applier.name}
+					<span className="font-semibold">Aplicador:</span> {aplicador}
 				</p>
 				<p>
 					<span className="font-semibold">Categoria profissional:</span>{" "}
-					{CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[applier.role]]}
+					{categoriaProfissional}
 				</p>
 				<p>
-					<span className="font-semibold">CRM/COREN:</span>{" "}
-					{applier.professionalRegistration}
+					<span className="font-semibold">CRM/COREN:</span> {crmCoren}
 				</p>
 				<p>
-					<span className="font-semibold">Email:</span> {applier.email}
+					<span className="font-semibold">Email:</span> {email}
 				</p>
 			</div>
 		</div>

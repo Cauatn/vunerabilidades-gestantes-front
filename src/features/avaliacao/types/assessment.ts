@@ -46,7 +46,7 @@ export interface AvaliacaoDetalhe {
 	pontuacao: number;
 	classificacao: Classificacao;
 	categorias: CategoriaRespostas[];
-	recomendacoesGestante: RecomendacaoGestante[];
+	recomendacoesGestante: AssessmentRecommendation[];
 }
 
 export interface AssessmentQuestion {

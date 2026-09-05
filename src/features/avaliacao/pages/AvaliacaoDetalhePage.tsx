@@ -2,10 +2,13 @@ import { Page } from "@/components/Layout/Page";
 import { Divider } from "@/components/ui/divider";
 import { ResultadoAvaliacao } from "@/features/avaliacao/components/ResultadoAvaliacao";
 import { useAssessment } from "@/features/avaliacao/composables/useAssessments";
+import { toClassificacao } from "@/features/avaliacao/utils/classificacao";
 import { useParams } from "react-router-dom";
 import { AvaliacaoRecomendacoesGestante } from "../components/AvaliacaoRecomendacoesGestante";
 import { GestanteResumoCard } from "../components/GestanteResumoCard";
 import { ResumoAplicacaoCard } from "../components/ResumoAplicacaoCard";
+import { CATEGORIA_PROFISSIONAL_LABEL } from "@/features/usuarios/constants/categoriaProfissional";
+import { ROLE_TO_CATEGORIA } from "@/features/usuarios/types/usuario";
 
 export function AvaliacaoDetalhePage() {
 	const { id } = useParams<{ id: string }>();
@@ -31,8 +34,11 @@ export function AvaliacaoDetalhePage() {
 					<Divider text="Resumo da aplicação" />
 					<ResumoAplicacaoCard
 						appliedAt={assessment.appliedAt}
-						applier={assessment.appliedByUser}
 						ubs={assessment.healthUnit.name}
+						aplicador={assessment.appliedByUser.name}
+						categoriaProfissional={CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[assessment.appliedByUser.role]]}
+						crmCoren={assessment.appliedByUser.professionalRegistration}
+						email={assessment.appliedByUser.email}
 					/>
 				</section>
 
@@ -43,7 +49,11 @@ export function AvaliacaoDetalhePage() {
 
 				<section className="flex flex-col gap-3">
 					<Divider text="Resultado" />
-					<ResultadoAvaliacao avaliacao={assessment} />
+					<ResultadoAvaliacao
+						nomeGestante={assessment.patient.name}
+						pontuacao={assessment.result.totalScore}
+						classificacao={toClassificacao(assessment.result.vulnerabilityLevel)}
+					/>
 				</section>
 
 				{/*

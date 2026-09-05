@@ -1,5 +1,5 @@
 import type { Classificacao } from '@/features/avaliacao/constants'
-import type { AvaliacaoDetalhe, CategoriaRespostas, RecomendacaoGestante } from '@/features/avaliacao/types/historico'
+import type { AssessmentRecommendation, AvaliacaoDetalhe, CategoriaRespostas } from '@/features/avaliacao/types/assessment'
 import { calcularIdade } from '@/features/core/utils/date'
 import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
 
@@ -56,18 +56,18 @@ const CATEGORIAS_MOCK: CategoriaRespostas[] = [
 	},
 ]
 
-const RECOMENDACOES_GESTANTE_MOCK: RecomendacaoGestante[] = [
+const RECOMENDACOES_GESTANTE_MOCK: AssessmentRecommendation[] = [
 	{
 		id: 'alcool',
-		titulo: 'Não ingerir bebida alcoolica',
-		observacoes:
-			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis maximus, mauris at tempor finibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+		text: 'Não ingerir bebida alcoolica',
+		order: 0,
+		fromSnapshot: true,
 	},
 	{
 		id: 'cigarro',
-		titulo: 'Não fumar cigarros',
-		observacoes:
-			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis maximus, mauris at tempor finibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+		text: 'Não fumar cigarros',
+		order: 1,
+		fromSnapshot: true,
 	},
 ]
 
