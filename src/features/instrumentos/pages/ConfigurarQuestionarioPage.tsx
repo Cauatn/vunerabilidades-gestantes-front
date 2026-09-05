@@ -18,7 +18,8 @@ import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
 import { usePublishQuestionario } from '@/features/instrumentos/composables/usePublishQuestionario'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
-import { getQuestionnaireConfiguration } from '@/features/instrumentos/service/questionarioService'
+import { getActiveQuestionnaire } from '@/features/instrumentos/services/questionario'
+import { toSections } from '@/features/instrumentos/utils/questionarioMapper'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -57,8 +58,8 @@ export function ConfigurarQuestionarioPage() {
 
 	useEffect(() => {
 		if (carregado) return
-		void getQuestionnaireConfiguration()
-			.then((secoes) => config.substituirSecoes(secoes))
+		void getActiveQuestionnaire()
+			.then(({ data }) => config.substituirSecoes(toSections(data)))
 			.finally(() => setCarregado(true))
 	}, [carregado, config])
 
