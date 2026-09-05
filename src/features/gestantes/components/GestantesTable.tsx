@@ -1,18 +1,25 @@
-import { SquarePen, UserRound } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { SquarePen, UserRound } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { calcularIdade, formatarDataBr } from '@/features/core/utils/date'
-import type { Gestante } from '@/features/gestantes/types/gestante'
+import { calcularIdade, formatarDataBr } from "@/features/core/utils/date";
+import type { Gestante } from "@/features/gestantes/types/gestante";
 
-const columns = ['Nome', 'Idade', 'Data de nascimento', 'CPF', 'CNS', 'Vulnerabilidade']
+const columns = [
+	"Nome",
+	"Idade",
+	"Data de nascimento",
+	"CPF",
+	"CNS",
+	"Vulnerabilidade",
+];
 
-const gridCols = 'grid-cols-[200px_repeat(5,minmax(0,1fr))_116px]'
+const gridCols = "grid-cols-[200px_repeat(5,minmax(0,1fr))_116px]";
 
 type Props = {
-	rows: Gestante[]
-	onVerPerfil?: (row: Gestante) => void
-	onEditar?: (row: Gestante) => void
-}
+	rows: Gestante[];
+	onVerPerfil?: (row: Gestante) => void;
+	onEditar?: (row: Gestante) => void;
+};
 
 export function GestantesTable({ rows, onVerPerfil, onEditar }: Props) {
 	return (
@@ -30,21 +37,23 @@ export function GestantesTable({ rows, onVerPerfil, onEditar }: Props) {
 			</div>
 
 			{rows.map((row) => {
-				const nascimento = row.birthDate.slice(0, 10)
-				const cpf = row.identifier.type === 'CPF' ? row.identifier.value : '—'
-				const cns = row.identifier.type === 'SUS_CARD' ? row.identifier.value : '—'
+				const nascimento = row.birthDate.slice(0, 10);
 				return (
 					<div key={row.id} className={`grid ${gridCols} bg-n-0`}>
 						<Cell>{row.name}</Cell>
 						<Cell>{calcularIdade(nascimento)}</Cell>
 						<Cell>{formatarDataBr(nascimento)}</Cell>
-						<Cell>{cpf}</Cell>
-						<Cell>{cns}</Cell>
+						{/* //TODO: corrigir tipagem da avaliação */}
+						<Cell>{row.identifiers.cpf}</Cell>
+						<Cell>{row.identifiers.cns}</Cell>
 						<Cell>
 							<span className="text-n-400">—</span>
 						</Cell>
 						<div className="flex items-center justify-center gap-2.5 border-b border-n-30 px-5">
-							<ActionButton label="Ver perfil" onClick={() => onVerPerfil?.(row)}>
+							<ActionButton
+								label="Ver perfil"
+								onClick={() => onVerPerfil?.(row)}
+							>
 								<UserRound className="size-4" />
 							</ActionButton>
 							<ActionButton label="Editar" onClick={() => onEditar?.(row)}>
@@ -52,10 +61,10 @@ export function GestantesTable({ rows, onVerPerfil, onEditar }: Props) {
 							</ActionButton>
 						</div>
 					</div>
-				)
+				);
 			})}
 		</div>
-	)
+	);
 }
 
 function Cell({ children }: { children: ReactNode }) {
@@ -63,7 +72,7 @@ function Cell({ children }: { children: ReactNode }) {
 		<div className="flex items-center border-b border-n-30 px-5 py-4 text-sm text-n-800">
 			<span className="truncate">{children}</span>
 		</div>
-	)
+	);
 }
 
 function ActionButton({
@@ -71,9 +80,9 @@ function ActionButton({
 	children,
 	onClick,
 }: {
-	label: string
-	children: ReactNode
-	onClick?: () => void
+	label: string;
+	children: ReactNode;
+	onClick?: () => void;
 }) {
 	return (
 		<button
@@ -84,5 +93,5 @@ function ActionButton({
 		>
 			{children}
 		</button>
-	)
+	);
 }

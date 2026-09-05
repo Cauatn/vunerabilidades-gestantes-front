@@ -51,6 +51,7 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 	)
 }
 
+//TODO: formulário criado no backend só é mostrado quando seleciona uma gestante (antes de selecionar fica mostrando o mock)
 export function FormularioPage() {
 	const navigate = useNavigate()
 	const { perguntas: perguntasConfiguradas } = usePerguntas()

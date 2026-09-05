@@ -26,7 +26,8 @@ export function ResumoAplicacaoCard({
 			<div className="grid flex-1 grid-cols-3 gap-x-3 gap-y-3 text-sm text-n-800">
 				<p>
 					<span className="font-semibold">Data de aplicação:</span>{" "}
-					{formatarDataBr(appliedAt)}
+					{/* //TODO: formatar data corretamente */}
+					{appliedAt}
 				</p>
 				<p className="col-span-2">
 					<span className="font-semibold">UBS de aplicação:</span> {ubs}

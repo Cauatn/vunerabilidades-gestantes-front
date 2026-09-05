@@ -64,6 +64,7 @@ export function GestantesPage() {
 				<div className="flex flex-col gap-8">
 					{criar.isError ? <p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{apiErrorMessage(criar.error, 'Não foi possível cadastrar a gestante.')}</p> : null}
 					<div className="flex items-end gap-3">
+						{/* //TODO: espaçar verticalmente esse input da tabela */}
 						<Input
 							placeholder="Buscar por nome, CPF ou CNS..."
 							value={termo}

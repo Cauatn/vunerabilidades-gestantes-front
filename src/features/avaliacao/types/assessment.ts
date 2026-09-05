@@ -99,7 +99,7 @@ export interface Assessment {
 	appliedAt: string;
 	appliedByUser: Usuario;
 	healthUnit: HealthUnit;
-	snapshot: QuestionnaireSnapshot;
+	snapshot: { props: QuestionnaireSnapshot };
 	answers: AssessmentAnswer[];
 	result: AssessmentResult;
 	recommendations: AssessmentRecommendation[];

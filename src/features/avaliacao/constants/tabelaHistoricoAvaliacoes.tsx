@@ -9,7 +9,7 @@ import {
 } from "@/features/usuarios/types/usuario";
 import type { ColumnDef } from "@tanstack/react-table";
 import AcoesTabelaAvaliacoes from "../components/AcoesTabelaAvaliacoes";
-import type { Assessment, QuestionnaireSnapshot } from "../types/assessment";
+import type { Assessment } from "../types/assessment";
 
 export const columns: ColumnDef<Assessment>[] = [
 	{
@@ -23,11 +23,12 @@ export const columns: ColumnDef<Assessment>[] = [
 		cell: ({ getValue }) => formatarDataBr(getValue() as string),
 	},
 	{
-		accessorKey: "snapshot",
+		accessorKey: "snapshot.props",
 		header: "Versão do questionário",
 		cell: ({ getValue }) => {
-			const { questionnaireVersionId } = getValue() as QuestionnaireSnapshot;
-			return <Badge variant="neutral">{questionnaireVersionId}</Badge>;
+			const data = getValue();
+			//TODO: corrigir tipagem
+			return <Badge variant="neutral">{data.versionNumber}</Badge>;
 		},
 	},
 	{
@@ -74,35 +75,37 @@ export const columns: ColumnDef<Assessment>[] = [
 						label="Idade"
 						value={calcularIdade(patient.birthDate).toString()}
 					/>
-					//TODO: colocar o cpf e cns da paciente
-					{/* <CellSubItem
-						label="Categoria profissional"
-						value={patient.}
+					{/* //TODO: corrigir tipagem da avaliação em types */}
+					<CellSubItem
+						label="CPF"
+						value={patient.identifiers.cpf ?? '--'}
 					/>
 					<CellSubItem
-						label={professionalRegistrationLabel}
-						value={appliedByUser.professionalRegistration as string}
-					/> */}
+						label='CNS'
+						value={patient.identifiers.cns ?? '--'}
+					/>
 				</div>
 			);
 		},
 	},
-	//TODO: a cor tem que vir da configuração da escala, não da pra hardcodar no front
+	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result.vulnerabilityLevel",
+		accessorKey: "result.props",
 		header: "Vulnerabilidade",
 		cell: ({ getValue }) => {
-			const vulnerabilityLevel = getValue() as string;
-			return <Badge variant="neutral">{vulnerabilityLevel}</Badge>;
+			const data = getValue();
+			//TODO: corrigir tipagem
+			return <Badge variant="neutral">{data.vulnerabilityLevel}</Badge>;
 		},
 	},
-	//TODO: a cor tem que vir da configuração da escala, não da pra hardcodar no front
+	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result.totalScore",
+		accessorKey: "result.props",
 		header: "Score",
 		cell: ({ getValue }) => {
-			const totalScore = getValue() as number;
-			return <Badge variant="neutral">{totalScore}</Badge>;
+			const data = getValue();
+			//TODO: corrigir tipagem
+			return <Badge variant="neutral">{data.totalScore}</Badge>;
 		},
 	},
 	{

@@ -12,8 +12,6 @@ export function GestanteResumoCard({
 	gestante,
 	className,
 }: GestanteResumoCardProps) {
-	const nascimento = gestante.birthDate.slice(0, 10);
-
 	return (
 		<div
 			className={cn(
@@ -38,14 +36,16 @@ export function GestanteResumoCard({
 				</p>
 				<p>
 					<span className="font-semibold">CPF:</span>{" "}
-					{gestante.identifier.type === "CPF"
-						? gestante.identifier.value
+					{/* //TODO: corrigir tipagem da avaliação em types */}
+					{gestante.identifiers.cpf
+						? gestante.identifiers.cpf
 						: "--"}
 				</p>
 				<p>
 					<span className="font-semibold">CNS:</span>{" "}
-					{gestante.identifier.type === "SUS_CARD"
-						? gestante.identifier.value
+					{/* //TODO: corrigir tipagem da avaliação em types */}
+					{gestante.identifiers.cns
+						? gestante.identifiers.cns
 						: "--"}
 				</p>
 			</div>

@@ -46,6 +46,7 @@ export function UsuariosPage() {
 
 	function handleToggleStatus(usuario: Usuario) {
 		// trava de segurança: ninguém altera o status da própria conta pelo front
+		//TODO: adicionar toast para indicar sucesso ou não da operação
 		if (usuario.id === user?.id) return
 		if (usuario.status === 'ACTIVE') inativar.mutate(usuario.id)
 		else ativar.mutate(usuario.id)
