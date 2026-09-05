@@ -9,6 +9,7 @@ import {
 import type { SecaoConfig } from '@/features/instrumentos/types/questionario'
 import { toReplaceQuestionsPayload } from '@/features/instrumentos/utils/questionarioMapper'
 
+//TODO: Talvez modificar a api do backend para publicar o questionário inteiro em uma única requisição.
 async function publishQuestionnaire(secoes: SecaoConfig[]) {
 	const { data: active } = await getActiveQuestionnaire()
 	const { data: draft } = await createQuestionnaireDraft(active.id)
