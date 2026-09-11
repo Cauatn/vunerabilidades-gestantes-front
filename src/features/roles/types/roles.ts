@@ -1,9 +1,9 @@
 import type { UsuarioRole } from '@/features/usuarios/types/usuario'
 
-export type Capability = 'users.manage' | 'questionnaire.configure'
+export type Capability = 'users.manage' | 'questionnaire.configure' | 'assessments.apply'
 
 export const ROLE_CAPABILITIES: Record<UsuarioRole, Capability[]> = {
 	ADMIN: ['users.manage', 'questionnaire.configure'],
-	DOCTOR: [],
-	NURSE: [],
+	DOCTOR: ['assessments.apply'],
+	NURSE: ['assessments.apply'],
 }

@@ -25,7 +25,7 @@ const inputVariants = cva(
 	},
 )
 
-export type MaskType = 'cpf' | 'cns'
+export type MaskType = 'cpf' | 'cns' | 'telefone'
 
 export function onlyDigits(value: string): string {
 	return value.replace(/\D/g, '')
@@ -45,9 +45,22 @@ function applyCnsMask(rawValue: string): string {
 	return groups.filter(Boolean).join(' ')
 }
 
+function applyTelefoneMask(rawValue: string): string {
+	const digits = onlyDigits(rawValue).slice(0, 11)
+	if (!digits) return ''
+	if (digits.length <= 2) return `(${digits}`
+	const ddd = digits.slice(0, 2)
+	const numero = digits.slice(2)
+	const prefixLength = numero.length > 8 ? 5 : 4
+	const prefixo = numero.slice(0, prefixLength)
+	const sufixo = numero.slice(prefixLength)
+	return `(${ddd}) ${prefixo}${sufixo ? `-${sufixo}` : ''}`
+}
+
 const MASKS: Record<MaskType, (value: string) => string> = {
 	cpf: applyCpfMask,
 	cns: applyCnsMask,
+	telefone: applyTelefoneMask,
 }
 
 export function applyMask(maskType: MaskType, value: string): string {
@@ -57,6 +70,7 @@ export function applyMask(maskType: MaskType, value: string): string {
 const MASK_PLACEHOLDERS: Record<MaskType, string> = {
 	cpf: '000.000.000-00',
 	cns: '000 0000 0000 0000',
+	telefone: '(00) 00000-0000',
 }
 
 type BaseInputProps = React.ComponentProps<'input'> & VariantProps<typeof inputVariants>
@@ -147,6 +161,9 @@ function DatePickerInput({
 			<PopoverContent className="w-auto p-0" align="start" onOpenAutoFocus={(event) => event.preventDefault()}>
 				<Calendar
 					mode="single"
+					captionLayout="dropdown"
+					startMonth={new Date(1900, 0)}
+					endMonth={new Date(new Date().getFullYear(), 11)}
 					selected={selectedDate}
 					onSelect={(date) => {
 						if (date) {

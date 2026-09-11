@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { formatarDataHoraBr } from '@/features/core/utils/date'
 
 import { Logo } from '@/components/Logo'
 import { useSession } from '@/features/auth/composables/useSession'
@@ -15,8 +16,7 @@ export function GestantesImprimirPage() {
 	const { user } = useSession()
 	const { data: healthUnits } = useGetHealthUnits()
 
-	const agora = new Date()
-	const dataEmissao = `${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+	const dataEmissao = formatarDataHoraBr(new Date())
 	const emissorNome = user?.name ?? '—'
 	const ubsNome =
 		healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)?.name ?? '—'

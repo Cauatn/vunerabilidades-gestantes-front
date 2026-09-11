@@ -13,8 +13,9 @@ import { EtapaPerguntas } from '@/features/avaliacao/components/EtapaPerguntas'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
-import { useStartAssessment, useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
-import type { Assessment } from '@/features/avaliacao/types/assessment'
+import { useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
+import { getActiveQuestionnaire } from '@/features/instrumentos/services/questionario'
+import type { SavedAssessment } from '@/features/avaliacao/types/assessment'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
 import { toClassificacao } from '@/features/avaliacao/utils/classificacao'
@@ -24,7 +25,7 @@ import { useSession } from '@/features/auth/composables/useSession'
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 const PERGUNTAS_VAZIAS: Pergunta[] = []
 
-function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
+function AvisoInicial({ onIniciar, carregando, erro }: { onIniciar: () => void; carregando: boolean; erro: string | null }) {
 	return (
 		<Page
 			title="Avaliação da Escala Brasileira de Vulnerabilidade Social no Pré-Natal"
@@ -44,7 +45,8 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 					</p>
 				</div>
 
-				<Button size="lg" onClick={onIniciar}>
+				{erro && <p role="alert" className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{erro}</p>}
+				<Button size="lg" onClick={onIniciar} isLoading={carregando}>
 					Iniciar
 				</Button>
 			</div>
@@ -55,19 +57,19 @@ function AvisoInicial({ onIniciar }: { onIniciar: () => void }) {
 export function FormularioPage() {
 	const navigate = useNavigate()
 	const { user } = useSession()
-	const iniciarAvaliacao = useStartAssessment()
 	const enviarAvaliacao = useSubmitAssessment()
 	const atualizarRecomendacoes = useUpdateAssessmentRecommendations()
 	const { data: gestantesPage } = useGetGestantes()
 	const gestantes = gestantesPage?.items ?? []
 
 	const [iniciado, setIniciado] = useState(false)
+	const [carregandoQuestionario, setCarregandoQuestionario] = useState(false)
 	const [gestanteId, setGestanteId] = useState<string | null>(null)
 	const [respostas, setRespostas] = useState<Record<string, string>>({})
 	const [etapa, setEtapa] = useState(0)
 	const [confirmarCalculoAberto, setConfirmarCalculoAberto] = useState(false)
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
-	const [assessment, setAssessment] = useState<Assessment | null>(null)
+	const [assessment, setAssessment] = useState<SavedAssessment | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
 	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
 	const [erro, setErro] = useState<string | null>(null)
@@ -103,10 +105,40 @@ export function FormularioPage() {
 	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
 
 	const todasRespondidasNaEtapa = perguntasDaEtapa.every((pergunta) => !!respostas[pergunta.id])
-	const podeAvancar = (!isPrimeiraEtapa || !!gestanteId) && todasRespondidasNaEtapa
+	const podeAvancar = perguntasDaEtapa.length > 0 && (!isPrimeiraEtapa || !!gestanteId) && todasRespondidasNaEtapa
 
 	if (!iniciado) {
-		return <AvisoInicial onIniciar={() => setIniciado(true)} />
+		return <AvisoInicial onIniciar={handleIniciar} carregando={carregandoQuestionario} erro={erro} />
+	}
+
+	async function handleIniciar() {
+		if (carregandoQuestionario) return
+		if (perguntasAplicacao) {
+			setIniciado(true)
+			return
+		}
+		setCarregandoQuestionario(true)
+		setErro(null)
+		try {
+			const { data } = await getActiveQuestionnaire()
+			if (!data.questions.length) {
+				setErro('O questionário publicado não possui perguntas disponíveis.')
+				return
+			}
+			setPerguntasAplicacao(data.questions.map((question) => ({
+				id: question.id,
+				categoria: question.section,
+				texto: question.statement,
+				opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
+				visibleWhenQuestionId: question.visibleWhenQuestionId,
+				visibleWhenOptionId: question.visibleWhenOptionId,
+			})))
+			setIniciado(true)
+		} catch {
+			setErro('Não foi possível carregar o questionário publicado. Tente iniciar novamente.')
+		} finally {
+			setCarregandoQuestionario(false)
+		}
 	}
 
 	function handleAnterior() {
@@ -130,6 +162,7 @@ export function FormularioPage() {
 	}
 
 	async function handleConfirmarCalculo() {
+		if (enviarAvaliacao.isPending || assessment) return
 		if (!gestanteId || !user?.currentHealthUnitId) {
 			setConfirmarCalculoAberto(false)
 			setErro('Selecione uma UBS atual no seu perfil antes de calcular o resultado.')
@@ -189,30 +222,12 @@ export function FormularioPage() {
 		})
 	}
 
-	async function handleGestanteChange(id: string) {
+	function handleGestanteChange(id: string) {
+		if (id === gestanteId) return
 		setGestanteId(id)
 		setErro(null)
-		if (!user?.currentHealthUnitId) {
-			setErro('Selecione uma UBS atual no seu perfil antes de aplicar o formulário.')
-			return
-		}
-		try {
-			const { data } = await iniciarAvaliacao.mutateAsync({ patientId: id, healthUnitId: user.currentHealthUnitId })
-			setPerguntasAplicacao(
-				data.questionnaire.questions.map((question) => ({
-					id: question.id,
-					categoria: question.section,
-					texto: question.statement,
-					opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
-					visibleWhenQuestionId: question.visibleWhenQuestionId,
-					visibleWhenOptionId: question.visibleWhenOptionId,
-				})),
-			)
-			setRespostas({})
-			setEtapa(0)
-		} catch {
-			setErro('Não foi possível carregar o formulário publicado para esta aplicação.')
-		}
+		setRespostas({})
+		setEtapa(0)
 	}
 
 	return (
@@ -274,7 +289,7 @@ export function FormularioPage() {
 							<Button variant="outline" onClick={handleAnterior}>
 								Anterior
 							</Button>
-							<Button disabled={!podeAvancar || iniciarAvaliacao.isPending || enviarAvaliacao.isPending} onClick={handleProxima}>
+							<Button disabled={!podeAvancar || enviarAvaliacao.isPending} onClick={handleProxima}>
 								{isUltimaEtapaPerguntas ? 'Calcular' : 'Próxima'}
 							</Button>
 						</>
@@ -288,6 +303,7 @@ export function FormularioPage() {
 			</div>
 
 			<ConfirmarCalculoModal
+				isLoading={enviarAvaliacao.isPending}
 				open={confirmarCalculoAberto}
 				onOpenChange={setConfirmarCalculoAberto}
 				onConfirmar={handleConfirmarCalculo}

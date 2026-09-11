@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { Restricted } from '@/features/core/components/Restricted'
 
 import { AppShell } from '@/components/AppShell'
 import { RequireAuth } from '@/features/core/guards/requireAuth'
@@ -33,7 +34,11 @@ export function AppRoutes() {
 					<Route path="/" element={<GestantesPage />} />
 					<Route path="/gestantes/:id" element={<GestantesPerfilPage />} />
 					<Route path="/usuarios" element={<UsuariosPage />} />
-					<Route path="/formulario" element={<FormularioPage />} />
+					<Route path="/formulario" element={
+						<Restricted capability="assessments.apply" fallback={<Navigate to="/historico" replace />}>
+							<FormularioPage />
+						</Restricted>
+					} />
 					<Route path="/historico" element={<HistoricoPage />} />
 					<Route path="/historico/:id" element={<AvaliacaoDetalhePage />} />
 					<Route path="/resultado" element={<ResultadoPage />} />

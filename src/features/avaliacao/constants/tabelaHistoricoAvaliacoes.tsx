@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import CellSubItem from "@/features/core/components/CellSubItem";
-import { calcularIdade, formatarDataBr } from "@/features/core/utils/date";
+import { calcularIdade, formatarDataHoraBr } from "@/features/core/utils/date";
 import type { Gestante } from "@/features/gestantes/types/gestante";
 import type { HealthUnit } from "@/features/healthUnits/types/healthUnit";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@/features/usuarios/types/usuario";
 import type { ColumnDef } from "@tanstack/react-table";
 import AcoesTabelaAvaliacoes from "../components/AcoesTabelaAvaliacoes";
-import type { Assessment, AssessmentResult, QuestionnaireSnapshot } from "../types/assessment";
+import type { Assessment, QuestionnaireSnapshot } from "../types/assessment";
 
 export const columns: ColumnDef<Assessment>[] = [
 	{
@@ -20,7 +20,7 @@ export const columns: ColumnDef<Assessment>[] = [
 	{
 		accessorKey: "appliedAt",
 		header: "Data da aplicação",
-		cell: ({ getValue }) => formatarDataBr(getValue() as string),
+		cell: ({ getValue }) => formatarDataHoraBr(getValue() as string),
 	},
 	{
 		accessorKey: "snapshot.props",
@@ -89,20 +89,18 @@ export const columns: ColumnDef<Assessment>[] = [
 	},
 	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result",
+		accessorKey: "result.vulnerabilityLevel",
 		header: "Vulnerabilidade",
 		cell: ({ getValue }) => {
-			const data = getValue() as AssessmentResult;
-			return <Badge variant="neutral">{data.vulnerabilityLevel}</Badge>;
+			return <Badge variant="neutral">{getValue<string>()}</Badge>;
 		},
 	},
 	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
-		accessorKey: "result",
+		accessorKey: "result.totalScore",
 		header: "Score",
 		cell: ({ getValue }) => {
-			const data = getValue() as AssessmentResult;
-			return <Badge variant="neutral">{data.totalScore}</Badge>;
+			return <Badge variant="neutral">{getValue<number>()}</Badge>;
 		},
 	},
 	{

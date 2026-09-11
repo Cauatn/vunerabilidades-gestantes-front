@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { Input, applyMask } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
 import { formatCns, formatCpf, onlyDigits } from '@/features/gestantes/utils/document'
@@ -58,7 +58,7 @@ export function GestanteSheet({
 						cpf: gestante.identifiers.cpf ? formatCpf(gestante.identifiers.cpf) : '',
 						cns: gestante.identifiers.cns ? formatCns(gestante.identifiers.cns) : '',
 						nomeMae: gestante.motherName ?? '',
-						telefone: gestante.phone ?? '',
+						telefone: applyMask('telefone', gestante.phone ?? ''),
 					}
 				: { ...VALORES_VAZIOS, nome: nomeInicial ?? '' },
 		)
@@ -150,7 +150,7 @@ export function GestanteSheet({
 						<Field>
 							<FieldLabel htmlFor="gestante-telefone">Telefone</FieldLabel>
 							<FieldContent>
-								<Input id="gestante-telefone" placeholder="Opcional" {...register('telefone')} />
+								<Input id="gestante-telefone" type="tel" autoComplete="tel-national" maskType="telefone" {...register('telefone')} />
 							</FieldContent>
 						</Field>
 					</FieldGroup>

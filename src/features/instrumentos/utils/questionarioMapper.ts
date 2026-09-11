@@ -8,12 +8,6 @@ import type {
 	QuestionnaireVersionApi,
 } from '@/features/instrumentos/types/questionnaireApi'
 
-const MONGO_ID_PATTERN = /^[a-f\d]{24}$/i
-
-function isPersistedId(id: string): boolean {
-	return MONGO_ID_PATTERN.test(id)
-}
-
 function toTipoPergunta(type: QuestionApiType): TipoPergunta {
 	return type === 'YES_NO' ? 'dicotomica' : 'multipla'
 }
@@ -76,7 +70,8 @@ function toReplaceQuestionPayload(
 	const triggeringOption = parent ? opcaoQueDisparaCondicional(parent) : undefined
 
 	return {
-		questionId: isPersistedId(pergunta.id) ? pergunta.id : undefined,
+		// O lote substitui o rascunho inteiro. IDs da versão de origem servem
+		// apenas como clientId: a clonagem gera novos IDs no backend.
 		clientId: pergunta.id,
 		section,
 		statement: pergunta.enunciado.trim(),
@@ -86,7 +81,6 @@ function toReplaceQuestionPayload(
 		visibleWhenClientId: parent?.id,
 		visibleWhenOptionClientId: triggeringOption?.id,
 		options: pergunta.opcoes.map((opcao, index) => ({
-			optionId: isPersistedId(opcao.id) ? opcao.id : undefined,
 			clientId: opcao.id,
 			label: opcao.texto.trim(),
 			score: opcao.pontuavel ? (opcao.pontuacao ?? 0) : 0,

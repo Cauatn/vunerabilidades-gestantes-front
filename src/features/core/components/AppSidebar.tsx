@@ -6,6 +6,7 @@ import { Logo } from '@/components/Logo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useSession } from '@/features/auth/composables/useSession'
 import { Restricted } from '@/features/core/components/Restricted'
+import { useHasCapability } from '@/features/core/composables/useHasCapability'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import type { Capability } from '@/features/roles/types/roles'
 import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useSetCurrentHealthUnit'
@@ -13,7 +14,7 @@ import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/cate
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
 import { cn } from '@/lib/utils'
 
-type NavChild = { label: string; to: string }
+type NavChild = { label: string; to: string; capability?: Capability }
 
 type NavItem = {
 	label: string
@@ -31,7 +32,7 @@ const items: NavItem[] = [
 		label: 'Avaliações',
 		icon: Stethoscope,
 		children: [
-			{ label: 'Nova', to: '/formulario' },
+			{ label: 'Nova', to: '/formulario', capability: 'assessments.apply' },
 			{ label: 'Histórico', to: '/historico' },
 		],
 	},
@@ -67,6 +68,7 @@ function activeChildUrl(children: NavChild[], pathname: string) {
 }
 
 export function AppSidebar() {
+	const can = useHasCapability()
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const { user, logout } = useSession()
@@ -93,7 +95,7 @@ export function AppSidebar() {
 			<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
 				{items.map((item) => {
 					const row = item.children ? (
-						<NavGroup key={item.label} item={item} pathname={pathname} />
+						<NavGroup key={item.label} item={{ ...item, children: item.children.filter((child) => !child.capability || can(child.capability)) }} pathname={pathname} />
 					) : (
 						<NavRow key={item.label} item={item} pathname={pathname} />
 					)

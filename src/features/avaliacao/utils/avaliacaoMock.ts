@@ -1,6 +1,6 @@
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { AssessmentRecommendation, AvaliacaoDetalhe, CategoriaRespostas } from '@/features/avaliacao/types/assessment'
-import { calcularIdade } from '@/features/core/utils/date'
+import { calcularIdade, formatarDataHoraBr } from '@/features/core/utils/date'
 import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
 
 export interface HistoricoAplicacao {
@@ -72,12 +72,7 @@ const RECOMENDACOES_GESTANTE_MOCK: AssessmentRecommendation[] = [
 ]
 
 export function formatarEmitidoEm(data: Date): string {
-	const dia = String(data.getDate()).padStart(2, '0')
-	const mes = String(data.getMonth() + 1).padStart(2, '0')
-	const ano = data.getFullYear()
-	const hora = String(data.getHours()).padStart(2, '0')
-	const minuto = String(data.getMinutes()).padStart(2, '0')
-	return `${dia}/${mes}/${ano} às ${hora}:${minuto}`
+	return formatarDataHoraBr(data)
 }
 
 export function criarAvaliacaoDetalheMock(id: string): AvaliacaoDetalhe {
