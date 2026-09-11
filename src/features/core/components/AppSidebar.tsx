@@ -186,12 +186,11 @@ function NavRow({ item, pathname }: { item: NavItem; pathname: string }) {
 	)
 }
 
-/** Item com subitens: abre/fecha conforme a rota, subitens no mesmo padrão do vinea. */
+/** Item com subitens: abre/fecha no clique; autoabre quando a rota casa com um filho. */
 function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
 	const children = item.children!
 	const activeUrl = activeChildUrl(children, pathname)
 	const groupActive = activeUrl != null
-	const groupHref = children[0].to
 	const [open, setOpen] = useState(groupActive)
 
 	useEffect(() => {
@@ -200,19 +199,20 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
 
 	return (
 		<div>
-			<NavLink
-				to={groupHref}
+			<button
+				type="button"
+				aria-expanded={open}
 				className={navBtnClass(groupActive)}
-				onClick={() => setOpen(true)}
+				onClick={() => setOpen((prev) => !prev)}
 			>
 				<span className="flex size-5 shrink-0 items-center justify-center">
 					<item.icon className="size-5" />
 				</span>
-				<span className="min-w-0 flex-1 truncate text-sm">{item.label}</span>
+				<span className="min-w-0 flex-1 truncate text-left text-sm">{item.label}</span>
 				<ChevronRight
 					className={cn('size-4 shrink-0 text-n-500 transition-transform duration-200', open && 'rotate-90')}
 				/>
-			</NavLink>
+			</button>
 
 			<div
 				className={cn(
