@@ -1,4 +1,4 @@
-import { Baby, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
+import { Baby, Building2, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -27,6 +27,7 @@ type NavItem = {
 
 const items: NavItem[] = [
 	{ label: 'Profissionais', icon: UsersRound, to: '/usuarios', capability: 'users.manage' },
+	{ label: 'Unidades de saúde', icon: Building2, to: '/unidades', capability: 'health-units.manage' },
 	{ label: 'Gestantes', icon: Baby, to: '/', match: (p) => p === '/' || p.startsWith('/gestantes') },
 	{
 		label: 'Avaliações',

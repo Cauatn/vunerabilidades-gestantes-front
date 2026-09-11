@@ -1,23 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { COR_GRAU_PADRAO } from '../constants'
 import { ESCALA_GRAUS_INICIAIS } from '../data/mock'
 import type { GrauConfig, LimitesEscala, RecomendacaoConfig, ValidacaoEscala } from '../types/escala'
 import { reorderById } from '../utils/reorder'
 
-const STORAGE_KEY = 'gestare:escala-config'
-
-type EscalaArmazenada = { limites: LimitesEscala; graus: GrauConfig[] }
-
-function carregarEscala(): EscalaArmazenada {
-	try {
-		const salvo = localStorage.getItem(STORAGE_KEY)
-		if (salvo) return JSON.parse(salvo) as EscalaArmazenada
-	} catch {
-		// O valor inicial é um fallback seguro para armazenamento indisponível ou inválido.
-	}
-	return { limites: { min: 0, max: 60 }, graus: ESCALA_GRAUS_INICIAIS }
-}
+const LIMITES_INICIAIS: LimitesEscala = { min: 0, max: 60 }
 
 function novaRecomendacao(): RecomendacaoConfig {
 	return { id: crypto.randomUUID(), texto: '' }
@@ -59,17 +47,8 @@ function validar(limites: LimitesEscala, graus: GrauConfig[]): ValidacaoEscala {
 }
 
 export function useEscalaConfig() {
-	const [configInicial] = useState(carregarEscala)
-	const [limites, setLimites] = useState<LimitesEscala>(configInicial.limites)
-	const [graus, setGraus] = useState<GrauConfig[]>(configInicial.graus)
-
-	useEffect(() => {
-		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify({ limites, graus }))
-		} catch {
-			// Não impede a edição se o navegador bloquear o armazenamento.
-		}
-	}, [graus, limites])
+	const [limites, setLimites] = useState<LimitesEscala>(LIMITES_INICIAIS)
+	const [graus, setGraus] = useState<GrauConfig[]>(ESCALA_GRAUS_INICIAIS)
 
 	const validacao = useMemo(() => validar(limites, graus), [limites, graus])
 
@@ -81,6 +60,11 @@ export function useEscalaConfig() {
 		limites,
 		graus,
 		validacao,
+
+		substituirEscala(nova: { limites: LimitesEscala; graus: GrauConfig[] }) {
+			setLimites(nova.limites)
+			setGraus(nova.graus)
+		},
 
 		atualizarLimite(campo: keyof LimitesEscala, valor: number) {
 			setLimites((atual) => ({ ...atual, [campo]: valor }))

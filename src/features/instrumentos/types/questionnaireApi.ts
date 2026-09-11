@@ -1,3 +1,5 @@
+import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+
 export type QuestionApiType = 'YES_NO' | 'MULTIPLE_CHOICE'
 
 export interface AnswerOptionApi {
@@ -21,7 +23,9 @@ export interface QuestionApi {
 
 export interface QuestionnaireVersionApi {
 	id: string
+	versionNumber: number
 	questions: QuestionApi[]
+	vulnerabilityBands: VulnerabilityBand[]
 }
 
 export interface ReplaceAnswerOptionPayload {
@@ -47,4 +51,24 @@ export interface ReplaceQuestionPayload {
 
 export interface ReplaceQuestionsPayload {
 	questions: ReplaceQuestionPayload[]
+}
+
+export interface ReplaceRecommendationPayload {
+	recommendationId?: string
+	text: string
+	order: number
+}
+
+export interface ReplaceVulnerabilityBandPayload {
+	bandId?: string
+	level: string
+	color: string
+	minScore: number
+	maxScore: number
+	order: number
+	recommendations: ReplaceRecommendationPayload[]
+}
+
+export interface ReplaceVulnerabilityBandsPayload {
+	bands: ReplaceVulnerabilityBandPayload[]
 }

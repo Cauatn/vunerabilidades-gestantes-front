@@ -2,7 +2,6 @@ import { Page } from "@/components/Layout/Page";
 import { Divider } from "@/components/ui/divider";
 import { ResultadoAvaliacao } from "@/features/avaliacao/components/ResultadoAvaliacao";
 import { useAssessment } from "@/features/avaliacao/composables/useAssessments";
-import { toClassificacao } from "@/features/avaliacao/utils/classificacao";
 import { useParams } from "react-router-dom";
 import { AvaliacaoRecomendacoesGestante } from "../components/AvaliacaoRecomendacoesGestante";
 import { GestanteResumoCard } from "../components/GestanteResumoCard";
@@ -29,7 +28,7 @@ export function AvaliacaoDetalhePage() {
 			title={`Avaliação #${assessment.id}`}
 			description="Dados registrados no momento da aplicação."
 		>
-			<div className="flex flex-col gap-6">
+			<div className="flex flex-col gap-6 pb-10">
 				<section className="flex flex-col gap-3">
 					<Divider text="Resumo da aplicação" />
 					<ResumoAplicacaoCard
@@ -52,7 +51,9 @@ export function AvaliacaoDetalhePage() {
 					<ResultadoAvaliacao
 						nomeGestante={assessment.patient.name}
 						pontuacao={assessment.result.totalScore}
-						classificacao={toClassificacao(assessment.result.vulnerabilityLevel)}
+						vulnerabilityLevel={assessment.result.vulnerabilityLevel}
+						vulnerabilityBandId={assessment.result.vulnerabilityBandId}
+						bands={assessment.snapshot.props.vulnerabilityBands}
 					/>
 				</section>
 

@@ -7,6 +7,7 @@ import { AvaliacaoRespostas } from '@/features/avaliacao/components/AvaliacaoRes
 import { DadosGestanteCard } from '@/features/avaliacao/components/DadosGestanteCard'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { ResumoAplicacaoCard } from '@/features/avaliacao/components/ResumoAplicacaoCard'
+import { CLASSIFICACAO_LABEL, SYNTHETIC_VULNERABILITY_BANDS } from '@/features/avaliacao/constants'
 import { criarAvaliacaoDetalheMock, formatarEmitidoEm } from '@/features/avaliacao/utils/avaliacaoMock'
 
 export function AvaliacaoImprimirVisaoGeralPage() {
@@ -43,7 +44,9 @@ export function AvaliacaoImprimirVisaoGeralPage() {
 					<ResultadoAvaliacao
 						nomeGestante={avaliacao.gestante.nome}
 						pontuacao={avaliacao.pontuacao}
-						classificacao={avaliacao.classificacao}
+						vulnerabilityLevel={CLASSIFICACAO_LABEL[avaliacao.classificacao]}
+						vulnerabilityBandId={avaliacao.classificacao}
+						bands={SYNTHETIC_VULNERABILITY_BANDS}
 					/>
 
 					<div className="flex flex-col gap-3">

@@ -4,6 +4,7 @@ import { Page } from '@/components/Layout/Page'
 import { Button } from '@/components/ui/button'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { usePerguntas } from '@/features/avaliacao/composables/usePerguntasStore'
+import { CLASSIFICACAO_LABEL, SYNTHETIC_VULNERABILITY_BANDS } from '@/features/avaliacao/constants'
 import { calcularPontuacao, classificar } from '@/features/avaliacao/utils/calcularPontuacao'
 
 export function ResultadoPage() {
@@ -19,7 +20,9 @@ export function ResultadoPage() {
 			<ResultadoAvaliacao
 				nomeGestante={state?.nomeGestante ?? 'Antonietta Silva'}
 				pontuacao={pontuacao}
-				classificacao={classificar(pontuacao)}
+				vulnerabilityLevel={CLASSIFICACAO_LABEL[classificar(pontuacao)]}
+				vulnerabilityBandId={classificar(pontuacao)}
+				bands={SYNTHETIC_VULNERABILITY_BANDS}
 			/>
 			<div className="flex items-center gap-4">
 				<Button variant="ghost" onClick={() => navigate('/')}>

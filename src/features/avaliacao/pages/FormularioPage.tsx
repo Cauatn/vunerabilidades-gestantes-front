@@ -14,7 +14,7 @@ import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResu
 import { RecomendacoesGestante } from '@/features/avaliacao/components/RecomendacoesGestante'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { useSubmitAssessment, useUpdateAssessmentRecommendations } from '@/features/avaliacao/composables/useAssessments'
-import { getActiveQuestionnaire } from '@/features/instrumentos/services/questionario'
+import { useGetQuestionarioAtivo } from '@/features/instrumentos/composables/useGetQuestionarioAtivo'
 import type { SavedAssessment } from '@/features/avaliacao/types/assessment'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
@@ -25,14 +25,14 @@ import { useSession } from '@/features/auth/composables/useSession'
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
 const PERGUNTAS_VAZIAS: Pergunta[] = []
 
-function AvisoInicial({ onIniciar, carregando, erro }: { onIniciar: () => void; carregando: boolean; erro: string | null }) {
+function AvisoInicial({ onInit, carregando, erro }: { onInit: () => void; carregando: boolean; erro: string | null }) {
 	return (
 		<Page
 			title="Avaliação da Escala Brasileira de Vulnerabilidade Social no Pré-Natal"
 			description="Aplique o formulário da Escala Brasileira de Vulnerabilidade Social no Pré-Natal em sua consulta."
 		>
-			<div className="flex flex-1 flex-col items-center justify-center gap-10 text-center">
-				<img src={aplicacaoIllustration} alt="" className="h-auto w-full max-w-md" />
+			<div className="flex flex-1 flex-col items-center gap-10 py-10 text-center">
+				<img src={aplicacaoIllustration} alt="" className="h-auto w-full max-w-sm" />
 
 				<div className="flex max-w-2xl flex-col gap-3">
 					<p className="text-xl font-semibold text-n-900">
@@ -46,7 +46,7 @@ function AvisoInicial({ onIniciar, carregando, erro }: { onIniciar: () => void; 
 				</div>
 
 				{erro && <p role="alert" className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{erro}</p>}
-				<Button size="lg" onClick={onIniciar} isLoading={carregando}>
+				<Button size="lg" onClick={onInit} isLoading={carregando}>
 					Iniciar
 				</Button>
 			</div>
@@ -62,8 +62,13 @@ export function FormularioPage() {
 	const { data: gestantesPage } = useGetGestantes()
 	const gestantes = gestantesPage?.items ?? []
 
+	const {
+		data: activeQuestionnaire,
+		isFetching: carregandoQuestionario,
+		refetch: refetchActiveQuestionnaire,
+	} = useGetQuestionarioAtivo({ enabled: false })
+
 	const [iniciado, setIniciado] = useState(false)
-	const [carregandoQuestionario, setCarregandoQuestionario] = useState(false)
 	const [gestanteId, setGestanteId] = useState<string | null>(null)
 	const [respostas, setRespostas] = useState<Record<string, string>>({})
 	const [etapa, setEtapa] = useState(0)
@@ -71,8 +76,19 @@ export function FormularioPage() {
 	const [confirmarFinalizarAberto, setConfirmarFinalizarAberto] = useState(false)
 	const [assessment, setAssessment] = useState<SavedAssessment | null>(null)
 	const [recomendacoes, setRecomendacoes] = useState<RecomendacaoGestante[]>([])
-	const [perguntasAplicacao, setPerguntasAplicacao] = useState<Pergunta[] | null>(null)
 	const [erro, setErro] = useState<string | null>(null)
+
+	const perguntasAplicacao = useMemo<Pergunta[] | null>(() => {
+		if (!activeQuestionnaire) return null
+		return activeQuestionnaire.questions.map((question) => ({
+			id: question.id,
+			categoria: question.section,
+			texto: question.statement,
+			opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
+			visibleWhenQuestionId: question.visibleWhenQuestionId,
+			visibleWhenOptionId: question.visibleWhenOptionId,
+		}))
+	}, [activeQuestionnaire])
 	const perguntas = perguntasAplicacao ?? PERGUNTAS_VAZIAS
 	const perguntasVisiveis = useMemo(
 		() => perguntas.filter((pergunta) => !pergunta.visibleWhenQuestionId || respostas[pergunta.visibleWhenQuestionId] === pergunta.visibleWhenOptionId),
@@ -108,37 +124,26 @@ export function FormularioPage() {
 	const podeAvancar = perguntasDaEtapa.length > 0 && (!isPrimeiraEtapa || !!gestanteId) && todasRespondidasNaEtapa
 
 	if (!iniciado) {
-		return <AvisoInicial onIniciar={handleIniciar} carregando={carregandoQuestionario} erro={erro} />
+		return <AvisoInicial onInit={handleInit} carregando={carregandoQuestionario} erro={erro} />
 	}
 
-	async function handleIniciar() {
+	async function handleInit() {
 		if (carregandoQuestionario) return
 		if (perguntasAplicacao) {
 			setIniciado(true)
 			return
 		}
-		setCarregandoQuestionario(true)
 		setErro(null)
-		try {
-			const { data } = await getActiveQuestionnaire()
-			if (!data.questions.length) {
-				setErro('O questionário publicado não possui perguntas disponíveis.')
-				return
-			}
-			setPerguntasAplicacao(data.questions.map((question) => ({
-				id: question.id,
-				categoria: question.section,
-				texto: question.statement,
-				opcoes: question.options.map((option) => ({ id: option.id, texto: option.label, pontuacao: option.score })),
-				visibleWhenQuestionId: question.visibleWhenQuestionId,
-				visibleWhenOptionId: question.visibleWhenOptionId,
-			})))
-			setIniciado(true)
-		} catch {
+		const { data, error } = await refetchActiveQuestionnaire()
+		if (error) {
 			setErro('Não foi possível carregar o questionário publicado. Tente iniciar novamente.')
-		} finally {
-			setCarregandoQuestionario(false)
+			return
 		}
+		if (!data?.questions.length) {
+			setErro('O questionário publicado não possui perguntas disponíveis.')
+			return
+		}
+		setIniciado(true)
 	}
 
 	function handleAnterior() {
@@ -254,7 +259,9 @@ export function FormularioPage() {
 									<ResultadoAvaliacao
 										nomeGestante={gestanteSelecionada?.name ?? ''}
 										pontuacao={assessment.result.totalScore}
-										classificacao={toClassificacao(assessment.result.vulnerabilityLevel)}
+										vulnerabilityLevel={assessment.result.vulnerabilityLevel}
+										vulnerabilityBandId={assessment.result.vulnerabilityBandId}
+										bands={assessment.snapshot.props.vulnerabilityBands}
 									/>
 								)}
 							</div>

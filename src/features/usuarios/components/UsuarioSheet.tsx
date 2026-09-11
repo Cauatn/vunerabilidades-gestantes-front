@@ -9,12 +9,13 @@ import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useSession } from '@/features/auth/composables/useSession'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import {
 	CATEGORIA_PROFISSIONAL_LABEL,
 	CATEGORIA_PROFISSIONAL_OPCOES,
 } from '@/features/usuarios/constants/categoriaProfissional'
-import { CATEGORIA_TO_ROLE, type InviteUsuarioPayload } from '@/features/usuarios/types/usuario'
+import { CATEGORIA_TO_ROLE, ROLE_TO_CATEGORIA, type InviteUsuarioPayload, type Usuario } from '@/features/usuarios/types/usuario'
 import { usuarioSchema, type UsuarioFormValues } from '@/features/usuarios/validation/usuarioSchema'
 
 const VALORES_VAZIOS: UsuarioFormValues = {
@@ -24,14 +25,17 @@ const VALORES_VAZIOS: UsuarioFormValues = {
 }
 
 interface UsuarioSheetProps {
+	usuario?: Usuario
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	onSubmit: (payload: InviteUsuarioPayload) => void
 	isSubmitting?: boolean
 }
 
-export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: UsuarioSheetProps) {
+export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitting }: UsuarioSheetProps) {
 	const { data: healthUnits } = useGetHealthUnits()
+	const { user } = useSession()
+	const isEdit = !!usuario
 
 	const ubsIdPorNome = useMemo(() => {
 		const map = new Map<string, string>()
@@ -40,6 +44,19 @@ export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: Usu
 	}, [healthUnits])
 
 	const opcoesUbs = useMemo(() => healthUnits?.items.map((unit) => unit.name) ?? [], [healthUnits])
+
+	const ubsAtualNome = useMemo(
+		() => healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)?.name,
+		[healthUnits, user],
+	)
+
+	const ubsAtendimentoNomes = useMemo(
+		() =>
+			usuario?.healthUnitIds
+				.map((id) => healthUnits?.items.find((unit) => unit.id === id)?.name)
+				.filter((nome): nome is string => !!nome) ?? [],
+		[usuario, healthUnits],
+	)
 
 	const {
 		register,
@@ -56,8 +73,17 @@ export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: Usu
 	const isAdministrador = watch('categoriaProfissional') === 'administrador'
 
 	useEffect(() => {
-		if (open) reset(VALORES_VAZIOS)
-	}, [open, reset])
+		if (!open) return
+		reset(
+			usuario
+				? {
+						email: usuario.email,
+						categoriaProfissional: ROLE_TO_CATEGORIA[usuario.role],
+						ubsAtendimento: ubsAtendimentoNomes,
+					}
+				: { ...VALORES_VAZIOS, ubsAtendimento: ubsAtualNome ? [ubsAtualNome] : [] },
+		)
+	}, [open, reset, usuario, ubsAtendimentoNomes, ubsAtualNome])
 
 	function submit(values: UsuarioFormValues) {
 		const role = CATEGORIA_TO_ROLE[values.categoriaProfissional]
@@ -77,7 +103,7 @@ export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: Usu
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>Criar usuário</SheetTitle>
+					<SheetTitle>{isEdit ? 'Editar usuário' : 'Criar usuário'}</SheetTitle>
 				</SheetHeader>
 
 				<form
@@ -97,6 +123,7 @@ export function UsuarioSheet({ open, onOpenChange, onSubmit, isSubmitting }: Usu
 									id="usuario-email"
 									type="email"
 									placeholder="Digite..."
+									disabled={isEdit}
 									aria-invalid={!!errors.email}
 									{...register('email')}
 								/>

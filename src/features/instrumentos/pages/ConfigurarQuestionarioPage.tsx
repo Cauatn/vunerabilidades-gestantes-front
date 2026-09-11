@@ -6,20 +6,17 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { ConfirmacaoModal } from '@/features/instrumentos/components/ConfirmacaoModal'
+import { Modal } from '@/features/core/components/Modal'
 import { DashedAddButton } from '@/features/instrumentos/components/DashedAddButton'
 import { InstrumentoLayout } from '@/features/instrumentos/components/InstrumentoLayout'
 import { PerguntaCard } from '@/features/instrumentos/components/PerguntaCard'
 import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
-import { useQuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
-import { usePublishQuestionario } from '@/features/instrumentos/composables/usePublishQuestionario'
+import { useInstrumentoDraft } from '@/features/instrumentos/composables/useInstrumentoDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
-import { getActiveQuestionnaire } from '@/features/instrumentos/services/questionario'
-import { toSections } from '@/features/instrumentos/utils/questionarioMapper'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -44,9 +41,7 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
-	const config = useQuestionarioConfig()
-	const publicar = usePublishQuestionario()
-	const [carregado, setCarregado] = useState(false)
+	const { config, publicar, publicando, rascunhoPronto, erroPublicacao, erroCarregamento, versionNumber } = useInstrumentoDraft()
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
@@ -56,13 +51,6 @@ export function ConfigurarQuestionarioPage() {
 	const perguntas = config.secaoAtiva?.perguntas ?? []
 	const perguntasIds = perguntas.map((pergunta) => pergunta.id)
 
-	useEffect(() => {
-		if (carregado) return
-		void getActiveQuestionnaire()
-			.then(({ data }) => config.substituirSecoes(toSections(data)))
-			.finally(() => setCarregado(true))
-	}, [carregado, config])
-
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event
 		if (!over || active.id === over.id) return
@@ -71,16 +59,21 @@ export function ConfigurarQuestionarioPage() {
 
 	return (
 		<InstrumentoLayout
-			versao="Versão atual v1.1.0"
+			versao={versionNumber ? `Versão atual v${versionNumber}` : 'Sem versão publicada'}
 			titulo="Configurar questionário"
 			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
-			publicarDisabled={publicar.isPending}
+			publicarDisabled={publicando || !rascunhoPronto}
 		>
-			{publicar.isError ? (
+			{erroPublicacao ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
-					{apiErrorMessage(publicar.error, 'Não foi possível publicar o questionário.')}
+					{apiErrorMessage(erroPublicacao, 'Não foi possível publicar o questionário.')}
+				</p>
+			) : null}
+			{erroCarregamento ? (
+				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
+					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
 				</p>
 			) : null}
 			<SecaoTabs
@@ -112,14 +105,14 @@ export function ConfigurarQuestionarioPage() {
 
 			<DashedAddButton label="Adicionar item" onClick={config.addPergunta} />
 
-			<ConfirmacaoModal
+			<Modal
 				open={!!remocao}
 				onOpenChange={(o) => !o && setRemocao(null)}
-				tom="danger"
-				titulo={remocao ? TITULO_REMOCAO[remocao.tipo] : ''}
-				descricao={remocao ? DESCRICAO_REMOCAO[remocao.tipo] : ''}
-				confirmarLabel="Remover"
-				onConfirmar={() => {
+				variant="danger"
+				title={remocao ? TITULO_REMOCAO[remocao.tipo] : ''}
+				description={remocao ? DESCRICAO_REMOCAO[remocao.tipo] : ''}
+				confirmLabel="Remover"
+				onConfirm={() => {
 					if (!remocao) return
 					if (remocao.tipo === 'secao') config.removeSecao(remocao.id)
 					else if (remocao.tipo === 'pergunta') config.removePergunta(remocao.id)
@@ -128,28 +121,28 @@ export function ConfigurarQuestionarioPage() {
 				}}
 			/>
 
-			<ConfirmacaoModal
+			<Modal
 				open={publicarAberto}
 				onOpenChange={setPublicarAberto}
-				tom="warning"
-				titulo="Publicar nova versão"
-				descricao="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
-			confirmarLabel="Publicar"
-			onConfirmar={() => {
-					if (publicar.isPending) return
+				variant="warning"
+				title="Publicar nova versão"
+				description="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
+				confirmLabel="Publicar"
+				onConfirm={() => {
+					if (publicando) return
 					setPublicarAberto(false)
-					publicar.mutate(config.secoes)
+					publicar()
 				}}
 			/>
 
-			<ConfirmacaoModal
+			<Modal
 				open={descartarAberto}
 				onOpenChange={setDescartarAberto}
-				tom="warning"
-				titulo="Descarte de alterações"
-				descricao="Ao continuar, todas as alterações feitas neste questionário serão descartadas e não poderão ser recuperadas."
-				confirmarLabel="Continuar"
-				onConfirmar={() => {
+				variant="warning"
+				title="Descarte de alterações"
+				description="Ao continuar, todas as alterações feitas neste questionário serão descartadas e não poderão ser recuperadas."
+				confirmLabel="Continuar"
+				onConfirm={() => {
 					setDescartarAberto(false)
 					navigate('/')
 				}}

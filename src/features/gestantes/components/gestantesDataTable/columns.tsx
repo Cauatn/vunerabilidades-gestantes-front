@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { calcularIdade, formatarDataBr } from "@/features/core/utils/date";
 import type { Gestante } from "@/features/gestantes/types/gestante";
+import { VulnerabilityLevelBadge } from "@/features/gestantes/components/VulnerabilityLevelBadge";
 import { formatCns, formatCpf } from "../../utils/document";
 import { GestanteActionsCell } from "./actionsCell";
 
@@ -49,10 +50,16 @@ export function createGestantesColumns({
 			},
 		},
 		{
-			id: "vulnerabilidade",
+			id: "vulnerability",
 			header: "Vulnerabilidade",
-			//TODO: listagem não traz o resultado da última avaliação da gestante
-			cell: () => <span className="text-n-400">—</span>,
+			cell: ({ row }) => {
+				const vulnerability = row.original.latestVulnerability;
+				return vulnerability ? (
+					<VulnerabilityLevelBadge vulnerability={vulnerability} />
+				) : (
+					<span className="text-n-400">—</span>
+				);
+			},
 		},
 		{
 			id: "actions",

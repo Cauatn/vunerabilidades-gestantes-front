@@ -1,20 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { QUESTIONARIO_INICIAL } from '../data/mock'
 import type { OpcaoResposta, PerguntaConfig, SecaoConfig } from '../types/questionario'
 import { reorderById } from '../utils/reorder'
-
-const STORAGE_KEY = 'gestare:questionario-config'
-
-function carregarSecoes(): SecaoConfig[] {
-	try {
-		const salvo = localStorage.getItem(STORAGE_KEY)
-		if (salvo) return JSON.parse(salvo) as SecaoConfig[]
-	} catch {
-		// O formulário inicial continua disponível se o armazenamento não puder ser lido.
-	}
-	return QUESTIONARIO_INICIAL
-}
 
 function novaOpcao(): OpcaoResposta {
 	return { id: crypto.randomUUID(), texto: '', pontuavel: true, pontuacao: null }
@@ -55,16 +43,8 @@ function removerPergunta(perguntas: PerguntaConfig[], id: string): PerguntaConfi
 }
 
 export function useQuestionarioConfig() {
-	const [secoes, setSecoes] = useState<SecaoConfig[]>(carregarSecoes)
-	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(() => carregarSecoes()[0]?.id ?? '')
-
-	useEffect(() => {
-		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(secoes))
-		} catch {
-			// Não impede a edição se o navegador bloquear o armazenamento.
-		}
-	}, [secoes])
+	const [secoes, setSecoes] = useState<SecaoConfig[]>(QUESTIONARIO_INICIAL)
+	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(QUESTIONARIO_INICIAL[0]?.id ?? '')
 
 	const secaoAtiva = useMemo(
 		() => secoes.find((secao) => secao.id === secaoAtivaId) ?? secoes[0],

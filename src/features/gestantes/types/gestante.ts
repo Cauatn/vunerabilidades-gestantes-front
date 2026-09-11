@@ -1,5 +1,13 @@
 import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
 
+export interface LatestVulnerability {
+	level: string
+	color: string
+	trend: 'LOW' | 'MEDIUM' | 'HIGH'
+	totalScore: number
+	calculatedAt: string
+}
+
 export interface Gestante {
 	id: string
 	name: string
@@ -10,6 +18,7 @@ export interface Gestante {
 	lastMenstrualPeriod: string | null
 	createdAt: string
 	updatedAt: string
+	latestVulnerability?: LatestVulnerability | null
 }
 
 export type ListGestantesParams = PaginationParams & {

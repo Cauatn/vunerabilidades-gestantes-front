@@ -41,3 +41,8 @@ export interface InviteUsuarioPayload {
 	role: UsuarioRole
 	healthUnitIds?: string[]
 }
+
+export interface UpdateUsuarioPayload {
+	role: UsuarioRole
+	healthUnitIds?: string[]
+}

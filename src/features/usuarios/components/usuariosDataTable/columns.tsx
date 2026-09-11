@@ -8,11 +8,13 @@ import { UsuarioActionsCell } from './actionsCell'
 const MAX_UBS_VISIVEIS = 2
 
 interface CreateUsuariosColumnsParams {
+	onEdit: (usuario: Usuario) => void
 	onToggleStatus: (usuario: Usuario) => void
 	ubsNomePorId: Map<string, string>
 }
 
 export function createUsuariosColumns({
+	onEdit,
 	onToggleStatus,
 	ubsNomePorId,
 }: CreateUsuariosColumnsParams): ColumnDef<Usuario>[] {
@@ -66,7 +68,9 @@ export function createUsuariosColumns({
 		},
 		{
 			id: 'actions',
-			cell: ({ row }) => <UsuarioActionsCell usuario={row.original} onToggleStatus={onToggleStatus} />,
+			cell: ({ row }) => (
+				<UsuarioActionsCell usuario={row.original} onEdit={onEdit} onToggleStatus={onToggleStatus} />
+			),
 		},
 	]
 }
