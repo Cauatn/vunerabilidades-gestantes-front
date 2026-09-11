@@ -1,4 +1,4 @@
-import { Baby, Building2, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, Stethoscope, UsersRound } from 'lucide-react'
+import { Baby, Building2, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, PanelLeftOpen, Stethoscope, UsersRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -75,6 +75,7 @@ export function AppSidebar() {
 	const { user, logout } = useSession()
 	const { data: healthUnits } = useGetHealthUnits()
 	const trocarUbs = useSetCurrentHealthUnit()
+	const [open, setOpen] = useState(true)
 
 	const minhasUbs = healthUnits?.items.filter((unit) => user?.healthUnitIds.includes(unit.id)) ?? []
 	const categoria = user ? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]] : ''
@@ -84,11 +85,35 @@ export function AppSidebar() {
 		navigate('/login', { replace: true })
 	}
 
+	if (!open) {
+		return (
+			<aside className="flex h-screen w-14 shrink-0 flex-col items-center border-r border-n-40 pt-4 pb-5">
+				<div className="flex h-[74px] shrink-0 items-center justify-center">
+					<button
+						type="button"
+						aria-label="Exibir menu"
+						onClick={() => setOpen(true)}
+						className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
+					>
+						<PanelLeftOpen className="size-5" />
+					</button>
+				</div>
+			</aside>
+		)
+	}
+
 	return (
 		<aside className="flex h-screen w-[252px] shrink-0 flex-col gap-4 overflow-hidden border-r border-n-40 px-4 pt-4 pb-5">
 			<div className="flex h-[74px] shrink-0 items-center justify-between">
 				<Logo className="h-9 w-auto" />
-				<PanelLeftClose className="size-5 text-n-500" />
+				<button
+					type="button"
+					aria-label="Ocultar menu"
+					onClick={() => setOpen(false)}
+					className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
+				>
+					<PanelLeftClose className="size-5" />
+				</button>
 			</div>
 
 			<div className="h-px w-full shrink-0 bg-n-40" />
