@@ -32,6 +32,7 @@ interface VulnerabilityBandRecommendation {
 export interface VulnerabilityBand {
 	id: string;
 	level: string;
+	color: string;
 	minScore: number;
 	maxScore: number;
 	order: number;

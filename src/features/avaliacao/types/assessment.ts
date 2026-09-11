@@ -106,3 +106,9 @@ export interface Assessment {
 	createdAt: string;
 	updatedAt: string;
 }
+
+export type SavedAssessment = Omit<Assessment, 'patient' | 'appliedByUser' | 'healthUnit'> & {
+	patientId: string;
+	appliedByUserId: string;
+	healthUnitId: string;
+};

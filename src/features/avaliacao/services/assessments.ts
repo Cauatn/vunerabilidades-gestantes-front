@@ -2,7 +2,7 @@ import type { AxiosResponse } from "axios";
 
 import { api } from "@/features/core/service/apiService";
 import type { Paginated } from "@/features/core/types/pagination";
-import type { Assessment, AssessmentQuestion } from "../types/assessment";
+import type { Assessment, AssessmentQuestion, SavedAssessment } from "../types/assessment";
 
 export const startAssessment = (payload: {
 	patientId: string;
@@ -17,7 +17,7 @@ export const submitAssessment = (payload: {
 	patientId: string;
 	healthUnitId: string;
 	answers: Array<{ questionId: string; optionId: string }>;
-}) => api.post<Assessment>("/assessments", payload);
+}) => api.post<SavedAssessment>("/assessments", payload);
 
 export const getAssessment = (id: string) =>
 	api.get<Assessment>(`/assessments/${id}`);
@@ -30,7 +30,7 @@ export const updateAssessmentRecommendations = (
 	id: string,
 	recommendations: Array<{ id?: string; text: string; order: number }>,
 ) =>
-	api.put<Assessment>(`/assessments/${id}/recommendations`, {
+	api.put<SavedAssessment>(`/assessments/${id}/recommendations`, {
 		recommendations,
 	});
 

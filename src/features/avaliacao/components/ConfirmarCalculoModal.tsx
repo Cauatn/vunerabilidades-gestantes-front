@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 
 interface ConfirmarCalculoModalProps {
+	isLoading?: boolean;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onConfirmar: () => void;
@@ -19,9 +20,10 @@ export function ConfirmarCalculoModal({
 	open,
 	onOpenChange,
 	onConfirmar,
+	isLoading = false,
 }: ConfirmarCalculoModalProps) {
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange} variant="warning">
+		<Dialog open={open} onOpenChange={(next) => !isLoading && onOpenChange(next)} variant="warning">
 			<DialogContent
 				showCloseButton={false}
 				className="max-w-125 gap-0 overflow-hidden p-0"
@@ -45,11 +47,12 @@ export function ConfirmarCalculoModal({
 					<Button
 						type="button"
 						variant="outline"
+						disabled={isLoading}
 						onClick={() => onOpenChange(false)}
 					>
 						Cancelar
 					</Button>
-					<Button type="button" variant="warning" onClick={onConfirmar}>
+					<Button type="button" variant="warning" onClick={onConfirmar} isLoading={isLoading}>
 						Calcular
 					</Button>
 				</DialogFooter>

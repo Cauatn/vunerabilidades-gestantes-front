@@ -7,6 +7,7 @@ import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
 import { normalizeText } from '@/features/core/utils/text'
+import { formatarDataHoraBr } from '@/features/core/utils/date'
 import type { AvaliacaoTimelineItem, Vulnerabilidade } from '@/features/gestantes/data/mock'
 
 export function GestantesPerfilPage() {
@@ -18,7 +19,7 @@ export function GestantesPerfilPage() {
 		const result = assessment.result
 		return {
 			id: assessment.id,
-			data: new Intl.DateTimeFormat('pt-BR').format(new Date(assessment.appliedAt)),
+			data: formatarDataHoraBr(assessment.appliedAt),
 			titulo: `Avaliação #${assessment.id}`,
 			vulnerabilidade: toVulnerabilidade(result.vulnerabilityLevel ?? 'BAIXA'),
 			descricao: `Pontuação: ${result.totalScore ?? 0}.`,

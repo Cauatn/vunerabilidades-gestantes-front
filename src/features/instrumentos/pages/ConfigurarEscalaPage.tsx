@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
 
-import { ConfirmacaoModal } from '../components/ConfirmacaoModal'
+import { Modal } from '@/features/core/components/Modal'
 import { DashedAddButton } from '../components/DashedAddButton'
 import { FaixasEscalaBar } from '../components/FaixasEscalaBar'
 import { GrauVulnerabilidadeCard } from '../components/GrauVulnerabilidadeCard'
@@ -15,13 +15,14 @@ import { InstrumentoLayout } from '../components/InstrumentoLayout'
 import { LimitesRange } from '../components/LimitesRange'
 import { SortableItem } from '../components/SortableItem'
 import { PONTUACAO_SUGERIDA } from '../constants'
-import { useEscalaConfig } from '../composables/useEscalaConfig'
+import { useInstrumentoDraft } from '../composables/useInstrumentoDraft'
+import { apiErrorMessage } from '@/features/core/utils/apiError'
 
 type Remocao = { tipo: 'grau' | 'recomendacao'; grauId: string; recId?: string }
 
 export function ConfigurarEscalaPage() {
 	const navigate = useNavigate()
-	const config = useEscalaConfig()
+	const { escala: config, publicar, publicando, rascunhoPronto, erroPublicacao, erroCarregamento, versionNumber } = useInstrumentoDraft()
 
 	const [avisoVisivel, setAvisoVisivel] = useState(true)
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
@@ -31,7 +32,7 @@ export function ConfigurarEscalaPage() {
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 	const grausIds = config.graus.map((g) => g.id)
 
-	const temErro = config.validacao.gerais.length > 0
+	const temErroValidacao = config.validacao.gerais.length > 0
 
 	function handleDragEnd(e: DragEndEvent) {
 		const { active, over } = e
@@ -41,14 +42,14 @@ export function ConfigurarEscalaPage() {
 
 	return (
 		<InstrumentoLayout
-			versao="Versão atual v1.1.0"
+			versao={versionNumber ? `Versão atual v${versionNumber}` : 'Sem versão publicada'}
 			titulo="Configurar escala"
 			descricao="Defina os intervalos de pontuação de cada grau de vulnerabilidade e as recomendações associadas."
 			onCancelar={() => setDescartarAberto(true)}
 			onPublicar={() => setPublicarAberto(true)}
-			publicarDisabled={temErro}
+			publicarDisabled={temErroValidacao || publicando || !rascunhoPronto}
 		>
-			{temErro ? (
+			{temErroValidacao ? (
 				<div className="flex items-start gap-2 rounded-lg border border-danger bg-r-100 px-5 py-4 text-sm text-r-600">
 					<CircleAlert className="mt-0.5 size-5 shrink-0" />
 					<ul className="space-y-1">
@@ -57,6 +58,16 @@ export function ConfigurarEscalaPage() {
 						))}
 					</ul>
 				</div>
+			) : null}
+			{erroCarregamento ? (
+				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
+					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
+				</p>
+			) : null}
+			{erroPublicacao ? (
+				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
+					{apiErrorMessage(erroPublicacao, 'Não foi possível publicar a escala.')}
+				</p>
 			) : null}
 
 			<div className="flex flex-col gap-3">
@@ -127,20 +138,20 @@ export function ConfigurarEscalaPage() {
 				/>
 			</div>
 
-			<ConfirmacaoModal
+			<Modal
 				open={!!remocao}
 				onOpenChange={(o) => !o && setRemocao(null)}
-				tom="danger"
-				titulo={
+				variant="danger"
+				title={
 					remocao?.tipo === 'grau' ? 'Remover grau de vulnerabilidade' : 'Remover recomendação'
 				}
-				descricao={
+				description={
 					remocao?.tipo === 'grau'
 						? 'Ao clicar em remover você estará removendo o grau de vulnerabilidade e todas as recomendações associadas a ele. Essa ação não pode ser desfeita.'
 						: 'Ao clicar em remover você estará removendo uma recomendação sugerida deste grau. Essa ação não pode ser desfeita.'
 				}
-				confirmarLabel="Remover"
-				onConfirmar={() => {
+				confirmLabel="Remover"
+				onConfirm={() => {
 					if (!remocao) return
 					if (remocao.tipo === 'grau') config.removeGrau(remocao.grauId)
 					else if (remocao.recId) config.removeRecomendacao(remocao.grauId, remocao.recId)
@@ -148,24 +159,28 @@ export function ConfigurarEscalaPage() {
 				}}
 			/>
 
-			<ConfirmacaoModal
+			<Modal
 				open={publicarAberto}
 				onOpenChange={setPublicarAberto}
-				tom="warning"
-				titulo="Publicar nova versão"
-				descricao="Ao publicar as alterações, uma nova versão da escala será disponibilizada. As avaliações já registradas não serão afetadas."
-				confirmarLabel="Publicar"
-				onConfirmar={() => setPublicarAberto(false)}
+				variant="warning"
+				title="Publicar nova versão"
+				description="Ao publicar as alterações, uma nova versão da escala será disponibilizada. As avaliações já registradas não serão afetadas."
+				confirmLabel="Publicar"
+				onConfirm={() => {
+					if (publicando) return
+					setPublicarAberto(false)
+					publicar()
+				}}
 			/>
 
-			<ConfirmacaoModal
+			<Modal
 				open={descartarAberto}
 				onOpenChange={setDescartarAberto}
-				tom="warning"
-				titulo="Descarte de alterações"
-				descricao="Ao continuar, todas as alterações feitas nesta escala serão descartadas e não poderão ser recuperadas."
-				confirmarLabel="Continuar"
-				onConfirmar={() => {
+				variant="warning"
+				title="Descarte de alterações"
+				description="Ao continuar, todas as alterações feitas nesta escala serão descartadas e não poderão ser recuperadas."
+				confirmLabel="Continuar"
+				onConfirm={() => {
 					setDescartarAberto(false)
 					navigate('/configuracao')
 				}}

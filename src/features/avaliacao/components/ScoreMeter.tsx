@@ -1,36 +1,25 @@
 import { ChevronDown } from "lucide-react";
 
-import type { Classificacao } from "@/features/avaliacao/constants";
-import {
-	CLASSIFICACAO_COR_TEXTO,
-	CLASSIFICACAO_LABEL,
-} from "@/features/avaliacao/constants";
+import type { VulnerabilityBand } from "@/features/instrumentos/types/escala";
 import { cn } from "@/lib/utils";
-
-interface Faixa {
-	classificacao: Classificacao;
-	min: number;
-	max: number;
-}
-
-const FAIXAS: Faixa[] = [
-	{ classificacao: "BAIXA", min: 0, max: 3 },
-	{ classificacao: "MODERADA", min: 3, max: 8 },
-	{ classificacao: "ALTA", min: 8, max: 12 },
-];
 
 interface ScoreMeterProps {
 	pontuacao: number;
-	classificacao: string;
+	bands: VulnerabilityBand[];
+	activeBandId: string;
 }
 
-export function ScoreMeter({ pontuacao, classificacao }: ScoreMeterProps) {
-	const min = FAIXAS[0].min;
-	const max = FAIXAS[FAIXAS.length - 1].max;
-	const total = max - min;
+export function ScoreMeter({ pontuacao, bands, activeBandId }: ScoreMeterProps) {
+	const bandsOrdenadas = [...bands].sort((a, b) => a.minScore - b.minScore);
+	if (bandsOrdenadas.length === 0) return null;
+
+	const min = bandsOrdenadas[0].minScore;
+	const max = bandsOrdenadas[bandsOrdenadas.length - 1].maxScore;
+	const total = Math.max(1, max - min);
 
 	const posicaoIndicador = `${Math.max(2, Math.min(98, ((pontuacao - min) / total) * 100))}%`;
-	const marcadores = [min, ...FAIXAS.map((faixa) => faixa.max)];
+	const marcadores = [min, ...bandsOrdenadas.map((band) => band.maxScore)];
+	const bandaAtiva = bandsOrdenadas.find((band) => band.id === activeBandId);
 
 	return (
 		<div className="flex w-full max-w-157.5 flex-col items-center gap-0.5">
@@ -39,30 +28,32 @@ export function ScoreMeter({ pontuacao, classificacao }: ScoreMeterProps) {
 					className="flex -translate-x-1/2 flex-col items-center"
 					style={{ marginLeft: posicaoIndicador }}
 				>
-					<span className={cn("text-[11px] leading-5 font-semibold")}>
-						{classificacao}
+					<span className="text-[11px] leading-5 font-semibold" style={{ color: bandaAtiva?.color }}>
+						{bandaAtiva?.level ?? ""}
 					</span>
-					<ChevronDown className={cn("size-4")} />
+					<ChevronDown className="size-4" style={{ color: bandaAtiva?.color }} />
 				</div>
 			</div>
 
-			<div className="flex h-4 w-full items-end">
-				{FAIXAS.map((faixa) => (
-					<div key={faixa.classificacao} className={cn("h-full flex-1")} />
+			<div className="flex h-4 w-full items-end gap-0.5">
+				{bandsOrdenadas.map((band) => (
+					<div
+						key={band.id}
+						className="h-full flex-1 rounded-sm"
+						style={{ background: band.color, opacity: band.id === activeBandId ? 1 : 0.35 }}
+					/>
 				))}
 			</div>
 
 			<div className="flex w-full items-center justify-between text-caption">
 				<span className="text-n-700">{marcadores[0]}</span>
-				{FAIXAS.map((faixa, index) => (
-					<span key={faixa.classificacao} className="contents">
+				{bandsOrdenadas.map((band, index) => (
+					<span key={band.id} className="contents">
 						<span
-							className={cn(
-								"font-normal",
-								CLASSIFICACAO_COR_TEXTO[faixa.classificacao],
-							)}
+							className={cn("font-normal", band.id === activeBandId && "font-semibold")}
+							style={{ color: band.color }}
 						>
-							{CLASSIFICACAO_LABEL[faixa.classificacao]}
+							{band.level}
 						</span>
 						<span className="text-n-700">{marcadores[index + 1]}</span>
 					</span>
