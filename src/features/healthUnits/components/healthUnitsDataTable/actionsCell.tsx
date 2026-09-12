@@ -16,7 +16,6 @@ export function HealthUnitActionsCell({ healthUnit, onEdit, onToggleStatus }: He
 			<IconButton
 				icon={healthUnit.active ? Lock : Unlock}
 				tooltipText={healthUnit.active ? 'Desativar' : 'Ativar'}
-				variant={healthUnit.active ? 'danger' : 'default'}
 				onClick={() => onToggleStatus(healthUnit)}
 			/>
 		</div>
