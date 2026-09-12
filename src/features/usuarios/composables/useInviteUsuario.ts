@@ -4,7 +4,7 @@ import { inviteUsuario } from '@/features/usuarios/services/usuarios'
 import { usuariosQueryKey } from '@/features/usuarios/composables/useGetUsuarios'
 import type { InviteUsuarioPayload } from '@/features/usuarios/types/usuario'
 
-export function useInviteUsuario(options?: { onSuccess?: () => void }) {
+export function useInviteUsuario(options?: { onSuccess?: () => void, onError?: () => void }) {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: (payload: InviteUsuarioPayload) => inviteUsuario(payload),
@@ -12,5 +12,8 @@ export function useInviteUsuario(options?: { onSuccess?: () => void }) {
 			queryClient.invalidateQueries({ queryKey: usuariosQueryKey })
 			options?.onSuccess?.()
 		},
+		onError: () => {
+			options?.onError?.()
+		}
 	})
 }
