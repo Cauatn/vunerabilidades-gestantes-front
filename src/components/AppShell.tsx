@@ -22,7 +22,7 @@ export function AppShell() {
 	return (
 		<div className="flex h-screen overflow-hidden bg-n-0 text-n-800">
 			<AppSidebar />
-			<main className="flex min-w-0 flex-1 flex-col overflow-y-auto p-10">
+			<main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
 				<Outlet />
 			</main>
 			<SelecionarUbsModal

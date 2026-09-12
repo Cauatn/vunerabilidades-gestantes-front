@@ -4,6 +4,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { Logo } from '@/components/Logo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSession } from '@/features/auth/composables/useSession'
 import { Restricted } from '@/features/core/components/Restricted'
 import { useHasCapability } from '@/features/core/composables/useHasCapability'
@@ -13,6 +14,7 @@ import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useSetC
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 type NavChild = { label: string; to: string; capability?: Capability }
 
@@ -81,6 +83,7 @@ export function AppSidebar() {
 
 	function sair() {
 		logout()
+		toast.success('Você foi deslogado da plataforma com sucesso. Até a próxima!')
 		navigate('/login', { replace: true })
 	}
 
@@ -138,9 +141,18 @@ export function AppSidebar() {
 							<p className="mt-1.5 truncate text-xs text-n-500">{categoria}</p>
 						</div>
 					</div>
-					<button type="button" aria-label="Sair" onClick={sair} className="shrink-0">
-						<DoorOpen className="size-5 text-n-500" />
-					</button>
+					<Tooltip>
+						<TooltipTrigger
+							asChild
+						>
+							<button type="button" aria-label="Sair" onClick={sair} className="shrink-0 cursor-pointer">
+									<DoorOpen className="size-5 text-n-500 hover:text-n-700 transition-colors duration-200" />
+							</button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Sair</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 		</aside>
