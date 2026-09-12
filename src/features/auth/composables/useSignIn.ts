@@ -4,12 +4,15 @@ import { handleUserSession } from '@/features/core/service/tokenService'
 import { signIn } from '@/features/auth/service/auth'
 import type { SignInResponse } from '@/features/auth/types/auth'
 
-export function useSignIn(options?: { onSuccess?: () => void }) {
+export function useSignIn(options?: { onSuccess?: () => void, onError?: () => void }) {
 	return useMutation({
 		mutationFn: signIn,
 		onSuccess: ({ data }: { data: SignInResponse }) => {
 			handleUserSession(data)
 			options?.onSuccess?.()
 		},
+		onError: () => {
+			options?.onError?.()
+		}
 	})
 }
