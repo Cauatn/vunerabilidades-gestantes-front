@@ -13,9 +13,16 @@ interface RecomendacaoGestanteSheetProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	onSubmit: (dados: { titulo: string; observacoes: string }) => void
+	isSubmitting?: boolean
 }
 
-export function RecomendacaoGestanteSheet({ recomendacao, open, onOpenChange, onSubmit }: RecomendacaoGestanteSheetProps) {
+export function RecomendacaoGestanteSheet({
+	recomendacao,
+	open,
+	onOpenChange,
+	onSubmit,
+	isSubmitting = false,
+}: RecomendacaoGestanteSheetProps) {
 	const isEdit = !!recomendacao
 	const [dados, setDados] = useState(VALORES_VAZIOS)
 
@@ -69,6 +76,8 @@ export function RecomendacaoGestanteSheet({ recomendacao, open, onOpenChange, on
 					confirmLabel={isEdit ? 'Salvar' : 'Adicionar'}
 					cancelLabel="Cancelar"
 					onCancel={() => onOpenChange(false)}
+					isConfirmLoading={isSubmitting}
+					confirmDisabled={isSubmitting}
 					confirmProps={{ type: 'submit', form: 'recomendacao-form' }}
 				/>
 			</SheetContent>

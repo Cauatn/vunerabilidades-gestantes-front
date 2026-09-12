@@ -5,11 +5,13 @@ import type { Gestante } from "@/features/gestantes/types/gestante";
 import type { HealthUnit } from "@/features/healthUnits/types/healthUnit";
 import {
 	CATEGORIA_TO_ROLE,
+	ROLE_TO_CATEGORIA,
 	type Usuario,
 } from "@/features/usuarios/types/usuario";
 import type { ColumnDef } from "@tanstack/react-table";
 import AcoesTabelaAvaliacoes from "../components/AcoesTabelaAvaliacoes";
 import type { Assessment, QuestionnaireSnapshot } from "../types/assessment";
+import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional';
 
 export const columns: ColumnDef<Assessment>[] = [
 	{
@@ -44,7 +46,7 @@ export const columns: ColumnDef<Assessment>[] = [
 					<CellSubItem label="Email" value={appliedByUser.email} />
 					<CellSubItem
 						label="Categoria profissional"
-						value={appliedByUser.role}
+						value={CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[appliedByUser.role]]}
 					/>
 					<CellSubItem
 						label={professionalRegistrationLabel}
@@ -74,7 +76,6 @@ export const columns: ColumnDef<Assessment>[] = [
 						label="Idade"
 						value={calcularIdade(patient.birthDate).toString()}
 					/>
-					{/* //TODO: corrigir tipagem da avaliação em types */}
 					<CellSubItem
 						label="CPF"
 						value={patient.identifiers.cpf ?? '--'}
