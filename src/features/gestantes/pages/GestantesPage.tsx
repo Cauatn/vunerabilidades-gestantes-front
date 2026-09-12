@@ -13,7 +13,7 @@ import { useCreateGestante } from '@/features/gestantes/composables/useCreateGes
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 import { useUpdateGestante } from '@/features/gestantes/composables/useUpdateGestante'
 import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
-import { apiErrorMessage } from '@/features/core/utils/apiError'
+import { toast } from 'sonner'
 
 export function GestantesPage() {
 	const navigate = useNavigate()
@@ -23,8 +23,8 @@ export function GestantesPage() {
 	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
 	const [sheetOpen, setSheetOpen] = useState(false)
 
-	const criar = useCreateGestante({ onSuccess: () => setSheetOpen(false) })
-	const atualizar = useUpdateGestante({ onSuccess: () => setSheetOpen(false) })
+	const criar = useCreateGestante({ onSuccess: onMutateSuccess, onError: onMutateError })
+	const atualizar = useUpdateGestante({ onSuccess: onMutateSuccess, onError: onMutateError })
 
 	function buscar() {
 		void setBusca(termo.trim())
@@ -47,6 +47,21 @@ export function GestantesPage() {
 		} else {
 			criar.mutate(payload)
 		}
+	}
+
+	function onMutateSuccess() {
+		const action = emEdicao ? 'editada' : 'criada'
+
+		setSheetOpen(false)
+		toast.success(`Gestante ${action} com sucesso.`)
+	}
+
+	function onMutateError() {
+		const action = emEdicao ? 'editar' : 'criar'
+
+		toast.error(`Houve um erro ao ${action} a gestante`, {
+			description: 'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.'
+		})
 	}
 
 	const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
@@ -73,7 +88,6 @@ export function GestantesPage() {
 				}}
 			>
 				<div className="flex flex-col gap-8">
-					{criar.isError ? <p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">{apiErrorMessage(criar.error, 'Não foi possível cadastrar a gestante.')}</p> : null}
 					<div className="flex items-end gap-3">
 						{/* //TODO: espaçar verticalmente esse input da tabela */}
 						<Input
