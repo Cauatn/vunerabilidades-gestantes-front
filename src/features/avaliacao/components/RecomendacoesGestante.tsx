@@ -9,12 +9,13 @@ import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendac
 import { cn } from '@/lib/utils'
 
 interface RecomendacoesGestanteProps {
-	classificacao: Classificacao
-	recomendacoes: RecomendacaoGestante[]
-	onAdd: (dados: { titulo: string; observacoes: string }) => void
-	onUpdate: (id: string, dados: { titulo: string; observacoes: string }) => void
-	onRemove: (id: string) => void
-	className?: string
+	classificacao: Classificacao;
+	recomendacoes: RecomendacaoGestante[];
+	onAdd: (dados: { titulo: string; observacoes: string }) => Promise<void> | void;
+	onUpdate: (id: string, dados: { titulo: string; observacoes: string }) => Promise<void> | void;
+	onRemove: (id: string) => Promise<void> | void;
+	isSubmitting?: boolean;
+	className?: string;
 }
 
 export function RecomendacoesGestante({
@@ -23,28 +24,33 @@ export function RecomendacoesGestante({
 	onAdd,
 	onUpdate,
 	onRemove,
+	isSubmitting = false,
 	className,
 }: RecomendacoesGestanteProps) {
-	const [sheetAberto, setSheetAberto] = useState(false)
-	const [recomendacaoEmEdicao, setRecomendacaoEmEdicao] = useState<RecomendacaoGestante | undefined>(undefined)
+	const [sheetAberto, setSheetAberto] = useState(false);
+	const [recomendacaoEmEdicao, setRecomendacaoEmEdicao] = useState<RecomendacaoGestante | undefined>(undefined);
 
 	function abrirNova() {
-		setRecomendacaoEmEdicao(undefined)
-		setSheetAberto(true)
+		setRecomendacaoEmEdicao(undefined);
+		setSheetAberto(true);
 	}
 
 	function abrirEdicao(recomendacao: RecomendacaoGestante) {
-		setRecomendacaoEmEdicao(recomendacao)
-		setSheetAberto(true)
+		setRecomendacaoEmEdicao(recomendacao);
+		setSheetAberto(true);
 	}
 
-	function handleSubmit(dados: { titulo: string; observacoes: string }) {
-		if (recomendacaoEmEdicao) {
-			onUpdate(recomendacaoEmEdicao.id, dados)
-		} else {
-			onAdd(dados)
+	async function handleSubmit(dados: { titulo: string; observacoes: string }) {
+		try {
+			if (recomendacaoEmEdicao) {
+				await onUpdate(recomendacaoEmEdicao.id, dados);
+			} else {
+				await onAdd(dados);
+			}
+			setSheetAberto(false);
+		} catch {
+			// Mantém o sheet aberto em caso de erro na API para não perder o preenchimento do usuário
 		}
-		setSheetAberto(false)
 	}
 
 	return (
@@ -81,11 +87,17 @@ export function RecomendacoesGestante({
 							</div>
 						</div>
 						<div className="flex shrink-0 items-center gap-2.5">
-							<IconButton icon={Pencil} tooltipText="Editar recomendação" onClick={() => abrirEdicao(recomendacao)} />
+							<IconButton
+								icon={Pencil}
+								tooltipText="Editar recomendação"
+								disabled={isSubmitting}
+								onClick={() => abrirEdicao(recomendacao)}
+							/>
 							<IconButton
 								icon={Trash2}
 								tooltipText="Excluir recomendação"
 								variant="danger"
+								disabled={isSubmitting}
 								onClick={() => onRemove(recomendacao.id)}
 							/>
 						</div>
@@ -95,7 +107,8 @@ export function RecomendacoesGestante({
 				<button
 					type="button"
 					onClick={abrirNova}
-					className="flex w-full items-center justify-center gap-1 rounded-xl border-2 border-dashed border-p-400 py-2 text-base font-semibold text-p-400 hover:bg-p-50"
+					disabled={isSubmitting}
+					className="flex w-full items-center justify-center gap-1 rounded-xl border-2 border-dashed border-p-400 py-2 text-base font-semibold text-p-400 hover:bg-p-50 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					<Plus className="size-6" />
 					Nova recomendação
@@ -107,7 +120,8 @@ export function RecomendacoesGestante({
 				open={sheetAberto}
 				onOpenChange={setSheetAberto}
 				onSubmit={handleSubmit}
+				isSubmitting={isSubmitting}
 			/>
 		</div>
-	)
+	);
 }

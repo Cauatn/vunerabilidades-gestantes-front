@@ -4,7 +4,7 @@ import { updateGestante } from '@/features/gestantes/services/gestantes'
 import { gestantesQueryKey } from '@/features/gestantes/composables/useGetGestantes'
 import type { UpdateGestantePayload } from '@/features/gestantes/types/gestante'
 
-export function useUpdateGestante(options?: { onSuccess?: () => void }) {
+export function useUpdateGestante(options?: { onSuccess?: () => void, onError?: () => void }) {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: ({ id, payload }: { id: string; payload: UpdateGestantePayload }) =>
@@ -13,5 +13,8 @@ export function useUpdateGestante(options?: { onSuccess?: () => void }) {
 			queryClient.invalidateQueries({ queryKey: gestantesQueryKey })
 			options?.onSuccess?.()
 		},
+		onError: () => {
+			options?.onError?.()
+		}
 	})
 }

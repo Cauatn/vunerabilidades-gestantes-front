@@ -26,9 +26,9 @@ export function InstrumentoLayout({
 }: InstrumentoLayoutProps) {
 	return (
 		<div className="flex min-h-full flex-1 flex-col">
-			<div className="flex flex-1 flex-col gap-13 pb-24">
+			<div className="flex flex-1 flex-col gap-13 p-10">
 				<div className="flex flex-col gap-2.5">
-					<span className="w-fit rounded-full bg-n-20 px-[18px] py-1 text-base font-semibold text-n-600">
+					<span className="w-fit rounded-full bg-n-20 px-4.5 py-1 text-base font-semibold text-n-600">
 						{versao}
 					</span>
 					<Heading size="display" className="text-n-900">
@@ -40,7 +40,7 @@ export function InstrumentoLayout({
 				<div className="flex flex-col gap-12">{children}</div>
 			</div>
 
-			<div className="sticky bottom-0 z-10 mt-auto flex items-center justify-end gap-3 border-t border-n-40 bg-n-0 py-4">
+			<div className="sticky bottom-0 z-10 mt-auto flex items-center justify-end gap-3 border-t border-n-40 bg-n-0 py-4 px-10">
 				<Button type="button" variant="outline" onClick={onCancelar}>
 					Cancelar
 				</Button>

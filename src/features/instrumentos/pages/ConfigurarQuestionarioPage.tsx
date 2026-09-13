@@ -17,6 +17,7 @@ import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 import { useInstrumentoDraft } from '@/features/instrumentos/composables/useInstrumentoDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
+import { toast } from 'sonner'
 
 type Remocao = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
@@ -41,7 +42,7 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
-	const { config, publicar, publicando, rascunhoPronto, erroPublicacao, erroCarregamento, versionNumber } = useInstrumentoDraft()
+	const { config, publicar, publicando, rascunhoPronto, erroCarregamento, versionNumber } = useInstrumentoDraft()
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
@@ -57,6 +58,24 @@ export function ConfigurarQuestionarioPage() {
 		config.reordenarPerguntas(String(active.id), String(over.id))
 	}
 
+	function handlePublicar() {
+		if (publicando) return
+		setPublicarAberto(false)
+		publicar({
+			onSuccess: () => {
+				toast.success('Questionário publicado com sucesso.')
+			},
+			onError: (error) => {
+				toast.error('Houve um erro ao publicar o questionário', {
+					description: apiErrorMessage(
+						error,
+						'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
+					),
+				})
+			},
+		})
+	}
+
 	return (
 		<InstrumentoLayout
 			versao={versionNumber ? `Versão atual v${versionNumber}` : 'Sem versão publicada'}
@@ -66,11 +85,6 @@ export function ConfigurarQuestionarioPage() {
 			onPublicar={() => setPublicarAberto(true)}
 			publicarDisabled={publicando || !rascunhoPronto}
 		>
-			{erroPublicacao ? (
-				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
-					{apiErrorMessage(erroPublicacao, 'Não foi possível publicar o questionário.')}
-				</p>
-			) : null}
 			{erroCarregamento ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
 					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
@@ -114,9 +128,16 @@ export function ConfigurarQuestionarioPage() {
 				confirmLabel="Remover"
 				onConfirm={() => {
 					if (!remocao) return
-					if (remocao.tipo === 'secao') config.removeSecao(remocao.id)
-					else if (remocao.tipo === 'pergunta') config.removePergunta(remocao.id)
-					else if (remocao.perguntaId) config.removeOpcao(remocao.perguntaId, remocao.id)
+					if (remocao.tipo === 'secao') {
+						config.removeSecao(remocao.id)
+						toast.success('Seção removida com sucesso.')
+					} else if (remocao.tipo === 'pergunta') {
+						config.removePergunta(remocao.id)
+						toast.success('Pergunta removida com sucesso.')
+					} else if (remocao.perguntaId) {
+						config.removeOpcao(remocao.perguntaId, remocao.id)
+						toast.success('Opção de resposta removida com sucesso.')
+					}
 					setRemocao(null)
 				}}
 			/>
@@ -128,11 +149,7 @@ export function ConfigurarQuestionarioPage() {
 				title="Publicar nova versão"
 				description="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
 				confirmLabel="Publicar"
-				onConfirm={() => {
-					if (publicando) return
-					setPublicarAberto(false)
-					publicar()
-				}}
+				onConfirm={handlePublicar}
 			/>
 
 			<Modal

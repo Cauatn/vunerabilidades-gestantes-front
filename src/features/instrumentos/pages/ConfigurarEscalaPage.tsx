@@ -17,12 +17,13 @@ import { SortableItem } from '../components/SortableItem'
 import { PONTUACAO_SUGERIDA } from '../constants'
 import { useInstrumentoDraft } from '../composables/useInstrumentoDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
+import { toast } from 'sonner'
 
 type Remocao = { tipo: 'grau' | 'recomendacao'; grauId: string; recId?: string }
 
 export function ConfigurarEscalaPage() {
 	const navigate = useNavigate()
-	const { escala: config, publicar, publicando, rascunhoPronto, erroPublicacao, erroCarregamento, versionNumber } = useInstrumentoDraft()
+	const { escala: config, publicar, publicando, rascunhoPronto, erroCarregamento, versionNumber } = useInstrumentoDraft()
 
 	const [avisoVisivel, setAvisoVisivel] = useState(true)
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
@@ -38,6 +39,24 @@ export function ConfigurarEscalaPage() {
 		const { active, over } = e
 		if (!over || active.id === over.id) return
 		config.reordenarGraus(String(active.id), String(over.id))
+	}
+
+	function handlePublicar() {
+		if (publicando) return
+		setPublicarAberto(false)
+		publicar({
+			onSuccess: () => {
+				toast.success('Escala publicada com sucesso.')
+			},
+			onError: (error) => {
+				toast.error('Houve um erro ao publicar a escala', {
+					description: apiErrorMessage(
+						error,
+						'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
+					),
+				})
+			},
+		})
 	}
 
 	return (
@@ -62,11 +81,6 @@ export function ConfigurarEscalaPage() {
 			{erroCarregamento ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
 					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
-				</p>
-			) : null}
-			{erroPublicacao ? (
-				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
-					{apiErrorMessage(erroPublicacao, 'Não foi possível publicar a escala.')}
 				</p>
 			) : null}
 
@@ -150,13 +164,18 @@ export function ConfigurarEscalaPage() {
 						? 'Ao clicar em remover você estará removendo o grau de vulnerabilidade e todas as recomendações associadas a ele. Essa ação não pode ser desfeita.'
 						: 'Ao clicar em remover você estará removendo uma recomendação sugerida deste grau. Essa ação não pode ser desfeita.'
 				}
-				confirmLabel="Remover"
 				onConfirm={() => {
 					if (!remocao) return
-					if (remocao.tipo === 'grau') config.removeGrau(remocao.grauId)
-					else if (remocao.recId) config.removeRecomendacao(remocao.grauId, remocao.recId)
+					if (remocao.tipo === 'grau') {
+						config.removeGrau(remocao.grauId)
+						toast.success('Grau de vulnerabilidade removido com sucesso.')
+					} else if (remocao.recId) {
+						config.removeRecomendacao(remocao.grauId, remocao.recId)
+						toast.success('Recomendação removida com sucesso.')
+					}
 					setRemocao(null)
 				}}
+				confirmLabel="Confirmar"
 			/>
 
 			<Modal
@@ -166,11 +185,7 @@ export function ConfigurarEscalaPage() {
 				title="Publicar nova versão"
 				description="Ao publicar as alterações, uma nova versão da escala será disponibilizada. As avaliações já registradas não serão afetadas."
 				confirmLabel="Publicar"
-				onConfirm={() => {
-					if (publicando) return
-					setPublicarAberto(false)
-					publicar()
-				}}
+				onConfirm={handlePublicar}
 			/>
 
 			<Modal

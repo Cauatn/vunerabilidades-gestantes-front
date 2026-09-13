@@ -20,7 +20,7 @@ interface InstrumentoDraftContextValue {
 	draftId: string | undefined
 	versionNumber: number | undefined
 	rascunhoPronto: boolean
-	publicar: () => void
+	publicar: (options?: { onSuccess?: () => void; onError?: (error: unknown) => void; }) => void
 	publicando: boolean
 	erroPublicacao: unknown
 	erroCarregamento: unknown
@@ -90,7 +90,15 @@ export function InstrumentoDraftProvider({ children }: { children: ReactNode }) 
 				draftId,
 				versionNumber: questionarioAtivo.data?.versionNumber,
 				rascunhoPronto: !!draftId,
-				publicar: () => publicarMutation.mutate(),
+				publicar: (options) =>
+					publicarMutation.mutate(undefined, {
+						onSuccess: () => {
+							options?.onSuccess?.();
+						},
+						onError: (error) => {
+							options?.onError?.(error);
+						},
+					}),
 				publicando: publicarMutation.isPending,
 				erroPublicacao: publicarMutation.error,
 				erroCarregamento: questionarioAtivo.isError && !isQuestionarioInexistente(questionarioAtivo.error)

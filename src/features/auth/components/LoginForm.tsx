@@ -7,10 +7,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSignIn } from '@/features/auth/composables/useSignIn'
 import { loginSchema, type LoginFormValues } from '@/features/auth/validation/loginSchema'
+import { toast } from 'sonner'
 
 export function LoginForm() {
 	const navigate = useNavigate()
-	const signIn = useSignIn({ onSuccess: () => navigate('/', { replace: true }) })
+	const signIn = useSignIn(
+		{
+			onSuccess: () => {
+				toast.success('Login realizado com sucesso. Bem-vindo!')
+				navigate('/', { replace: true })
+			},
+			onError: () => {
+				toast.error(
+					'Houve um erro ao realizar o login',
+					{ description: 'Verifique suas credenciais e tente novamente. Caso o erro persista, entre em contato com o suporte.' }
+				)
+			}
+		}
+	)
 
 	const {
 		register,
@@ -51,11 +65,6 @@ export function LoginForm() {
 				/>
 				{errors.senha ? <p className="text-caption text-danger">{errors.senha.message}</p> : null}
 			</div>
-			{signIn.isError ? (
-				<p className="text-caption text-danger">
-					Não foi possível entrar. Verifique o e-mail e a senha.
-				</p>
-			) : null}
 			<a href="#" className="self-start text-[13px] text-[#2f64c1] underline">
 				Esqueceu a senha?
 			</a>

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateUsuarioStatus } from '@/features/usuarios/services/usuarios'
 import { usuariosQueryKey } from '@/features/usuarios/composables/useGetUsuarios'
 
-export function useDeactivateUsuario(options?: { onSuccess?: () => void }) {
+export function useDeactivateUsuario(options?: { onSuccess?: () => void, onError?: () => void  }) {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: (id: string) => updateUsuarioStatus(id, 'INACTIVE'),
@@ -11,5 +11,8 @@ export function useDeactivateUsuario(options?: { onSuccess?: () => void }) {
 			queryClient.invalidateQueries({ queryKey: usuariosQueryKey })
 			options?.onSuccess?.()
 		},
+		onError: () => {
+			options?.onError?.()
+		}
 	})
 }
