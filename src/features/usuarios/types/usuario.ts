@@ -40,9 +40,11 @@ export interface InviteUsuarioPayload {
 	email: string
 	role: UsuarioRole
 	healthUnitIds?: string[]
+	password?: string
 }
 
 export interface UpdateUsuarioPayload {
 	role: UsuarioRole
 	healthUnitIds?: string[]
+	password?: string
 }

@@ -7,6 +7,7 @@ export const usuarioSchema = z
 			error: 'Selecione a categoria profissional.',
 		}),
 		ubsAtendimento: z.array(z.string()),
+		senha: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres.').optional().or(z.literal('')),
 	})
 	.superRefine((dados, ctx) => {
 		if (dados.categoriaProfissional === 'administrador') return
