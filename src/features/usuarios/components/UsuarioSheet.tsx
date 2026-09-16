@@ -22,6 +22,7 @@ const VALORES_VAZIOS: UsuarioFormValues = {
 	email: '',
 	categoriaProfissional: 'medico',
 	ubsAtendimento: [],
+	senha: '',
 }
 
 interface UsuarioSheetProps {
@@ -36,6 +37,7 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 	const { data: healthUnits } = useGetHealthUnits()
 	const { user } = useSession()
 	const isEdit = !!usuario
+	const isProprioUsuario = usuario?.id === user?.id
 
 	const ubsIdPorNome = useMemo(() => {
 		const map = new Map<string, string>()
@@ -80,6 +82,7 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 						email: usuario.email,
 						categoriaProfissional: ROLE_TO_CATEGORIA[usuario.role],
 						ubsAtendimento: ubsAtendimentoNomes,
+						senha: '',
 					}
 				: { ...VALORES_VAZIOS, ubsAtendimento: ubsAtualNome ? [ubsAtualNome] : [] },
 		)
@@ -96,6 +99,7 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 					: values.ubsAtendimento
 							.map((nome) => ubsIdPorNome.get(nome))
 							.filter((id): id is string => !!id),
+			password: values.senha || undefined,
 		})
 	}
 
@@ -156,6 +160,22 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 								/>
 							</FieldContent>
 						</Field>
+
+						{isEdit && !isProprioUsuario ? (
+							<Field>
+								<FieldLabel htmlFor="usuario-senha">Nova senha</FieldLabel>
+								<FieldContent>
+									<Input
+										id="usuario-senha"
+										type="password"
+										placeholder="Digite para alterar..."
+										aria-invalid={!!errors.senha}
+										{...register('senha')}
+									/>
+									<FieldError errors={[errors.senha]} />
+								</FieldContent>
+							</Field>
+						) : null}
 					</FieldGroup>
 
 					{!isAdministrador ? (

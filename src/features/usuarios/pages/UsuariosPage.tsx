@@ -61,7 +61,10 @@ export function UsuariosPage() {
 
 	function handleSubmit(payload: InviteUsuarioPayload) {
 		if (editingUser) {
-			update.mutate({ id: editingUser.id, payload: { role: payload.role, healthUnitIds: payload.healthUnitIds } })
+			update.mutate({
+				id: editingUser.id,
+				payload: { role: payload.role, healthUnitIds: payload.healthUnitIds, password: payload.password },
+			})
 		} else {
 			invite.mutate(payload)
 		}
