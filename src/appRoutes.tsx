@@ -28,22 +28,43 @@ export function AppRoutes() {
 			<Route path="/convite" element={<RegistroPage />} />
 
 			<Route element={<RequireAuth />}>
-				<Route path="/gestantes/:id/imprimir" element={<GestantesImprimirPage />} />
-				<Route path="/historico/:id/imprimir/visao-geral" element={<AvaliacaoImprimirVisaoGeralPage />} />
-				<Route path="/historico/:id/imprimir/visao-gestante" element={<AvaliacaoImprimirVisaoGestantePage />} />
+				<Route
+					path="/gestantes/:id/imprimir"
+					element={<GestantesImprimirPage />}
+				/>
+				<Route
+					path="/historico/:id/imprimir/visao-geral"
+					element={<AvaliacaoImprimirVisaoGeralPage />}
+				/>
+				<Route
+					path="/historico/:id/imprimir/visao-gestante"
+					element={<AvaliacaoImprimirVisaoGestantePage />}
+				/>
 
 				<Route element={<AppShell />}>
 					<Route path="/" element={<GestantesPage />} />
-					<Route path="/gestantes/:id" element={<GestantesPerfilPage />} />
+					<Route
+						path="/gestantes/:id"
+						element={<GestantesPerfilPage />}
+					/>
 					<Route path="/usuarios" element={<UsuariosPage />} />
 					<Route path="/unidades" element={<HealthUnitsPage />} />
-					<Route path="/formulario" element={
-						<Restricted capability="assessments.apply" fallback={<Navigate to="/historico" replace />}>
-							<FormularioPage />
-						</Restricted>
-					} />
+					<Route
+						path="/formulario"
+						element={
+							<Restricted
+								capability="assessments.apply"
+								fallback={<Navigate to="/historico" replace />}
+							>
+								<FormularioPage />
+							</Restricted>
+						}
+					/>
 					<Route path="/historico" element={<HistoricoPage />} />
-					<Route path="/historico/:id" element={<AvaliacaoDetalhePage />} />
+					<Route
+						path="/historico/:id"
+						element={<AvaliacaoDetalhePage />}
+					/>
 					<Route path="/resultado" element={<ResultadoPage />} />
 					<Route
 						element={
@@ -52,8 +73,14 @@ export function AppRoutes() {
 							</InstrumentoDraftProvider>
 						}
 					>
-						<Route path="/configuracao" element={<ConfigurarQuestionarioPage />} />
-						<Route path="/configuracao/escala" element={<ConfigurarEscalaPage />} />
+						<Route
+							path="/configuracao"
+							element={<ConfigurarQuestionarioPage />}
+						/>
+						<Route
+							path="/configuracao/escala"
+							element={<ConfigurarEscalaPage />}
+						/>
 					</Route>
 				</Route>
 			</Route>

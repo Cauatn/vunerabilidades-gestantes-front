@@ -1,6 +1,10 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-import { getSessionUser, isAuthenticated, removeSession } from '@/features/core/service/tokenService'
+import {
+	getSessionUser,
+	isAuthenticated,
+	removeSession,
+} from '@/features/core/service/tokenService'
 
 function subscribe(callback: () => void) {
 	window.addEventListener('storage', callback)
@@ -13,7 +17,11 @@ function subscribe(callback: () => void) {
 
 export function useSession() {
 	const user = useSyncExternalStore(subscribe, getSessionUser, () => null)
-	const authenticated = useSyncExternalStore(subscribe, isAuthenticated, () => false)
+	const authenticated = useSyncExternalStore(
+		subscribe,
+		isAuthenticated,
+		() => false,
+	)
 
 	const logout = useCallback(() => {
 		removeSession()

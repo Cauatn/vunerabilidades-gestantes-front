@@ -1,44 +1,44 @@
-import DialogModal from "@/components/ui/dialogModal";
-import { IconButton } from "@/components/ui/icon-button";
-import { RadioGroup } from "@/components/ui/radio-group";
-import { Info, Printer } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import DialogModal from '@/components/ui/dialogModal'
+import { IconButton } from '@/components/ui/icon-button'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { Info, Printer } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-type PrintingOptions = "pregnant_view" | "general_view";
+type PrintingOptions = 'pregnant_view' | 'general_view'
 
 export default function AcoesTabelaAvaliacoes({ id }: { id: string }) {
 	const [isPrintAssessmentModalOpen, setIsPrintAssessmentModalOpen] =
-		useState(false);
+		useState(false)
 	const [selectedPrintingOption, setSelectedPrintingOption] =
-		useState<PrintingOptions>("general_view");
-	const navigate = useNavigate();
+		useState<PrintingOptions>('general_view')
+	const navigate = useNavigate()
 	const printingOptions = [
 		{
-			value: "general_view",
-			label: "Visão geral",
+			value: 'general_view',
+			label: 'Visão geral',
 		},
 		{
-			value: "pregnant_view",
-			label: "Visão da gestante",
+			value: 'pregnant_view',
+			label: 'Visão da gestante',
 		},
-	];
+	]
 
 	function handlePrintingOption() {
-		const baseUrl = `/historico/${id}/imprimir`;
+		const baseUrl = `/historico/${id}/imprimir`
 		const printingUrl =
-			selectedPrintingOption === "general_view"
+			selectedPrintingOption === 'general_view'
 				? `${baseUrl}/visao-geral`
-				: `${baseUrl}/visao-gestante`;
+				: `${baseUrl}/visao-gestante`
 
-		setIsPrintAssessmentModalOpen(false);
-		setSelectedPrintingOption("general_view");
-		window.open(printingUrl, "_blank", "rel=noopener noreferrer");
+		setIsPrintAssessmentModalOpen(false)
+		setSelectedPrintingOption('general_view')
+		window.open(printingUrl, '_blank', 'rel=noopener noreferrer')
 	}
 
 	function closeModal() {
-		setSelectedPrintingOption("general_view");
-		setIsPrintAssessmentModalOpen(false);
+		setSelectedPrintingOption('general_view')
+		setIsPrintAssessmentModalOpen(false)
 	}
 
 	return (
@@ -66,9 +66,11 @@ export default function AcoesTabelaAvaliacoes({ id }: { id: string }) {
 					okButtonText="Imprimir"
 				>
 					<p className="text-sm text-n-700">
-						Selecione qual a visão da avaliação que deseja imprimir. Lembre-se,
+						Selecione qual a visão da avaliação que deseja imprimir.
+						Lembre-se,
 						<span className="font-semibold">
-							não compartilhe a impressão de visão geral com os pacientes
+							não compartilhe a impressão de visão geral com os
+							pacientes
 						</span>
 						.
 					</p>
@@ -84,5 +86,5 @@ export default function AcoesTabelaAvaliacoes({ id }: { id: string }) {
 				</DialogModal>
 			)}
 		</>
-	);
+	)
 }

@@ -17,7 +17,11 @@ export function createHealthUnitsColumns({
 		{
 			accessorKey: 'name',
 			header: 'Nome',
-			cell: ({ getValue }) => <span className="font-medium text-n-700">{getValue() as string}</span>,
+			cell: ({ getValue }) => (
+				<span className="font-medium text-n-700">
+					{getValue() as string}
+				</span>
+			),
 		},
 		{ accessorKey: 'code', header: 'Código CNES' },
 		{
@@ -29,13 +33,19 @@ export function createHealthUnitsColumns({
 			accessorKey: 'active',
 			header: 'Status',
 			cell: ({ getValue }) => (
-				<Badge variant={getValue() ? 'green' : 'red'}>{getValue() ? 'Ativa' : 'Inativa'}</Badge>
+				<Badge variant={getValue() ? 'green' : 'red'}>
+					{getValue() ? 'Ativa' : 'Inativa'}
+				</Badge>
 			),
 		},
 		{
 			id: 'actions',
 			cell: ({ row }) => (
-				<HealthUnitActionsCell healthUnit={row.original} onEdit={onEdit} onToggleStatus={onToggleStatus} />
+				<HealthUnitActionsCell
+					healthUnit={row.original}
+					onEdit={onEdit}
+					onToggleStatus={onToggleStatus}
+				/>
 			),
 		},
 	]

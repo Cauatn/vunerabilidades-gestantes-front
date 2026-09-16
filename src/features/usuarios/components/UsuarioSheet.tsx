@@ -4,19 +4,45 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import {
+	Field,
+	FieldContent,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { useSession } from '@/features/auth/composables/useSession'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import {
 	CATEGORIA_PROFISSIONAL_LABEL,
 	CATEGORIA_PROFISSIONAL_OPCOES,
 } from '@/features/usuarios/constants/categoriaProfissional'
-import { CATEGORIA_TO_ROLE, ROLE_TO_CATEGORIA, type InviteUsuarioPayload, type Usuario } from '@/features/usuarios/types/usuario'
-import { usuarioSchema, type UsuarioFormValues } from '@/features/usuarios/validation/usuarioSchema'
+import {
+	CATEGORIA_TO_ROLE,
+	ROLE_TO_CATEGORIA,
+	type InviteUsuarioPayload,
+	type Usuario,
+} from '@/features/usuarios/types/usuario'
+import {
+	usuarioSchema,
+	type UsuarioFormValues,
+} from '@/features/usuarios/validation/usuarioSchema'
 
 const VALORES_VAZIOS: UsuarioFormValues = {
 	email: '',
@@ -33,7 +59,13 @@ interface UsuarioSheetProps {
 	isSubmitting?: boolean
 }
 
-export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitting }: UsuarioSheetProps) {
+export function UsuarioSheet({
+	usuario,
+	open,
+	onOpenChange,
+	onSubmit,
+	isSubmitting,
+}: UsuarioSheetProps) {
 	const { data: healthUnits } = useGetHealthUnits()
 	const { user } = useSession()
 	const isEdit = !!usuario
@@ -45,17 +77,26 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 		return map
 	}, [healthUnits])
 
-	const opcoesUbs = useMemo(() => healthUnits?.items.map((unit) => unit.name) ?? [], [healthUnits])
+	const opcoesUbs = useMemo(
+		() => healthUnits?.items.map((unit) => unit.name) ?? [],
+		[healthUnits],
+	)
 
 	const ubsAtualNome = useMemo(
-		() => healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)?.name,
+		() =>
+			healthUnits?.items.find(
+				(unit) => unit.id === user?.currentHealthUnitId,
+			)?.name,
 		[healthUnits, user],
 	)
 
 	const ubsAtendimentoNomes = useMemo(
 		() =>
 			usuario?.healthUnitIds
-				.map((id) => healthUnits?.items.find((unit) => unit.id === id)?.name)
+				.map(
+					(id) =>
+						healthUnits?.items.find((unit) => unit.id === id)?.name,
+				)
 				.filter((nome): nome is string => !!nome) ?? [],
 		[usuario, healthUnits],
 	)
@@ -84,7 +125,10 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 						ubsAtendimento: ubsAtendimentoNomes,
 						senha: '',
 					}
-				: { ...VALORES_VAZIOS, ubsAtendimento: ubsAtualNome ? [ubsAtualNome] : [] },
+				: {
+						...VALORES_VAZIOS,
+						ubsAtendimento: ubsAtualNome ? [ubsAtualNome] : [],
+					},
 		)
 	}, [open, reset, usuario, ubsAtendimentoNomes, ubsAtualNome])
 
@@ -107,7 +151,9 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar usuário' : 'Criar usuário'}</SheetTitle>
+					<SheetTitle>
+						{isEdit ? 'Editar usuário' : 'Criar usuário'}
+					</SheetTitle>
 				</SheetHeader>
 
 				<form
@@ -144,16 +190,31 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 									name="categoriaProfissional"
 									control={control}
 									render={({ field }) => (
-										<Select value={field.value} onValueChange={field.onChange}>
-											<SelectTrigger id="usuario-categoria" className="w-full">
+										<Select
+											value={field.value}
+											onValueChange={field.onChange}
+										>
+											<SelectTrigger
+												id="usuario-categoria"
+												className="w-full"
+											>
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
-												{CATEGORIA_PROFISSIONAL_OPCOES.map((opcao) => (
-													<SelectItem key={opcao} value={opcao}>
-														{CATEGORIA_PROFISSIONAL_LABEL[opcao]}
-													</SelectItem>
-												))}
+												{CATEGORIA_PROFISSIONAL_OPCOES.map(
+													(opcao) => (
+														<SelectItem
+															key={opcao}
+															value={opcao}
+														>
+															{
+																CATEGORIA_PROFISSIONAL_LABEL[
+																	opcao
+																]
+															}
+														</SelectItem>
+													),
+												)}
 											</SelectContent>
 										</Select>
 									)}
@@ -163,7 +224,9 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 
 						{isEdit && !isProprioUsuario ? (
 							<Field>
-								<FieldLabel htmlFor="usuario-senha">Nova senha</FieldLabel>
+								<FieldLabel htmlFor="usuario-senha">
+									Nova senha
+								</FieldLabel>
 								<FieldContent>
 									<Input
 										id="usuario-senha"
@@ -203,10 +266,18 @@ export function UsuarioSheet({ usuario, open, onOpenChange, onSubmit, isSubmitti
 				</form>
 
 				<SheetFooter className="p-0">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+					>
 						Cancelar
 					</Button>
-					<Button type="submit" form="usuario-form" isLoading={isSubmitting}>
+					<Button
+						type="submit"
+						form="usuario-form"
+						isLoading={isSubmitting}
+					>
 						Confirmar
 					</Button>
 				</SheetFooter>

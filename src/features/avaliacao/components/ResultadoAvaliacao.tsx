@@ -1,14 +1,14 @@
-import type { VulnerabilityBand } from "@/features/instrumentos/types/escala";
-import { cn } from "@/lib/utils";
-import { ScoreMeter } from "./ScoreMeter";
+import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+import { cn } from '@/lib/utils'
+import { ScoreMeter } from './ScoreMeter'
 
 interface ResultadoAvaliacaoProps {
-	nomeGestante: string;
-	pontuacao: number;
-	vulnerabilityLevel: string;
-	vulnerabilityBandId: string;
-	bands: VulnerabilityBand[];
-	className?: string;
+	nomeGestante: string
+	pontuacao: number
+	vulnerabilityLevel: string
+	vulnerabilityBandId: string
+	bands: VulnerabilityBand[]
+	className?: string
 }
 
 export function ResultadoAvaliacao({
@@ -19,17 +19,25 @@ export function ResultadoAvaliacao({
 	bands,
 	className,
 }: ResultadoAvaliacaoProps) {
-	const bandaAtiva = bands.find((band) => band.id === vulnerabilityBandId);
+	const bandaAtiva = bands.find((band) => band.id === vulnerabilityBandId)
 
 	return (
-		<div className={cn("flex w-full flex-col items-center gap-10", className)}>
+		<div
+			className={cn(
+				'flex w-full flex-col items-center gap-10',
+				className,
+			)}
+		>
 			<div className="flex flex-col items-center gap-3">
 				<div
 					className="flex size-47.75 shrink-0 items-center justify-center rounded-full border-4"
 					style={{ borderColor: bandaAtiva?.color }}
 				>
 					<div className="flex flex-col items-center gap-1 px-2 text-center">
-						<span className="text-5xl font-bold" style={{ color: bandaAtiva?.color }}>
+						<span
+							className="text-5xl font-bold"
+							style={{ color: bandaAtiva?.color }}
+						>
 							{pontuacao}
 						</span>
 						<span className="max-w-37.75 text-caption font-semibold text-n-500">
@@ -39,17 +47,24 @@ export function ResultadoAvaliacao({
 				</div>
 
 				<p className="max-w-133.5 text-center text-sm text-n-900">
-					Com base nas respostas do formulário, a gestante{" "}
+					Com base nas respostas do formulário, a gestante{' '}
 					<span className="font-semibold">{nomeGestante}</span> foi
-					categorizada como vulnerabilidade{" "}
-					<span className="font-semibold" style={{ color: bandaAtiva?.color }}>
+					categorizada como vulnerabilidade{' '}
+					<span
+						className="font-semibold"
+						style={{ color: bandaAtiva?.color }}
+					>
 						{vulnerabilityLevel}
 					</span>
 					.
 				</p>
 
-				<ScoreMeter pontuacao={pontuacao} bands={bands} activeBandId={vulnerabilityBandId} />
+				<ScoreMeter
+					pontuacao={pontuacao}
+					bands={bands}
+					activeBandId={vulnerabilityBandId}
+				/>
 			</div>
 		</div>
-	);
+	)
 }

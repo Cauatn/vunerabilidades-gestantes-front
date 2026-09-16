@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react'
 
 import { COR_GRAU_PADRAO } from '../constants'
 import { ESCALA_GRAUS_INICIAIS } from '../data/mock'
-import type { GrauConfig, LimitesEscala, RecomendacaoConfig, ValidacaoEscala } from '../types/escala'
+import type {
+	GrauConfig,
+	LimitesEscala,
+	RecomendacaoConfig,
+	ValidacaoEscala,
+} from '../types/escala'
 import { reorderById } from '../utils/reorder'
 
 const LIMITES_INICIAIS: LimitesEscala = { min: 0, max: 60 }
@@ -18,7 +23,8 @@ function validar(limites: LimitesEscala, graus: GrauConfig[]): ValidacaoEscala {
 
 	ordenados.forEach((grau, indice) => {
 		if (grau.min > grau.max) {
-			porGrau[grau.id] = 'A pontuação mínima não pode ser maior que a máxima.'
+			porGrau[grau.id] =
+				'A pontuação mínima não pode ser maior que a máxima.'
 			return
 		}
 		if (indice === 0) return
@@ -26,21 +32,28 @@ function validar(limites: LimitesEscala, graus: GrauConfig[]): ValidacaoEscala {
 		if (grau.min <= anterior.max) {
 			porGrau[grau.id] = 'Este intervalo se sobrepõe ao grau anterior.'
 		} else if (grau.min > anterior.max + 1) {
-			porGrau[grau.id] = 'Há uma lacuna de pontuação entre este grau e o anterior.'
+			porGrau[grau.id] =
+				'Há uma lacuna de pontuação entre este grau e o anterior.'
 		}
 	})
 
 	if (ordenados.length > 0) {
 		if (ordenados[0].min !== limites.min) {
-			gerais.push('O primeiro grau deve começar na pontuação mínima da escala.')
+			gerais.push(
+				'O primeiro grau deve começar na pontuação mínima da escala.',
+			)
 		}
 		if (ordenados[ordenados.length - 1].max !== limites.max) {
-			gerais.push('O último grau deve terminar na pontuação máxima da escala.')
+			gerais.push(
+				'O último grau deve terminar na pontuação máxima da escala.',
+			)
 		}
 	}
 
 	if (Object.keys(porGrau).length > 0) {
-		gerais.unshift('Existem intervalos com sobreposição ou lacunas entre os graus de vulnerabilidade.')
+		gerais.unshift(
+			'Existem intervalos com sobreposição ou lacunas entre os graus de vulnerabilidade.',
+		)
 	}
 
 	return { gerais, porGrau }
@@ -53,7 +66,9 @@ export function useEscalaConfig() {
 	const validacao = useMemo(() => validar(limites, graus), [limites, graus])
 
 	function mapGrau(id: string, fn: (grau: GrauConfig) => GrauConfig) {
-		setGraus((atual) => atual.map((grau) => (grau.id === id ? fn(grau) : grau)))
+		setGraus((atual) =>
+			atual.map((grau) => (grau.id === id ? fn(grau) : grau)),
+		)
 	}
 
 	return {
@@ -61,7 +76,10 @@ export function useEscalaConfig() {
 		graus,
 		validacao,
 
-		substituirEscala(nova: { limites: LimitesEscala; graus: GrauConfig[] }) {
+		substituirEscala(nova: {
+			limites: LimitesEscala
+			graus: GrauConfig[]
+		}) {
 			setLimites(nova.limites)
 			setGraus(nova.graus)
 		},
@@ -97,15 +115,24 @@ export function useEscalaConfig() {
 		},
 
 		addRecomendacao(grauId: string) {
-			mapGrau(grauId, (grau) => ({ ...grau, recomendacoes: [...grau.recomendacoes, novaRecomendacao()] }))
+			mapGrau(grauId, (grau) => ({
+				...grau,
+				recomendacoes: [...grau.recomendacoes, novaRecomendacao()],
+			}))
 		},
 		removeRecomendacao(grauId: string, recomendacaoId: string) {
 			mapGrau(grauId, (grau) => ({
 				...grau,
-				recomendacoes: grau.recomendacoes.filter((item) => item.id !== recomendacaoId),
+				recomendacoes: grau.recomendacoes.filter(
+					(item) => item.id !== recomendacaoId,
+				),
 			}))
 		},
-		atualizarRecomendacao(grauId: string, recomendacaoId: string, texto: string) {
+		atualizarRecomendacao(
+			grauId: string,
+			recomendacaoId: string,
+			texto: string,
+		) {
 			mapGrau(grauId, (grau) => ({
 				...grau,
 				recomendacoes: grau.recomendacoes.map((item) =>
@@ -113,10 +140,18 @@ export function useEscalaConfig() {
 				),
 			}))
 		},
-		reordenarRecomendacoes(grauId: string, activeId: string, overId: string) {
+		reordenarRecomendacoes(
+			grauId: string,
+			activeId: string,
+			overId: string,
+		) {
 			mapGrau(grauId, (grau) => ({
 				...grau,
-				recomendacoes: reorderById(grau.recomendacoes, activeId, overId),
+				recomendacoes: reorderById(
+					grau.recomendacoes,
+					activeId,
+					overId,
+				),
 			}))
 		},
 	}

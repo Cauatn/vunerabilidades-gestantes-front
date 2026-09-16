@@ -1,4 +1,10 @@
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import {
+	DndContext,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	type DragEndEvent,
+} from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { GripVertical, Trash2 } from 'lucide-react'
 
@@ -30,13 +36,19 @@ export function GrauVulnerabilidadeCard({
 	onRemover,
 	onRemoverRecomendacao,
 }: GrauVulnerabilidadeCardProps) {
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const ids = grau.recomendacoes.map((r) => r.id)
 
 	function handleDragEnd(e: DragEndEvent) {
 		const { active, over } = e
 		if (!over || active.id === over.id) return
-		config.reordenarRecomendacoes(grau.id, String(active.id), String(over.id))
+		config.reordenarRecomendacoes(
+			grau.id,
+			String(active.id),
+			String(over.id),
+		)
 	}
 
 	return (
@@ -55,11 +67,17 @@ export function GrauVulnerabilidadeCard({
 					) : null}
 					<ColorPickerPopover
 						cor={grau.cor}
-						onChange={(c) => config.atualizarGrau(grau.id, { cor: c })}
+						onChange={(c) =>
+							config.atualizarGrau(grau.id, { cor: c })
+						}
 					/>
 					<input
 						value={grau.nome}
-						onChange={(e) => config.atualizarGrau(grau.id, { nome: e.target.value })}
+						onChange={(e) =>
+							config.atualizarGrau(grau.id, {
+								nome: e.target.value,
+							})
+						}
 						className="w-40 bg-transparent text-base text-n-900 outline-none"
 					/>
 				</div>
@@ -76,15 +94,22 @@ export function GrauVulnerabilidadeCard({
 				<LimitesRange
 					min={grau.min}
 					max={grau.max}
-					onMinChange={(v) => config.atualizarGrau(grau.id, { min: v })}
-					onMaxChange={(v) => config.atualizarGrau(grau.id, { max: v })}
+					onMinChange={(v) =>
+						config.atualizarGrau(grau.id, { min: v })
+					}
+					onMaxChange={(v) =>
+						config.atualizarGrau(grau.id, { max: v })
+					}
 					idPrefix={`grau-${grau.id}`}
 				/>
 				{erro ? <p className="text-sm text-r-600">{erro}</p> : null}
 
 				<Divider text="Recomendações sugeridas" />
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-					<SortableContext items={ids} strategy={verticalListSortingStrategy}>
+					<SortableContext
+						items={ids}
+						strategy={verticalListSortingStrategy}
+					>
 						<div className="flex flex-col gap-2.5">
 							{grau.recomendacoes.map((r) => (
 								<SortableItem key={r.id} id={r.id}>
@@ -94,7 +119,12 @@ export function GrauVulnerabilidadeCard({
 											recomendacao={r}
 											config={config}
 											dragHandle={h}
-											onRemover={() => onRemoverRecomendacao(grau.id, r.id)}
+											onRemover={() =>
+												onRemoverRecomendacao(
+													grau.id,
+													r.id,
+												)
+											}
 										/>
 									)}
 								</SortableItem>

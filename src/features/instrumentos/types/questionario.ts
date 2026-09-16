@@ -1,7 +1,4 @@
-export type TipoPergunta =
-	| 'dicotomica'
-	| 'dicotomica_complementar'
-	| 'multipla'
+export type TipoPergunta = 'dicotomica' | 'dicotomica_complementar' | 'multipla'
 
 export interface OpcaoResposta {
 	id: string

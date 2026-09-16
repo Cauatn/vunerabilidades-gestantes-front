@@ -10,14 +10,22 @@ interface UsuarioActionsCellProps {
 	onToggleStatus: (usuario: Usuario) => void
 }
 
-export function UsuarioActionsCell({ usuario, onEdit, onToggleStatus }: UsuarioActionsCellProps) {
+export function UsuarioActionsCell({
+	usuario,
+	onEdit,
+	onToggleStatus,
+}: UsuarioActionsCellProps) {
 	const { user } = useSession()
 	const ativo = usuario.status === 'ACTIVE'
 	const ehProprioUsuario = user?.id === usuario.id
 
 	return (
 		<div className="flex items-center justify-end gap-1">
-			<IconButton icon={SquarePen} tooltipText="Editar" onClick={() => onEdit(usuario)} />
+			<IconButton
+				icon={SquarePen}
+				tooltipText="Editar"
+				onClick={() => onEdit(usuario)}
+			/>
 			<IconButton
 				icon={ativo ? Lock : Unlock}
 				tooltipText={

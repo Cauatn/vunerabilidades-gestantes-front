@@ -1,11 +1,20 @@
 import { useMemo, useState } from 'react'
 
 import { QUESTIONARIO_INICIAL } from '../data/mock'
-import type { OpcaoResposta, PerguntaConfig, SecaoConfig } from '../types/questionario'
+import type {
+	OpcaoResposta,
+	PerguntaConfig,
+	SecaoConfig,
+} from '../types/questionario'
 import { reorderById } from '../utils/reorder'
 
 function novaOpcao(): OpcaoResposta {
-	return { id: crypto.randomUUID(), texto: '', pontuavel: true, pontuacao: null }
+	return {
+		id: crypto.randomUUID(),
+		texto: '',
+		pontuavel: true,
+		pontuacao: null,
+	}
 }
 
 function novaPergunta(codigo = ''): PerguntaConfig {
@@ -26,25 +35,39 @@ function atualizarPergunta(
 	return perguntas.map((pergunta) => {
 		if (pergunta.id === id) return fn(pergunta)
 		if (pergunta.subPerguntas?.length) {
-			return { ...pergunta, subPerguntas: atualizarPergunta(pergunta.subPerguntas, id, fn) }
+			return {
+				...pergunta,
+				subPerguntas: atualizarPergunta(pergunta.subPerguntas, id, fn),
+			}
 		}
 		return pergunta
 	})
 }
 
-function removerPergunta(perguntas: PerguntaConfig[], id: string): PerguntaConfig[] {
+function removerPergunta(
+	perguntas: PerguntaConfig[],
+	id: string,
+): PerguntaConfig[] {
 	return perguntas
 		.filter((pergunta) => pergunta.id !== id)
 		.map((pergunta) =>
 			pergunta.subPerguntas?.length
-				? { ...pergunta, subPerguntas: removerPergunta(pergunta.subPerguntas, id) }
+				? {
+						...pergunta,
+						subPerguntas: removerPergunta(
+							pergunta.subPerguntas,
+							id,
+						),
+					}
 				: pergunta,
 		)
 }
 
 export function useQuestionarioConfig() {
 	const [secoes, setSecoes] = useState<SecaoConfig[]>(QUESTIONARIO_INICIAL)
-	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(QUESTIONARIO_INICIAL[0]?.id ?? '')
+	const [secaoAtivaId, setSecaoAtivaId] = useState<string>(
+		QUESTIONARIO_INICIAL[0]?.id ?? '',
+	)
 
 	const secaoAtiva = useMemo(
 		() => secoes.find((secao) => secao.id === secaoAtivaId) ?? secoes[0],
@@ -52,10 +75,16 @@ export function useQuestionarioConfig() {
 	)
 
 	function mapSecaoAtiva(fn: (secao: SecaoConfig) => SecaoConfig) {
-		setSecoes((atual) => atual.map((secao) => (secao.id === secaoAtiva?.id ? fn(secao) : secao)))
+		setSecoes((atual) =>
+			atual.map((secao) =>
+				secao.id === secaoAtiva?.id ? fn(secao) : secao,
+			),
+		)
 	}
 
-	function mapPerguntas(fn: (perguntas: PerguntaConfig[]) => PerguntaConfig[]) {
+	function mapPerguntas(
+		fn: (perguntas: PerguntaConfig[]) => PerguntaConfig[],
+	) {
 		mapSecaoAtiva((secao) => ({ ...secao, perguntas: fn(secao.perguntas) }))
 	}
 
@@ -86,7 +115,11 @@ export function useQuestionarioConfig() {
 			})
 		},
 		renomearSecao(id: string, nome: string) {
-			setSecoes((atual) => atual.map((secao) => (secao.id === id ? { ...secao, nome } : secao)))
+			setSecoes((atual) =>
+				atual.map((secao) =>
+					secao.id === id ? { ...secao, nome } : secao,
+				),
+			)
 		},
 		reordenarSecoes(activeId: string, overId: string) {
 			setSecoes((atual) => reorderById(atual, activeId, overId))
@@ -99,7 +132,10 @@ export function useQuestionarioConfig() {
 			mapPerguntas((perguntas) =>
 				atualizarPergunta(perguntas, parentId, (pergunta) => ({
 					...pergunta,
-					subPerguntas: [...(pergunta.subPerguntas ?? []), novaPergunta()],
+					subPerguntas: [
+						...(pergunta.subPerguntas ?? []),
+						novaPergunta(),
+					],
 				})),
 			)
 		},
@@ -107,10 +143,17 @@ export function useQuestionarioConfig() {
 			mapPerguntas((perguntas) => removerPergunta(perguntas, id))
 		},
 		atualizarCampos(id: string, patch: Partial<PerguntaConfig>) {
-			mapPerguntas((perguntas) => atualizarPergunta(perguntas, id, (pergunta) => ({ ...pergunta, ...patch })))
+			mapPerguntas((perguntas) =>
+				atualizarPergunta(perguntas, id, (pergunta) => ({
+					...pergunta,
+					...patch,
+				})),
+			)
 		},
 		reordenarPerguntas(activeId: string, overId: string) {
-			mapPerguntas((perguntas) => reorderById(perguntas, activeId, overId))
+			mapPerguntas((perguntas) =>
+				reorderById(perguntas, activeId, overId),
+			)
 		},
 
 		addOpcao(perguntaId: string) {
@@ -125,11 +168,17 @@ export function useQuestionarioConfig() {
 			mapPerguntas((perguntas) =>
 				atualizarPergunta(perguntas, perguntaId, (pergunta) => ({
 					...pergunta,
-					opcoes: pergunta.opcoes.filter((opcao) => opcao.id !== opcaoId),
+					opcoes: pergunta.opcoes.filter(
+						(opcao) => opcao.id !== opcaoId,
+					),
 				})),
 			)
 		},
-		atualizarOpcao(perguntaId: string, opcaoId: string, patch: Partial<OpcaoResposta>) {
+		atualizarOpcao(
+			perguntaId: string,
+			opcaoId: string,
+			patch: Partial<OpcaoResposta>,
+		) {
 			mapPerguntas((perguntas) =>
 				atualizarPergunta(perguntas, perguntaId, (pergunta) => ({
 					...pergunta,

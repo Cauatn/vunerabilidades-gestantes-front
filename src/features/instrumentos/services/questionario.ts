@@ -5,16 +5,35 @@ import type {
 	ReplaceVulnerabilityBandsPayload,
 } from '@/features/instrumentos/types/questionnaireApi'
 
-export const getActiveQuestionnaire = () => api.get<QuestionnaireVersionApi>('/questionnaires/active')
+export const getActiveQuestionnaire = () =>
+	api.get<QuestionnaireVersionApi>('/questionnaires/active')
 
 export const createQuestionnaireDraft = (cloneFromVersionId?: string) =>
-	api.post<QuestionnaireVersionApi>('/questionnaires/versions', { cloneFromVersionId, reuseOpenDraft: true })
+	api.post<QuestionnaireVersionApi>('/questionnaires/versions', {
+		cloneFromVersionId,
+		reuseOpenDraft: true,
+	})
 
-export const replaceQuestions = (versionId: string, payload: ReplaceQuestionsPayload) =>
-	api.put<QuestionnaireVersionApi>(`/questionnaires/versions/${versionId}/questions/bulk`, payload)
+export const replaceQuestions = (
+	versionId: string,
+	payload: ReplaceQuestionsPayload,
+) =>
+	api.put<QuestionnaireVersionApi>(
+		`/questionnaires/versions/${versionId}/questions/bulk`,
+		payload,
+	)
 
-export const replaceVulnerabilityBands = (versionId: string, payload: ReplaceVulnerabilityBandsPayload) =>
-	api.put<QuestionnaireVersionApi>(`/questionnaires/versions/${versionId}/bands/bulk`, payload)
+export const replaceVulnerabilityBands = (
+	versionId: string,
+	payload: ReplaceVulnerabilityBandsPayload,
+) =>
+	api.put<QuestionnaireVersionApi>(
+		`/questionnaires/versions/${versionId}/bands/bulk`,
+		payload,
+	)
 
 export const publishQuestionnaireVersion = (versionId: string) =>
-	api.post<QuestionnaireVersionApi>(`/questionnaires/versions/${versionId}/publish`, {})
+	api.post<QuestionnaireVersionApi>(
+		`/questionnaires/versions/${versionId}/publish`,
+		{},
+	)

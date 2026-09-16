@@ -12,7 +12,8 @@ export const getGestantes = (params: ListGestantesParams) =>
 
 export const getGestante = (id: string) => api.get<Gestante>(`/patients/${id}`)
 
-export const createGestante = (payload: CreateGestantePayload) => api.post('/patients', payload)
+export const createGestante = (payload: CreateGestantePayload) =>
+	api.post('/patients', payload)
 
 export const updateGestante = (id: string, payload: UpdateGestantePayload) =>
 	api.patch(`/patients/${id}`, payload)

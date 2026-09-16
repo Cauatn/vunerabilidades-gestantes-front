@@ -48,7 +48,9 @@ export function SecaoChip({
 				<>
 					<input
 						value={secao.nome}
-						onChange={(e) => config.renomearSecao(secao.id, e.target.value)}
+						onChange={(e) =>
+							config.renomearSecao(secao.id, e.target.value)
+						}
 						className="w-[220px] max-w-[38vw] bg-transparent font-semibold outline-none"
 					/>
 					{podeRemover ? (
@@ -63,7 +65,10 @@ export function SecaoChip({
 					) : null}
 				</>
 			) : (
-				<button type="button" onClick={() => config.selecionarSecao(secao.id)}>
+				<button
+					type="button"
+					onClick={() => config.selecionarSecao(secao.id)}
+				>
 					{secao.nome || 'Sem nome'}
 				</button>
 			)}

@@ -9,11 +9,23 @@ interface GestanteActionsCellProps {
 	onEditar: (gestante: Gestante) => void
 }
 
-export function GestanteActionsCell({ gestante, onVerPerfil, onEditar }: GestanteActionsCellProps) {
+export function GestanteActionsCell({
+	gestante,
+	onVerPerfil,
+	onEditar,
+}: GestanteActionsCellProps) {
 	return (
 		<div className="flex items-center justify-end gap-1">
-			<IconButton icon={UserRound} tooltipText="Ver perfil" onClick={() => onVerPerfil(gestante)} />
-			<IconButton icon={SquarePen} tooltipText="Editar" onClick={() => onEditar(gestante)} />
+			<IconButton
+				icon={UserRound}
+				tooltipText="Ver perfil"
+				onClick={() => onVerPerfil(gestante)}
+			/>
+			<IconButton
+				icon={SquarePen}
+				tooltipText="Editar"
+				onClick={() => onEditar(gestante)}
+			/>
 		</div>
 	)
 }

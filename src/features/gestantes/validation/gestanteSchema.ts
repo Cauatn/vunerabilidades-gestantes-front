@@ -16,13 +16,25 @@ export const gestanteSchema = z
 		const cns = onlyDigits(dados.cns)
 
 		if (!cpf && !cns) {
-			ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'Informe o CPF ou o CNS.' })
+			ctx.addIssue({
+				code: 'custom',
+				path: ['cpf'],
+				message: 'Informe o CPF ou o CNS.',
+			})
 		}
 		if (cpf && cpf.length !== 11) {
-			ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'CPF deve ter 11 dígitos.' })
+			ctx.addIssue({
+				code: 'custom',
+				path: ['cpf'],
+				message: 'CPF deve ter 11 dígitos.',
+			})
 		}
 		if (cns && cns.length !== 15) {
-			ctx.addIssue({ code: 'custom', path: ['cns'], message: 'CNS deve ter 15 dígitos.' })
+			ctx.addIssue({
+				code: 'custom',
+				path: ['cns'],
+				message: 'CNS deve ter 15 dígitos.',
+			})
 		}
 	})
 

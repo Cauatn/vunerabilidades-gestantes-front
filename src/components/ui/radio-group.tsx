@@ -30,7 +30,9 @@ function RadioGroupItem({
 			onClick={onSelect}
 			className={cn(
 				'flex w-full items-center gap-2 rounded-lg border px-[18px] py-[14px] text-left text-sm transition-colors',
-				selected ? 'border-(--t-500) bg-t-50 font-semibold text-n-700' : 'border-n-100 font-normal text-n-700 hover:bg-n-10',
+				selected
+					? 'border-(--t-500) bg-t-50 font-semibold text-n-700'
+					: 'border-n-100 font-normal text-n-700 hover:bg-n-10',
 			)}
 		>
 			<span
@@ -46,9 +48,19 @@ function RadioGroupItem({
 	)
 }
 
-export function RadioGroup({ options, value, onValueChange, name, className }: RadioGroupProps) {
+export function RadioGroup({
+	options,
+	value,
+	onValueChange,
+	name,
+	className,
+}: RadioGroupProps) {
 	return (
-		<div role="radiogroup" aria-label={name} className={cn('flex flex-col gap-2', className)}>
+		<div
+			role="radiogroup"
+			aria-label={name}
+			className={cn('flex flex-col gap-2', className)}
+		>
 			{options.map((option) => (
 				<RadioGroupItem
 					key={option.value}

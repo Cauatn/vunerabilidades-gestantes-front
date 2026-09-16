@@ -19,7 +19,8 @@ export function GestantesImprimirPage() {
 	const dataEmissao = formatarDataHoraBr(new Date())
 	const emissorNome = user?.name ?? '—'
 	const ubsNome =
-		healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)?.name ?? '—'
+		healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)
+			?.name ?? '—'
 
 	return (
 		<div className="min-h-screen bg-n-0 text-n-800">

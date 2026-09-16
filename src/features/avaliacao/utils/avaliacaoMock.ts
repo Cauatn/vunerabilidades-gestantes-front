@@ -1,5 +1,9 @@
 import type { Classificacao } from '@/features/avaliacao/constants'
-import type { AssessmentRecommendation, AvaliacaoDetalhe, CategoriaRespostas } from '@/features/avaliacao/types/assessment'
+import type {
+	AssessmentRecommendation,
+	AvaliacaoDetalhe,
+	CategoriaRespostas,
+} from '@/features/avaliacao/types/assessment'
 import { calcularIdade, formatarDataHoraBr } from '@/features/core/utils/date'
 import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
 
@@ -12,12 +16,33 @@ export interface HistoricoAplicacao {
 }
 
 export const HISTORICO: HistoricoAplicacao[] = [
-	{ id: 'h1', gestante: 'Antonietta Silva', data: '2026-08-12', vulnerabilidade: 'baixa', aplicadoPor: 'José Victor' },
-	{ id: 'h2', gestante: 'Patricia Ferreira', data: '2026-08-05', vulnerabilidade: 'alta', aplicadoPor: 'José Victor' },
-	{ id: 'h3', gestante: 'Claudiana Cruz', data: '2026-07-28', vulnerabilidade: 'moderada', aplicadoPor: 'José Victor' },
+	{
+		id: 'h1',
+		gestante: 'Antonietta Silva',
+		data: '2026-08-12',
+		vulnerabilidade: 'baixa',
+		aplicadoPor: 'José Victor',
+	},
+	{
+		id: 'h2',
+		gestante: 'Patricia Ferreira',
+		data: '2026-08-05',
+		vulnerabilidade: 'alta',
+		aplicadoPor: 'José Victor',
+	},
+	{
+		id: 'h3',
+		gestante: 'Claudiana Cruz',
+		data: '2026-07-28',
+		vulnerabilidade: 'moderada',
+		aplicadoPor: 'José Victor',
+	},
 ]
 
-const VULNERABILIDADE_PARA_CLASSIFICACAO: Record<Vulnerabilidade, Classificacao> = {
+const VULNERABILIDADE_PARA_CLASSIFICACAO: Record<
+	Vulnerabilidade,
+	Classificacao
+> = {
 	baixa: 'BAIXA',
 	moderada: 'MODERADA',
 	alta: 'ALTA',
@@ -34,24 +59,50 @@ const CATEGORIAS_MOCK: CategoriaRespostas[] = [
 		id: 'condicoes-socioeconomicas',
 		titulo: 'Condições socioeconômicas',
 		respostas: [
-			{ id: 'renda', pergunta: 'A renda familiar é suficiente para atender às necessidades básicas?', resposta: 'Sim' },
-			{ id: 'vinculo', pergunta: 'A gestante possui vínculo empregatício?', resposta: 'Trabalho informal' },
+			{
+				id: 'renda',
+				pergunta:
+					'A renda familiar é suficiente para atender às necessidades básicas?',
+				resposta: 'Sim',
+			},
+			{
+				id: 'vinculo',
+				pergunta: 'A gestante possui vínculo empregatício?',
+				resposta: 'Trabalho informal',
+			},
 		],
 	},
 	{
 		id: 'moradia-saneamento',
 		titulo: 'Moradia e Saneamento',
 		respostas: [
-			{ id: 'moradia-1', pergunta: 'A residência possui saneamento básico adequado?', resposta: 'Sim' },
-			{ id: 'moradia-2', pergunta: 'A moradia oferece condições adequadas de segurança?', resposta: 'Parcialmente' },
+			{
+				id: 'moradia-1',
+				pergunta: 'A residência possui saneamento básico adequado?',
+				resposta: 'Sim',
+			},
+			{
+				id: 'moradia-2',
+				pergunta: 'A moradia oferece condições adequadas de segurança?',
+				resposta: 'Parcialmente',
+			},
 		],
 	},
 	{
 		id: 'seguranca-alimentar',
 		titulo: 'Segurança Alimentar',
 		respostas: [
-			{ id: 'alimentar-1', pergunta: 'A gestante tem acesso regular a alimentos?', resposta: 'Sim' },
-			{ id: 'alimentar-2', pergunta: 'A alimentação atende às necessidades nutricionais da gestação?', resposta: 'Parcialmente' },
+			{
+				id: 'alimentar-1',
+				pergunta: 'A gestante tem acesso regular a alimentos?',
+				resposta: 'Sim',
+			},
+			{
+				id: 'alimentar-2',
+				pergunta:
+					'A alimentação atende às necessidades nutricionais da gestação?',
+				resposta: 'Parcialmente',
+			},
 		],
 	},
 ]
@@ -77,7 +128,10 @@ export function formatarEmitidoEm(data: Date): string {
 
 export function criarAvaliacaoDetalheMock(id: string): AvaliacaoDetalhe {
 	const historico = HISTORICO.find((item) => item.id === id)
-	const classificacao = VULNERABILIDADE_PARA_CLASSIFICACAO[historico?.vulnerabilidade ?? 'baixa']
+	const classificacao =
+		VULNERABILIDADE_PARA_CLASSIFICACAO[
+			historico?.vulnerabilidade ?? 'baixa'
+		]
 	const dataNascimento = '2001-04-01'
 
 	return {

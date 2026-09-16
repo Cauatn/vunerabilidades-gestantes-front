@@ -13,10 +13,14 @@ export function AppShell() {
 	const trocarUbs = useSetCurrentHealthUnit()
 	const [modalAberto, setModalAberto] = useState(false)
 
-	const minhasUbs = healthUnits?.items.filter((unit) => user?.healthUnitIds.includes(unit.id)) ?? []
+	const minhasUbs =
+		healthUnits?.items.filter((unit) =>
+			user?.healthUnitIds.includes(unit.id),
+		) ?? []
 
 	useEffect(() => {
-		if (user && !user.currentHealthUnitId && minhasUbs.length > 0) setModalAberto(true)
+		if (user && !user.currentHealthUnitId && minhasUbs.length > 0)
+			setModalAberto(true)
 	}, [user, minhasUbs.length])
 
 	return (
@@ -30,7 +34,11 @@ export function AppShell() {
 				onOpenChange={setModalAberto}
 				ubsOptions={minhasUbs}
 				isPending={trocarUbs.isPending}
-				onConfirmar={(id) => trocarUbs.mutate(id, { onSuccess: () => setModalAberto(false) })}
+				onConfirmar={(id) =>
+					trocarUbs.mutate(id, {
+						onSuccess: () => setModalAberto(false),
+					})
+				}
 			/>
 		</div>
 	)

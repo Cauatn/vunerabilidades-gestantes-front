@@ -4,7 +4,10 @@ import { createGestante } from '@/features/gestantes/services/gestantes'
 import { gestantesQueryKey } from '@/features/gestantes/composables/useGetGestantes'
 import type { CreateGestantePayload } from '@/features/gestantes/types/gestante'
 
-export function useCreateGestante(options?: { onSuccess?: () => void, onError?: () => void }) {
+export function useCreateGestante(options?: {
+	onSuccess?: () => void
+	onError?: () => void
+}) {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: (payload: CreateGestantePayload) => createGestante(payload),
@@ -14,6 +17,6 @@ export function useCreateGestante(options?: { onSuccess?: () => void, onError?: 
 		},
 		onError: () => {
 			options?.onError?.()
-		}
+		},
 	})
 }

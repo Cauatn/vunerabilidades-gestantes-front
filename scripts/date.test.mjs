@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { calcularIdade, formatarDataBr, formatarDataHoraBr } from '../src/features/core/utils/date.ts'
+import {
+	calcularIdade,
+	formatarDataBr,
+	formatarDataHoraBr,
+} from '../src/features/core/utils/date.ts'
 
 process.env.TZ = 'America/Bahia'
 
@@ -11,9 +15,18 @@ test('nascimento mantém o dia mesmo quando a API envia meia-noite UTC', () => {
 })
 
 test('avaliações usam o horário local, inclusive ao mudar de dia', () => {
-	assert.equal(formatarDataHoraBr('2026-09-11T02:05:59.000Z'), '10/09/2026 às 23:05')
-	assert.equal(formatarDataHoraBr(new Date('2026-09-11T03:00:00Z')), '11/09/2026 às 00:00')
-	assert.equal(formatarDataHoraBr('2026-09-11T00:05:00-03:00'), '11/09/2026 às 00:05')
+	assert.equal(
+		formatarDataHoraBr('2026-09-11T02:05:59.000Z'),
+		'10/09/2026 às 23:05',
+	)
+	assert.equal(
+		formatarDataHoraBr(new Date('2026-09-11T03:00:00Z')),
+		'11/09/2026 às 00:00',
+	)
+	assert.equal(
+		formatarDataHoraBr('2026-09-11T00:05:00-03:00'),
+		'11/09/2026 às 00:05',
+	)
 	assert.equal(formatarDataHoraBr('2026-09-11'), '11/09/2026')
 })
 

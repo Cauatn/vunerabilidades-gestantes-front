@@ -1,10 +1,30 @@
-import { Baby, Building2, ChevronRight, ClipboardPlus, DoorOpen, PanelLeftClose, PanelLeftOpen, Stethoscope, UsersRound } from 'lucide-react'
+import {
+	Baby,
+	Building2,
+	ChevronRight,
+	ClipboardPlus,
+	DoorOpen,
+	PanelLeftClose,
+	PanelLeftOpen,
+	Stethoscope,
+	UsersRound,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { Logo } from '@/components/Logo'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useSession } from '@/features/auth/composables/useSession'
 import { Restricted } from '@/features/core/components/Restricted'
 import { useHasCapability } from '@/features/core/composables/useHasCapability'
@@ -28,14 +48,33 @@ type NavItem = {
 }
 
 const items: NavItem[] = [
-	{ label: 'Profissionais', icon: UsersRound, to: '/usuarios', capability: 'users.manage' },
-	{ label: 'Unidades de saúde', icon: Building2, to: '/unidades', capability: 'health-units.manage' },
-	{ label: 'Gestantes', icon: Baby, to: '/', match: (p) => p === '/' || p.startsWith('/gestantes') },
+	{
+		label: 'Profissionais',
+		icon: UsersRound,
+		to: '/usuarios',
+		capability: 'users.manage',
+	},
+	{
+		label: 'Unidades de saúde',
+		icon: Building2,
+		to: '/unidades',
+		capability: 'health-units.manage',
+	},
+	{
+		label: 'Gestantes',
+		icon: Baby,
+		to: '/',
+		match: (p) => p === '/' || p.startsWith('/gestantes'),
+	},
 	{
 		label: 'Avaliações',
 		icon: Stethoscope,
 		children: [
-			{ label: 'Nova', to: '/formulario', capability: 'assessments.apply' },
+			{
+				label: 'Nova',
+				to: '/formulario',
+				capability: 'assessments.apply',
+			},
 			{ label: 'Histórico', to: '/historico' },
 		],
 	},
@@ -63,7 +102,10 @@ function pathMatches(url: string, pathname: string) {
 function activeChildUrl(children: NavChild[], pathname: string) {
 	let best: string | null = null
 	for (const child of children) {
-		if (pathMatches(child.to, pathname) && child.to.length > (best?.length ?? -1)) {
+		if (
+			pathMatches(child.to, pathname) &&
+			child.to.length > (best?.length ?? -1)
+		) {
 			best = child.to
 		}
 	}
@@ -79,12 +121,19 @@ export function AppSidebar() {
 	const trocarUbs = useSetCurrentHealthUnit()
 	const [open, setOpen] = useState(true)
 
-	const minhasUbs = healthUnits?.items.filter((unit) => user?.healthUnitIds.includes(unit.id)) ?? []
-	const categoria = user ? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]] : ''
+	const minhasUbs =
+		healthUnits?.items.filter((unit) =>
+			user?.healthUnitIds.includes(unit.id),
+		) ?? []
+	const categoria = user
+		? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]]
+		: ''
 
 	function sair() {
 		logout()
-		toast.success('Você foi deslogado da plataforma com sucesso. Até a próxima!')
+		toast.success(
+			'Você foi deslogado da plataforma com sucesso. Até a próxima!',
+		)
 		navigate('/login', { replace: true })
 	}
 
@@ -124,15 +173,33 @@ export function AppSidebar() {
 			<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
 				{items.map((item) => {
 					const row = item.children ? (
-						<NavGroup key={item.label} item={{ ...item, children: item.children.filter((child) => !child.capability || can(child.capability)) }} pathname={pathname} />
+						<NavGroup
+							key={item.label}
+							item={{
+								...item,
+								children: item.children.filter(
+									(child) =>
+										!child.capability ||
+										can(child.capability),
+								),
+							}}
+							pathname={pathname}
+						/>
 					) : (
-						<NavRow key={item.label} item={item} pathname={pathname} />
+						<NavRow
+							key={item.label}
+							item={item}
+							pathname={pathname}
+						/>
 					)
 
 					if (!item.capability) return row
 
 					return (
-						<Restricted key={item.label} capability={item.capability}>
+						<Restricted
+							key={item.label}
+							capability={item.capability}
+						>
 							{row}
 						</Restricted>
 					)
@@ -160,18 +227,27 @@ export function AppSidebar() {
 
 				<div className="flex w-full items-center justify-between">
 					<div className="flex min-w-0 items-center gap-3">
-						<span className="sidebar-footer-avatar">{user ? iniciais(user.name) : '--'}</span>
+						<span className="sidebar-footer-avatar">
+							{user ? iniciais(user.name) : '--'}
+						</span>
 						<div className="min-w-0 leading-none">
-							<p className="truncate text-sm font-semibold text-n-700">{user?.name ?? ''}</p>
-							<p className="mt-1.5 truncate text-xs text-n-500">{categoria}</p>
+							<p className="truncate text-sm font-semibold text-n-700">
+								{user?.name ?? ''}
+							</p>
+							<p className="mt-1.5 truncate text-xs text-n-500">
+								{categoria}
+							</p>
 						</div>
 					</div>
 					<Tooltip>
-						<TooltipTrigger
-							asChild
-						>
-							<button type="button" aria-label="Sair" onClick={sair} className="shrink-0 cursor-pointer">
-									<DoorOpen className="size-5 text-n-500 hover:text-n-700 transition-colors duration-200" />
+						<TooltipTrigger asChild>
+							<button
+								type="button"
+								aria-label="Sair"
+								onClick={sair}
+								className="shrink-0 cursor-pointer"
+							>
+								<DoorOpen className="size-5 text-n-500 hover:text-n-700 transition-colors duration-200" />
 							</button>
 						</TooltipTrigger>
 						<TooltipContent>
@@ -186,14 +262,18 @@ export function AppSidebar() {
 
 /** Item simples (rota única), mesmos tamanhos/espaçamentos do vinea. */
 function NavRow({ item, pathname }: { item: NavItem; pathname: string }) {
-	const active = item.match ? item.match(pathname) : pathMatches(item.to!, pathname)
+	const active = item.match
+		? item.match(pathname)
+		: pathMatches(item.to!, pathname)
 
 	return (
 		<NavLink to={item.to!} className={navBtnClass(active)}>
 			<span className="flex size-5 shrink-0 items-center justify-center">
 				<item.icon className="size-5" />
 			</span>
-			<span className="min-w-0 flex-1 truncate text-sm">{item.label}</span>
+			<span className="min-w-0 flex-1 truncate text-sm">
+				{item.label}
+			</span>
 		</NavLink>
 	)
 }
@@ -220,9 +300,14 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
 				<span className="flex size-5 shrink-0 items-center justify-center">
 					<item.icon className="size-5" />
 				</span>
-				<span className="min-w-0 flex-1 truncate text-left text-sm">{item.label}</span>
+				<span className="min-w-0 flex-1 truncate text-left text-sm">
+					{item.label}
+				</span>
 				<ChevronRight
-					className={cn('size-4 shrink-0 text-n-500 transition-transform duration-200', open && 'rotate-90')}
+					className={cn(
+						'size-4 shrink-0 text-n-500 transition-transform duration-200',
+						open && 'rotate-90',
+					)}
 				/>
 			</button>
 
@@ -240,10 +325,14 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
 								to={child.to}
 								className={cn(
 									'flex h-7 items-center gap-2 rounded-lg px-2 text-sm',
-									child.to === activeUrl ? 'sidebar-nav-sub-btn-active' : 'sidebar-nav-sub-btn-idle',
+									child.to === activeUrl
+										? 'sidebar-nav-sub-btn-active'
+										: 'sidebar-nav-sub-btn-idle',
 								)}
 							>
-								<span className="min-w-0 flex-1 truncate">{child.label}</span>
+								<span className="min-w-0 flex-1 truncate">
+									{child.label}
+								</span>
 							</NavLink>
 						))}
 					</div>

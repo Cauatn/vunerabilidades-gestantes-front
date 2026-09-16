@@ -1,13 +1,13 @@
-import { SquareTextIcon } from "@/features/avaliacao/components/icons";
-import { formatarDataHoraBr } from "@/features/core/utils/date";
+import { SquareTextIcon } from '@/features/avaliacao/components/icons'
+import { formatarDataHoraBr } from '@/features/core/utils/date'
 
 interface ResumoAplicacaoCardProps {
-	appliedAt: string;
-	ubs: string;
-	aplicador: string;
-	categoriaProfissional: string;
-	crmCoren: string | null;
-	email: string;
+	appliedAt: string
+	ubs: string
+	aplicador: string
+	categoriaProfissional: string
+	crmCoren: string | null
+	email: string
 }
 
 export function ResumoAplicacaoCard({
@@ -26,17 +26,21 @@ export function ResumoAplicacaoCard({
 
 			<div className="grid flex-1 grid-cols-3 gap-x-3 gap-y-3 text-sm text-n-800">
 				<p>
-					<span className="font-semibold">Data de aplicação:</span>{" "}
+					<span className="font-semibold">Data de aplicação:</span>{' '}
 					{formatarDataHoraBr(appliedAt)}
 				</p>
 				<p className="col-span-2">
-					<span className="font-semibold">UBS de aplicação:</span> {ubs}
+					<span className="font-semibold">UBS de aplicação:</span>{' '}
+					{ubs}
 				</p>
 				<p>
-					<span className="font-semibold">Aplicador:</span> {aplicador}
+					<span className="font-semibold">Aplicador:</span>{' '}
+					{aplicador}
 				</p>
 				<p>
-					<span className="font-semibold">Categoria profissional:</span>{" "}
+					<span className="font-semibold">
+						Categoria profissional:
+					</span>{' '}
 					{categoriaProfissional}
 				</p>
 				<p>
@@ -47,5 +51,5 @@ export function ResumoAplicacaoCard({
 				</p>
 			</div>
 		</div>
-	);
+	)
 }

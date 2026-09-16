@@ -8,11 +8,15 @@ export const usuariosQueryKey = ['users']
 
 export function useGetUsuarios() {
 	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1))
-	const [busca, setBusca] = useQueryState('busca', parseAsString.withDefault(''))
+	const [busca, setBusca] = useQueryState(
+		'busca',
+		parseAsString.withDefault(''),
+	)
 
 	const query = useQuery({
 		queryKey: [...usuariosQueryKey, { page, busca }],
-		queryFn: () => getUsuarios({ page, pageSize: PAGE_SIZE, search: busca }),
+		queryFn: () =>
+			getUsuarios({ page, pageSize: PAGE_SIZE, search: busca }),
 		select: (response) => response.data,
 	})
 

@@ -1,4 +1,9 @@
-import type { OpcaoResposta, PerguntaConfig, SecaoConfig, TipoPergunta } from '@/features/instrumentos/types/questionario'
+import type {
+	OpcaoResposta,
+	PerguntaConfig,
+	SecaoConfig,
+	TipoPergunta,
+} from '@/features/instrumentos/types/questionario'
 import type {
 	AnswerOptionApi,
 	QuestionApi,
@@ -13,7 +18,9 @@ function toTipoPergunta(type: QuestionApiType): TipoPergunta {
 }
 
 function toQuestionApiType(tipo: TipoPergunta): QuestionApiType {
-	return tipo === 'dicotomica' || tipo === 'dicotomica_complementar' ? 'YES_NO' : 'MULTIPLE_CHOICE'
+	return tipo === 'dicotomica' || tipo === 'dicotomica_complementar'
+		? 'YES_NO'
+		: 'MULTIPLE_CHOICE'
 }
 
 function toOpcaoResposta(option: AnswerOptionApi): OpcaoResposta {
@@ -36,7 +43,12 @@ function toPerguntaConfig(question: QuestionApi): PerguntaConfig {
 }
 
 export function toSections(version: QuestionnaireVersionApi): SecaoConfig[] {
-	const perguntasPorId = new Map(version.questions.map((question) => [question.id, toPerguntaConfig(question)]))
+	const perguntasPorId = new Map(
+		version.questions.map((question) => [
+			question.id,
+			toPerguntaConfig(question),
+		]),
+	)
 
 	for (const question of version.questions) {
 		if (!question.visibleWhenQuestionId) continue
@@ -50,15 +62,23 @@ export function toSections(version: QuestionnaireVersionApi): SecaoConfig[] {
 	const secoes = new Map<string, SecaoConfig>()
 	for (const question of version.questions) {
 		if (question.visibleWhenQuestionId) continue
-		const secao = secoes.get(question.section) ?? { id: question.section, nome: question.section, perguntas: [] }
+		const secao = secoes.get(question.section) ?? {
+			id: question.section,
+			nome: question.section,
+			perguntas: [],
+		}
 		secao.perguntas.push(perguntasPorId.get(question.id)!)
 		secoes.set(question.section, secao)
 	}
 	return [...secoes.values()]
 }
 
-function opcaoQueDisparaCondicional(pergunta: PerguntaConfig): OpcaoResposta | undefined {
-	return pergunta.opcoes.find((opcao) => opcao.texto.trim().toLowerCase() === 'sim')
+function opcaoQueDisparaCondicional(
+	pergunta: PerguntaConfig,
+): OpcaoResposta | undefined {
+	return pergunta.opcoes.find(
+		(opcao) => opcao.texto.trim().toLowerCase() === 'sim',
+	)
 }
 
 function toReplaceQuestionPayload(
@@ -67,7 +87,9 @@ function toReplaceQuestionPayload(
 	order: number,
 	parent?: PerguntaConfig,
 ): ReplaceQuestionPayload {
-	const triggeringOption = parent ? opcaoQueDisparaCondicional(parent) : undefined
+	const triggeringOption = parent
+		? opcaoQueDisparaCondicional(parent)
+		: undefined
 
 	return {
 		// O lote substitui o rascunho inteiro. IDs da versão de origem servem
@@ -96,15 +118,29 @@ function flattenPerguntas(
 	payloads: ReplaceQuestionPayload[],
 ): void {
 	perguntas.forEach((pergunta, order) => {
-		payloads.push(toReplaceQuestionPayload(pergunta, section, order, parent))
-		flattenPerguntas(pergunta.subPerguntas ?? [], section, pergunta, payloads)
+		payloads.push(
+			toReplaceQuestionPayload(pergunta, section, order, parent),
+		)
+		flattenPerguntas(
+			pergunta.subPerguntas ?? [],
+			section,
+			pergunta,
+			payloads,
+		)
 	})
 }
 
-export function toReplaceQuestionsPayload(secoes: SecaoConfig[]): ReplaceQuestionsPayload {
+export function toReplaceQuestionsPayload(
+	secoes: SecaoConfig[],
+): ReplaceQuestionsPayload {
 	const questions: ReplaceQuestionPayload[] = []
 	for (const secao of secoes) {
-		flattenPerguntas(secao.perguntas, secao.nome.trim(), undefined, questions)
+		flattenPerguntas(
+			secao.perguntas,
+			secao.nome.trim(),
+			undefined,
+			questions,
+		)
 	}
 	return { questions }
 }

@@ -1,4 +1,10 @@
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import {
+	DndContext,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	type DragEndEvent,
+} from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CircleAlert, Info, X } from 'lucide-react'
 import { useState } from 'react'
@@ -23,14 +29,23 @@ type Remocao = { tipo: 'grau' | 'recomendacao'; grauId: string; recId?: string }
 
 export function ConfigurarEscalaPage() {
 	const navigate = useNavigate()
-	const { escala: config, publicar, publicando, rascunhoPronto, erroCarregamento, versionNumber } = useInstrumentoDraft()
+	const {
+		escala: config,
+		publicar,
+		publicando,
+		rascunhoPronto,
+		erroCarregamento,
+		versionNumber,
+	} = useInstrumentoDraft()
 
 	const [avisoVisivel, setAvisoVisivel] = useState(true)
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
 	const [descartarAberto, setDescartarAberto] = useState(false)
 
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const grausIds = config.graus.map((g) => g.id)
 
 	const temErroValidacao = config.validacao.gerais.length > 0
@@ -61,7 +76,11 @@ export function ConfigurarEscalaPage() {
 
 	return (
 		<InstrumentoLayout
-			versao={versionNumber ? `Versão atual v${versionNumber}` : 'Sem versão publicada'}
+			versao={
+				versionNumber
+					? `Versão atual v${versionNumber}`
+					: 'Sem versão publicada'
+			}
 			titulo="Configurar escala"
 			descricao="Defina os intervalos de pontuação de cada grau de vulnerabilidade e as recomendações associadas."
 			onCancelar={() => setDescartarAberto(true)}
@@ -80,7 +99,10 @@ export function ConfigurarEscalaPage() {
 			) : null}
 			{erroCarregamento ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
-					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
+					{apiErrorMessage(
+						erroCarregamento,
+						'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.',
+					)}
 				</p>
 			) : null}
 
@@ -92,11 +114,17 @@ export function ConfigurarEscalaPage() {
 						<div className="flex items-center gap-2 text-sm font-medium text-b-400">
 							<Info className="size-5 shrink-0" />
 							<span>
-								A versão mais atual do formulário soma {PONTUACAO_SUGERIDA} pontos. Se a escala
-								definir um teto diferente, pontuações fora dele ficarão sem grau.
+								A versão mais atual do formulário soma{' '}
+								{PONTUACAO_SUGERIDA} pontos. Se a escala definir
+								um teto diferente, pontuações fora dele ficarão
+								sem grau.
 							</span>
 						</div>
-						<button type="button" aria-label="Fechar aviso" onClick={() => setAvisoVisivel(false)}>
+						<button
+							type="button"
+							aria-label="Fechar aviso"
+							onClick={() => setAvisoVisivel(false)}
+						>
 							<X className="size-4 text-b-400" />
 						</button>
 					</div>
@@ -107,12 +135,21 @@ export function ConfigurarEscalaPage() {
 						<LimitesRange
 							min={config.limites.min}
 							max={config.limites.max}
-							onMinChange={(v) => config.atualizarLimite('min', v)}
-							onMaxChange={(v) => config.atualizarLimite('max', v)}
+							onMinChange={(v) =>
+								config.atualizarLimite('min', v)
+							}
+							onMaxChange={(v) =>
+								config.atualizarLimite('max', v)
+							}
 							idPrefix="escala"
 						/>
 					</div>
-					<Button type="button" onClick={() => config.usarPontuacaoSugerida(PONTUACAO_SUGERIDA)}>
+					<Button
+						type="button"
+						onClick={() =>
+							config.usarPontuacaoSugerida(PONTUACAO_SUGERIDA)
+						}
+					>
 						Usar pontuação sugerida
 					</Button>
 				</div>
@@ -121,10 +158,17 @@ export function ConfigurarEscalaPage() {
 			<div className="flex flex-col gap-3">
 				<Divider text="Graus de vulnerabilidade" />
 
-				<FaixasEscalaBar graus={config.graus} min={config.limites.min} max={config.limites.max} />
+				<FaixasEscalaBar
+					graus={config.graus}
+					min={config.limites.min}
+					max={config.limites.max}
+				/>
 
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-					<SortableContext items={grausIds} strategy={verticalListSortingStrategy}>
+					<SortableContext
+						items={grausIds}
+						strategy={verticalListSortingStrategy}
+					>
 						<div className="flex flex-col gap-3">
 							{config.graus.map((g) => (
 								<SortableItem key={g.id} id={g.id}>
@@ -132,11 +176,25 @@ export function ConfigurarEscalaPage() {
 										<GrauVulnerabilidadeCard
 											grau={g}
 											config={config}
-											erro={config.validacao.porGrau[g.id]}
+											erro={
+												config.validacao.porGrau[g.id]
+											}
 											dragHandle={h}
-											onRemover={() => setRemocao({ tipo: 'grau', grauId: g.id })}
-											onRemoverRecomendacao={(grauId, recId) =>
-												setRemocao({ tipo: 'recomendacao', grauId, recId })
+											onRemover={() =>
+												setRemocao({
+													tipo: 'grau',
+													grauId: g.id,
+												})
+											}
+											onRemoverRecomendacao={(
+												grauId,
+												recId,
+											) =>
+												setRemocao({
+													tipo: 'recomendacao',
+													grauId,
+													recId,
+												})
 											}
 										/>
 									)}
@@ -157,7 +215,9 @@ export function ConfigurarEscalaPage() {
 				onOpenChange={(o) => !o && setRemocao(null)}
 				variant="danger"
 				title={
-					remocao?.tipo === 'grau' ? 'Remover grau de vulnerabilidade' : 'Remover recomendação'
+					remocao?.tipo === 'grau'
+						? 'Remover grau de vulnerabilidade'
+						: 'Remover recomendação'
 				}
 				description={
 					remocao?.tipo === 'grau'
@@ -168,7 +228,9 @@ export function ConfigurarEscalaPage() {
 					if (!remocao) return
 					if (remocao.tipo === 'grau') {
 						config.removeGrau(remocao.grauId)
-						toast.success('Grau de vulnerabilidade removido com sucesso.')
+						toast.success(
+							'Grau de vulnerabilidade removido com sucesso.',
+						)
 					} else if (remocao.recId) {
 						config.removeRecomendacao(remocao.grauId, remocao.recId)
 						toast.success('Recomendação removida com sucesso.')

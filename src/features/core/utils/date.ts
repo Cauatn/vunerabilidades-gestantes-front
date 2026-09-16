@@ -7,7 +7,8 @@ export function calcularIdade(dataNascimentoIso: string): number {
 	let idade = hoje.getFullYear() - nascimento.getFullYear()
 	const aindaNaoFezAniversario =
 		hoje.getMonth() < nascimento.getMonth() ||
-		(hoje.getMonth() === nascimento.getMonth() && hoje.getDate() < nascimento.getDate())
+		(hoje.getMonth() === nascimento.getMonth() &&
+			hoje.getDate() < nascimento.getDate())
 
 	if (aindaNaoFezAniversario) idade -= 1
 
@@ -21,7 +22,9 @@ export function formatarDataBr(dataIso: string | null | undefined): string {
 }
 
 /** Instantes usam o fuso local do navegador; datas sem horário não ganham uma hora fictícia. */
-export function formatarDataHoraBr(valor: string | Date | null | undefined): string {
+export function formatarDataHoraBr(
+	valor: string | Date | null | undefined,
+): string {
 	if (typeof valor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
 		return formatarDataBr(valor)
 	}

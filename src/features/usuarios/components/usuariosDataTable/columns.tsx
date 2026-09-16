@@ -2,7 +2,10 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 import { Badge } from '@/components/ui/badge'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
-import { ROLE_TO_CATEGORIA, type Usuario } from '@/features/usuarios/types/usuario'
+import {
+	ROLE_TO_CATEGORIA,
+	type Usuario,
+} from '@/features/usuarios/types/usuario'
 import { UsuarioActionsCell } from './actionsCell'
 
 const MAX_UBS_VISIVEIS = 2
@@ -22,14 +25,20 @@ export function createUsuariosColumns({
 		{
 			accessorKey: 'name',
 			header: 'Nome',
-			cell: ({ getValue }) => <span className="font-medium text-n-700">{getValue() as string}</span>,
+			cell: ({ getValue }) => (
+				<span className="font-medium text-n-700">
+					{getValue() as string}
+				</span>
+			),
 		},
 		{ accessorKey: 'email', header: 'Email' },
 		{
 			accessorKey: 'role',
 			header: 'Categoria profissional',
 			cell: ({ getValue }) =>
-				CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[getValue() as Usuario['role']]],
+				CATEGORIA_PROFISSIONAL_LABEL[
+					ROLE_TO_CATEGORIA[getValue() as Usuario['role']]
+				],
 		},
 		{
 			id: 'ubs',
@@ -38,7 +47,8 @@ export function createUsuariosColumns({
 				const nomes = row.original.healthUnitIds
 					.map((id) => ubsNomePorId.get(id))
 					.filter((nome): nome is string => !!nome)
-				if (nomes.length === 0) return <span className="text-n-400">-</span>
+				if (nomes.length === 0)
+					return <span className="text-n-400">-</span>
 
 				const visiveis = nomes.slice(0, MAX_UBS_VISIVEIS)
 				const restantes = nomes.length - visiveis.length
@@ -49,7 +59,9 @@ export function createUsuariosColumns({
 								{nome}
 							</Badge>
 						))}
-						{restantes > 0 ? <Badge variant="outline">+{restantes}</Badge> : null}
+						{restantes > 0 ? (
+							<Badge variant="outline">+{restantes}</Badge>
+						) : null}
 					</div>
 				)
 			},
@@ -69,7 +81,11 @@ export function createUsuariosColumns({
 		{
 			id: 'actions',
 			cell: ({ row }) => (
-				<UsuarioActionsCell usuario={row.original} onEdit={onEdit} onToggleStatus={onToggleStatus} />
+				<UsuarioActionsCell
+					usuario={row.original}
+					onEdit={onEdit}
+					onToggleStatus={onToggleStatus}
+				/>
 			),
 		},
 	]

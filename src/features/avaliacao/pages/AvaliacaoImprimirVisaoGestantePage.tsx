@@ -6,8 +6,14 @@ import { AvaliacaoRecomendacoesGestante } from '@/features/avaliacao/components/
 import { DadosGestanteCard } from '@/features/avaliacao/components/DadosGestanteCard'
 import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
 import { ResumoAplicacaoCard } from '@/features/avaliacao/components/ResumoAplicacaoCard'
-import { CLASSIFICACAO_LABEL, SYNTHETIC_VULNERABILITY_BANDS } from '@/features/avaliacao/constants'
-import { criarAvaliacaoDetalheMock, formatarEmitidoEm } from '@/features/avaliacao/utils/avaliacaoMock'
+import {
+	CLASSIFICACAO_LABEL,
+	SYNTHETIC_VULNERABILITY_BANDS,
+} from '@/features/avaliacao/constants'
+import {
+	criarAvaliacaoDetalheMock,
+	formatarEmitidoEm,
+} from '@/features/avaliacao/utils/avaliacaoMock'
 
 export function AvaliacaoImprimirVisaoGestantePage() {
 	const { id = '' } = useParams<{ id: string }>()
@@ -26,7 +32,9 @@ export function AvaliacaoImprimirVisaoGestantePage() {
 					appliedAt={avaliacao.resumo.dataAplicacao}
 					ubs={avaliacao.resumo.ubs}
 					aplicador={avaliacao.resumo.aplicador}
-					categoriaProfissional={avaliacao.resumo.categoriaProfissional}
+					categoriaProfissional={
+						avaliacao.resumo.categoriaProfissional
+					}
 					crmCoren={avaliacao.resumo.crmCoren}
 					email={avaliacao.resumo.email}
 				/>
@@ -43,7 +51,9 @@ export function AvaliacaoImprimirVisaoGestantePage() {
 					<ResultadoAvaliacao
 						nomeGestante={avaliacao.gestante.nome}
 						pontuacao={avaliacao.pontuacao}
-						vulnerabilityLevel={CLASSIFICACAO_LABEL[avaliacao.classificacao]}
+						vulnerabilityLevel={
+							CLASSIFICACAO_LABEL[avaliacao.classificacao]
+						}
 						vulnerabilityBandId={avaliacao.classificacao}
 						bands={SYNTHETIC_VULNERABILITY_BANDS}
 					/>
@@ -52,7 +62,9 @@ export function AvaliacaoImprimirVisaoGestantePage() {
 
 			<div className="flex flex-col gap-3">
 				<Divider text="Recomendações à gestante" />
-				<AvaliacaoRecomendacoesGestante recomendacoes={avaliacao.recomendacoesGestante} />
+				<AvaliacaoRecomendacoesGestante
+					recomendacoes={avaliacao.recomendacoesGestante}
+				/>
 			</div>
 		</AvaliacaoImpressaoLayout>
 	)

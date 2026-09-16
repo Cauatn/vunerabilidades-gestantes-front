@@ -1,10 +1,10 @@
-import { Page } from "@/components/Layout/Page";
-import { DataTable } from "@/components/ui/data-table";
-import { useAssessments } from "@/features/avaliacao/composables/useAssessments";
-import { columns } from "../constants/tabelaHistoricoAvaliacoes";
+import { Page } from '@/components/Layout/Page'
+import { DataTable } from '@/components/ui/data-table'
+import { useAssessments } from '@/features/avaliacao/composables/useAssessments'
+import { columns } from '../constants/tabelaHistoricoAvaliacoes'
 
 export function HistoricoPage() {
-	const { data: assessments, isLoading } = useAssessments();
+	const { data: assessments, isLoading } = useAssessments()
 
 	return (
 		<Page
@@ -19,5 +19,5 @@ export function HistoricoPage() {
 				emptyStateDescription="As aplicações da escala aparecerão aqui."
 			/>
 		</Page>
-	);
+	)
 }

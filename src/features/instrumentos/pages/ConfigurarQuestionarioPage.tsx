@@ -26,12 +26,10 @@ type Remocao = {
 }
 
 const DESCRICAO_REMOCAO: Record<Remocao['tipo'], string> = {
-	secao:
-		'Ao clicar em remover você estará removendo a seção e todas as perguntas contidas nela. Essa ação não pode ser desfeita.',
+	secao: 'Ao clicar em remover você estará removendo a seção e todas as perguntas contidas nela. Essa ação não pode ser desfeita.',
 	pergunta:
 		'Ao clicar em remover você estará removendo uma pergunta inteira do formulário. Essa ação não pode ser desfeita.',
-	opcao:
-		'Ao clicar em remover você estará removendo uma opção de resposta da pergunta. Essa ação não pode ser desfeita.',
+	opcao: 'Ao clicar em remover você estará removendo uma opção de resposta da pergunta. Essa ação não pode ser desfeita.',
 }
 
 const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
@@ -42,13 +40,22 @@ const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
 
 export function ConfigurarQuestionarioPage() {
 	const navigate = useNavigate()
-	const { config, publicar, publicando, rascunhoPronto, erroCarregamento, versionNumber } = useInstrumentoDraft()
+	const {
+		config,
+		publicar,
+		publicando,
+		rascunhoPronto,
+		erroCarregamento,
+		versionNumber,
+	} = useInstrumentoDraft()
 
 	const [remocao, setRemocao] = useState<Remocao | null>(null)
 	const [publicarAberto, setPublicarAberto] = useState(false)
 	const [descartarAberto, setDescartarAberto] = useState(false)
 
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const perguntas = config.secaoAtiva?.perguntas ?? []
 	const perguntasIds = perguntas.map((pergunta) => pergunta.id)
 
@@ -78,7 +85,11 @@ export function ConfigurarQuestionarioPage() {
 
 	return (
 		<InstrumentoLayout
-			versao={versionNumber ? `Versão atual v${versionNumber}` : 'Sem versão publicada'}
+			versao={
+				versionNumber
+					? `Versão atual v${versionNumber}`
+					: 'Sem versão publicada'
+			}
 			titulo="Configurar questionário"
 			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
 			onCancelar={() => setDescartarAberto(true)}
@@ -87,7 +98,10 @@ export function ConfigurarQuestionarioPage() {
 		>
 			{erroCarregamento ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
-					{apiErrorMessage(erroCarregamento, 'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.')}
+					{apiErrorMessage(
+						erroCarregamento,
+						'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.',
+					)}
 				</p>
 			) : null}
 			<SecaoTabs
@@ -97,7 +111,10 @@ export function ConfigurarQuestionarioPage() {
 
 			<div className="flex flex-col gap-3">
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-					<SortableContext items={perguntasIds} strategy={verticalListSortingStrategy}>
+					<SortableContext
+						items={perguntasIds}
+						strategy={verticalListSortingStrategy}
+					>
 						{perguntas.map((p) => (
 							<SortableItem key={p.id} id={p.id}>
 								{(h) => (
@@ -105,9 +122,15 @@ export function ConfigurarQuestionarioPage() {
 										pergunta={p}
 										config={config}
 										dragHandle={h}
-										onRemoverPergunta={(id) => setRemocao({ tipo: 'pergunta', id })}
+										onRemoverPergunta={(id) =>
+											setRemocao({ tipo: 'pergunta', id })
+										}
 										onRemoverOpcao={(perguntaId, opcaoId) =>
-											setRemocao({ tipo: 'opcao', id: opcaoId, perguntaId })
+											setRemocao({
+												tipo: 'opcao',
+												id: opcaoId,
+												perguntaId,
+											})
 										}
 									/>
 								)}
@@ -117,7 +140,10 @@ export function ConfigurarQuestionarioPage() {
 				</DndContext>
 			</div>
 
-			<DashedAddButton label="Adicionar item" onClick={config.addPergunta} />
+			<DashedAddButton
+				label="Adicionar item"
+				onClick={config.addPergunta}
+			/>
 
 			<Modal
 				open={!!remocao}

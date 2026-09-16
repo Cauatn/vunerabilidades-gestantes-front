@@ -17,7 +17,8 @@ export const QUESTIONARIO_INICIAL: SecaoConfig[] = [
 			{
 				id: 'vspn01',
 				codigo: 'VSPN01',
-				enunciado: 'Qual foi o maior nível de estudo que você concluiu?',
+				enunciado:
+					'Qual foi o maior nível de estudo que você concluiu?',
 				tipo: 'multipla',
 				opcoes: [
 					opcao('Não estudou', 7),
@@ -49,12 +50,17 @@ export const QUESTIONARIO_INICIAL: SecaoConfig[] = [
 				enunciado:
 					'Durante a gravidez, você sofreu ou está sofrendo algum tipo de violência ou ameaça de alguém?',
 				tipo: 'dicotomica_complementar',
-				opcoes: [opcao('Sim', 7), opcao('Não', 6), semPontuacao('Prefiro não responder')],
+				opcoes: [
+					opcao('Sim', 7),
+					opcao('Não', 6),
+					semPontuacao('Prefiro não responder'),
+				],
 				subPerguntas: [
 					{
 						id: 'vspn15a',
 						codigo: 'VSPN15A',
-						enunciado: 'Qual foi o maior nível de estudo que você concluiu?',
+						enunciado:
+							'Qual foi o maior nível de estudo que você concluiu?',
 						tipo: 'multipla',
 						opcoes: [
 							opcao('Física', 7),
@@ -93,7 +99,28 @@ const RECOMENDACOES_PADRAO = () => [
 ]
 
 export const ESCALA_GRAUS_INICIAIS: GrauConfig[] = [
-	{ id: 'grau-baixa', nome: 'Baixa', cor: '#2db981', min: 0, max: 22, recomendacoes: RECOMENDACOES_PADRAO() },
-	{ id: 'grau-moderada', nome: 'Moderada', cor: '#f6bd5a', min: 23, max: 46, recomendacoes: RECOMENDACOES_PADRAO() },
-	{ id: 'grau-alta', nome: 'Alta', cor: '#f3596c', min: 47, max: 60, recomendacoes: RECOMENDACOES_PADRAO() },
+	{
+		id: 'grau-baixa',
+		nome: 'Baixa',
+		cor: '#2db981',
+		min: 0,
+		max: 22,
+		recomendacoes: RECOMENDACOES_PADRAO(),
+	},
+	{
+		id: 'grau-moderada',
+		nome: 'Moderada',
+		cor: '#f6bd5a',
+		min: 23,
+		max: 46,
+		recomendacoes: RECOMENDACOES_PADRAO(),
+	},
+	{
+		id: 'grau-alta',
+		nome: 'Alta',
+		cor: '#f3596c',
+		min: 47,
+		max: 60,
+		recomendacoes: RECOMENDACOES_PADRAO(),
+	},
 ]

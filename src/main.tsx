@@ -7,13 +7,13 @@ import App from './App.tsx'
 import TanstackQueryClientProvider from './providers/tanstackQueryClientProvider'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <NuqsAdapter>
-        <TanstackQueryClientProvider>
-          <App />
-        </TanstackQueryClientProvider>
-      </NuqsAdapter>
-    </BrowserRouter>
-  </StrictMode>,
+	<StrictMode>
+		<BrowserRouter>
+			<NuqsAdapter>
+				<TanstackQueryClientProvider>
+					<App />
+				</TanstackQueryClientProvider>
+			</NuqsAdapter>
+		</BrowserRouter>
+	</StrictMode>,
 )

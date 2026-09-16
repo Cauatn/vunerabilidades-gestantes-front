@@ -18,8 +18,16 @@ interface SortablePerguntaCardProps {
 	onTextoChange: (perguntaId: string, texto: string) => void
 	onAddOpcao: (perguntaId: string) => void
 	onRemoveOpcao: (perguntaId: string, opcaoId: string) => void
-	onOpcaoTextoChange: (perguntaId: string, opcaoId: string, texto: string) => void
-	onOpcaoPontuacaoChange: (perguntaId: string, opcaoId: string, pontuacao: number) => void
+	onOpcaoTextoChange: (
+		perguntaId: string,
+		opcaoId: string,
+		texto: string,
+	) => void
+	onOpcaoPontuacaoChange: (
+		perguntaId: string,
+		opcaoId: string,
+		pontuacao: number,
+	) => void
 }
 
 export function SortablePerguntaCard({
@@ -33,7 +41,14 @@ export function SortablePerguntaCard({
 	onOpcaoTextoChange,
 	onOpcaoPontuacaoChange,
 }: SortablePerguntaCardProps) {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: pergunta.id })
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: pergunta.id })
 
 	const [categoriaLocal, setCategoriaLocal] = useState(pergunta.categoria)
 
@@ -61,22 +76,38 @@ export function SortablePerguntaCard({
 
 					<div className="flex-1 space-y-3">
 						<div className="space-y-1.5">
-							<Label htmlFor={`categoria-${pergunta.id}`}>Categoria</Label>
+							<Label htmlFor={`categoria-${pergunta.id}`}>
+								Categoria
+							</Label>
 							<Input
 								id={`categoria-${pergunta.id}`}
 								value={categoriaLocal}
 								placeholder="Ex.: Condições socioeconômicas"
-								onChange={(event) => setCategoriaLocal(event.target.value)}
-								onBlur={() => onCategoriaChange(pergunta.id, categoriaLocal)}
+								onChange={(event) =>
+									setCategoriaLocal(event.target.value)
+								}
+								onBlur={() =>
+									onCategoriaChange(
+										pergunta.id,
+										categoriaLocal,
+									)
+								}
 							/>
 						</div>
 						<div className="space-y-1.5">
-							<Label htmlFor={`pergunta-${pergunta.id}`}>Pergunta {index + 1}</Label>
+							<Label htmlFor={`pergunta-${pergunta.id}`}>
+								Pergunta {index + 1}
+							</Label>
 							<Input
 								id={`pergunta-${pergunta.id}`}
 								value={pergunta.texto}
 								placeholder="Digite o texto da pergunta"
-								onChange={(event) => onTextoChange(pergunta.id, event.target.value)}
+								onChange={(event) =>
+									onTextoChange(
+										pergunta.id,
+										event.target.value,
+									)
+								}
 							/>
 						</div>
 					</div>
@@ -102,14 +133,26 @@ export function SortablePerguntaCard({
 							value={opcao.texto}
 							placeholder="Texto da opção"
 							className="flex-1"
-							onChange={(event) => onOpcaoTextoChange(pergunta.id, opcao.id, event.target.value)}
+							onChange={(event) =>
+								onOpcaoTextoChange(
+									pergunta.id,
+									opcao.id,
+									event.target.value,
+								)
+							}
 						/>
 						<Input
 							type="number"
 							value={opcao.pontuacao}
 							placeholder="Pontos"
 							className="w-24"
-							onChange={(event) => onOpcaoPontuacaoChange(pergunta.id, opcao.id, Number(event.target.value))}
+							onChange={(event) =>
+								onOpcaoPontuacaoChange(
+									pergunta.id,
+									opcao.id,
+									Number(event.target.value),
+								)
+							}
 						/>
 						<Button
 							type="button"
@@ -124,7 +167,12 @@ export function SortablePerguntaCard({
 						</Button>
 					</div>
 				))}
-				<Button type="button" variant="outline" size="sm" onClick={() => onAddOpcao(pergunta.id)}>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => onAddOpcao(pergunta.id)}
+				>
 					<Plus className="size-4" />
 					Adicionar opção
 				</Button>

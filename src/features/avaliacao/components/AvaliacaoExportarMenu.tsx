@@ -14,7 +14,9 @@ interface AvaliacaoExportarMenuProps {
 	avaliacaoId: string
 }
 
-export function AvaliacaoExportarMenu({ avaliacaoId }: AvaliacaoExportarMenuProps) {
+export function AvaliacaoExportarMenu({
+	avaliacaoId,
+}: AvaliacaoExportarMenuProps) {
 	const navigate = useNavigate()
 
 	return (
@@ -26,11 +28,23 @@ export function AvaliacaoExportarMenu({ avaliacaoId }: AvaliacaoExportarMenuProp
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
-				<DropdownMenuItem onSelect={() => navigate(`/historico/${avaliacaoId}/imprimir/visao-gestante`)}>
+				<DropdownMenuItem
+					onSelect={() =>
+						navigate(
+							`/historico/${avaliacaoId}/imprimir/visao-gestante`,
+						)
+					}
+				>
 					<PregnantIcon className="h-3.5 w-2.5" />
 					Visão da gestante
 				</DropdownMenuItem>
-				<DropdownMenuItem onSelect={() => navigate(`/historico/${avaliacaoId}/imprimir/visao-geral`)}>
+				<DropdownMenuItem
+					onSelect={() =>
+						navigate(
+							`/historico/${avaliacaoId}/imprimir/visao-geral`,
+						)
+					}
+				>
 					<Stethoscope className="size-3.5" />
 					Visão geral
 				</DropdownMenuItem>

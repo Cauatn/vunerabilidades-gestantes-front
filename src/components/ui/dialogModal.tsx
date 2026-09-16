@@ -3,9 +3,9 @@ import {
 	OctagonAlert,
 	TriangleAlert,
 	type LucideIcon,
-} from "lucide-react";
-import type { ReactNode } from "react";
-import { Button } from "./button";
+} from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Button } from './button'
 import {
 	Dialog,
 	DialogBody,
@@ -13,36 +13,36 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "./dialog";
+} from './dialog'
 
-type DialogModalVariant = "default" | "warning" | "danger" | "info";
+type DialogModalVariant = 'default' | 'warning' | 'danger' | 'info'
 
 interface DialogModalProps {
-	onOpenChange: (open: boolean) => void;
-	open: boolean;
-	defaultOpen?: boolean;
-	variant?: DialogModalVariant;
-	title?: string;
-	children: ReactNode;
-	cancelButtonText?: string;
-	okButtonText?: string;
-	onOkButtonClick: () => void;
-	onCancelButtonClick?: () => void;
-	hasCancelButton?: boolean;
-	icon?: LucideIcon;
-	isOkButtonLoading?: boolean;
-	isOkButtonDisabled?: boolean;
+	onOpenChange: (open: boolean) => void
+	open: boolean
+	defaultOpen?: boolean
+	variant?: DialogModalVariant
+	title?: string
+	children: ReactNode
+	cancelButtonText?: string
+	okButtonText?: string
+	onOkButtonClick: () => void
+	onCancelButtonClick?: () => void
+	hasCancelButton?: boolean
+	icon?: LucideIcon
+	isOkButtonLoading?: boolean
+	isOkButtonDisabled?: boolean
 }
 
 export default function DialogModal({
 	onOpenChange,
 	open,
 	defaultOpen,
-	variant = "default",
+	variant = 'default',
 	children,
-	title = "Você tem certeza disso?",
-	cancelButtonText = "Cancelar",
-	okButtonText = "Continuar",
+	title = 'Você tem certeza disso?',
+	cancelButtonText = 'Cancelar',
+	okButtonText = 'Continuar',
 	onOkButtonClick,
 	onCancelButtonClick,
 	hasCancelButton = true,
@@ -52,17 +52,17 @@ export default function DialogModal({
 }: DialogModalProps) {
 	const headerIcon =
 		icon ??
-		(variant === "warning"
+		(variant === 'warning'
 			? TriangleAlert
-			: variant === "danger"
+			: variant === 'danger'
 				? OctagonAlert
-				: Info);
+				: Info)
 
 	function handleEscapeKey(e: KeyboardEvent) {
 		if (hasCancelButton) {
-			return;
+			return
 		}
-		e.preventDefault();
+		e.preventDefault()
 	}
 
 	return (
@@ -105,5 +105,5 @@ export default function DialogModal({
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	);
+	)
 }

@@ -1,18 +1,39 @@
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react'
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useRef,
+	type ReactNode,
+} from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 
-import { questionarioAtivoQueryKey, useGetQuestionarioAtivo } from '@/features/instrumentos/composables/useGetQuestionarioAtivo'
-import { useEscalaConfig, type EscalaConfig } from '@/features/instrumentos/composables/useEscalaConfig'
-import { useQuestionarioConfig, type QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import {
+	questionarioAtivoQueryKey,
+	useGetQuestionarioAtivo,
+} from '@/features/instrumentos/composables/useGetQuestionarioAtivo'
+import {
+	useEscalaConfig,
+	type EscalaConfig,
+} from '@/features/instrumentos/composables/useEscalaConfig'
+import {
+	useQuestionarioConfig,
+	type QuestionarioConfig,
+} from '@/features/instrumentos/composables/useQuestionarioConfig'
 import {
 	createQuestionnaireDraft,
 	publishQuestionnaireVersion,
 	replaceQuestions,
 	replaceVulnerabilityBands,
 } from '@/features/instrumentos/services/questionario'
-import { toEscala, toReplaceVulnerabilityBandsPayload } from '@/features/instrumentos/utils/escalaMapper'
-import { toReplaceQuestionsPayload, toSections } from '@/features/instrumentos/utils/questionarioMapper'
+import {
+	toEscala,
+	toReplaceVulnerabilityBandsPayload,
+} from '@/features/instrumentos/utils/escalaMapper'
+import {
+	toReplaceQuestionsPayload,
+	toSections,
+} from '@/features/instrumentos/utils/questionarioMapper'
 
 interface InstrumentoDraftContextValue {
 	config: QuestionarioConfig
@@ -20,7 +41,10 @@ interface InstrumentoDraftContextValue {
 	draftId: string | undefined
 	versionNumber: number | undefined
 	rascunhoPronto: boolean
-	publicar: (options?: { onSuccess?: () => void; onError?: (error: unknown) => void; }) => void
+	publicar: (options?: {
+		onSuccess?: () => void
+		onError?: (error: unknown) => void
+	}) => void
 	publicando: boolean
 	erroPublicacao: unknown
 	erroCarregamento: unknown
@@ -30,9 +54,14 @@ function isQuestionarioInexistente(error: unknown): boolean {
 	return isAxiosError(error) && error.response?.status === 404
 }
 
-const InstrumentoDraftContext = createContext<InstrumentoDraftContextValue | null>(null)
+const InstrumentoDraftContext =
+	createContext<InstrumentoDraftContextValue | null>(null)
 
-export function InstrumentoDraftProvider({ children }: { children: ReactNode }) {
+export function InstrumentoDraftProvider({
+	children,
+}: {
+	children: ReactNode
+}) {
 	const queryClient = useQueryClient()
 	const config = useQuestionarioConfig()
 	const escala = useEscalaConfig()
@@ -43,7 +72,11 @@ export function InstrumentoDraftProvider({ children }: { children: ReactNode }) 
 
 	useEffect(() => {
 		if (iniciadoRef.current || questionarioAtivo.isPending) return
-		if (questionarioAtivo.isError && !isQuestionarioInexistente(questionarioAtivo.error)) return
+		if (
+			questionarioAtivo.isError &&
+			!isQuestionarioInexistente(questionarioAtivo.error)
+		)
+			return
 
 		iniciadoRef.current = true
 
@@ -68,13 +101,21 @@ export function InstrumentoDraftProvider({ children }: { children: ReactNode }) 
 	const publicarMutation = useMutation({
 		mutationFn: async () => {
 			if (!draftId) throw new Error('O rascunho ainda não está pronto.')
-			await replaceQuestions(draftId, toReplaceQuestionsPayload(config.secoes))
-			await replaceVulnerabilityBands(draftId, toReplaceVulnerabilityBandsPayload(escala.graus))
+			await replaceQuestions(
+				draftId,
+				toReplaceQuestionsPayload(config.secoes),
+			)
+			await replaceVulnerabilityBands(
+				draftId,
+				toReplaceVulnerabilityBandsPayload(escala.graus),
+			)
 			await publishQuestionnaireVersion(draftId)
 			return draftId
 		},
 		onSuccess: (versaoPublicadaId) => {
-			queryClient.invalidateQueries({ queryKey: questionarioAtivoQueryKey })
+			queryClient.invalidateQueries({
+				queryKey: questionarioAtivoQueryKey,
+			})
 			queryClient.invalidateQueries({ queryKey: ['assessment'] })
 			// A versão que acabou de publicar deixa de ser DRAFT: abre um rascunho
 			// novo clonado dela pra manter as duas telas editáveis em seguida.
@@ -93,17 +134,19 @@ export function InstrumentoDraftProvider({ children }: { children: ReactNode }) 
 				publicar: (options) =>
 					publicarMutation.mutate(undefined, {
 						onSuccess: () => {
-							options?.onSuccess?.();
+							options?.onSuccess?.()
 						},
 						onError: (error) => {
-							options?.onError?.(error);
+							options?.onError?.(error)
 						},
 					}),
 				publicando: publicarMutation.isPending,
 				erroPublicacao: publicarMutation.error,
-				erroCarregamento: questionarioAtivo.isError && !isQuestionarioInexistente(questionarioAtivo.error)
-					? questionarioAtivo.error
-					: undefined,
+				erroCarregamento:
+					questionarioAtivo.isError &&
+					!isQuestionarioInexistente(questionarioAtivo.error)
+						? questionarioAtivo.error
+						: undefined,
 			}}
 		>
 			{children}
@@ -113,6 +156,9 @@ export function InstrumentoDraftProvider({ children }: { children: ReactNode }) 
 
 export function useInstrumentoDraft() {
 	const context = useContext(InstrumentoDraftContext)
-	if (!context) throw new Error('useInstrumentoDraft deve ser usado dentro de InstrumentoDraftProvider')
+	if (!context)
+		throw new Error(
+			'useInstrumentoDraft deve ser usado dentro de InstrumentoDraftProvider',
+		)
 	return context
 }

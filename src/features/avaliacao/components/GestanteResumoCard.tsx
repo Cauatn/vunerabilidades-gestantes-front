@@ -1,11 +1,11 @@
-import { PregnantIcon } from "@/features/avaliacao/components/icons";
-import { calcularIdade, formatarDataBr } from "@/features/core/utils/date";
-import type { Gestante } from "@/features/gestantes/types/gestante";
-import { cn } from "@/lib/utils";
+import { PregnantIcon } from '@/features/avaliacao/components/icons'
+import { calcularIdade, formatarDataBr } from '@/features/core/utils/date'
+import type { Gestante } from '@/features/gestantes/types/gestante'
+import { cn } from '@/lib/utils'
 
 interface GestanteResumoCardProps {
-	gestante: Gestante;
-	className?: string;
+	gestante: Gestante
+	className?: string
 }
 
 export function GestanteResumoCard({
@@ -15,7 +15,7 @@ export function GestanteResumoCard({
 	return (
 		<div
 			className={cn(
-				"flex items-center gap-5 rounded-xl border border-p-200 bg-p-50 p-4",
+				'flex items-center gap-5 rounded-xl border border-p-200 bg-p-50 p-4',
 				className,
 			)}
 		>
@@ -27,28 +27,24 @@ export function GestanteResumoCard({
 					<span className="font-semibold">Nome:</span> {gestante.name}
 				</p>
 				<p>
-					<span className="font-semibold">Data de nascimento:</span>{" "}
+					<span className="font-semibold">Data de nascimento:</span>{' '}
 					{formatarDataBr(gestante.birthDate)}
 				</p>
 				<p>
-					<span className="font-semibold">Idade:</span>{" "}
+					<span className="font-semibold">Idade:</span>{' '}
 					{calcularIdade(gestante.birthDate)}
 				</p>
 				<p>
-					<span className="font-semibold">CPF:</span>{" "}
+					<span className="font-semibold">CPF:</span>{' '}
 					{/* //TODO: corrigir tipagem da avaliação em types */}
-					{gestante.identifiers.cpf
-						? gestante.identifiers.cpf
-						: "--"}
+					{gestante.identifiers.cpf ? gestante.identifiers.cpf : '--'}
 				</p>
 				<p>
-					<span className="font-semibold">CNS:</span>{" "}
+					<span className="font-semibold">CNS:</span>{' '}
 					{/* //TODO: corrigir tipagem da avaliação em types */}
-					{gestante.identifiers.cns
-						? gestante.identifiers.cns
-						: "--"}
+					{gestante.identifiers.cns ? gestante.identifiers.cns : '--'}
 				</p>
 			</div>
 		</div>
-	);
+	)
 }

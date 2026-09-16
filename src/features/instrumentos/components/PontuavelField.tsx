@@ -31,9 +31,13 @@ export function PontuavelField({
 							: 'border-n-200 bg-n-0',
 					)}
 				>
-					{pontuavel ? <Check className="size-3" strokeWidth={3} /> : null}
+					{pontuavel ? (
+						<Check className="size-3" strokeWidth={3} />
+					) : null}
 				</span>
-				<span className="text-sm font-semibold text-n-700">Pontuável</span>
+				<span className="text-sm font-semibold text-n-700">
+					Pontuável
+				</span>
 			</button>
 
 			{pontuavel ? (
@@ -42,7 +46,11 @@ export function PontuavelField({
 					className="w-[88px] shrink-0"
 					value={pontuacao ?? ''}
 					onChange={(e) =>
-						onPontuacaoChange(e.target.value === '' ? null : Number(e.target.value))
+						onPontuacaoChange(
+							e.target.value === ''
+								? null
+								: Number(e.target.value),
+						)
 					}
 				/>
 			) : (

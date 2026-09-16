@@ -1,8 +1,19 @@
-import type { GrauConfig, LimitesEscala } from '@/features/instrumentos/types/escala'
-import type { QuestionnaireVersionApi, ReplaceVulnerabilityBandsPayload } from '@/features/instrumentos/types/questionnaireApi'
+import type {
+	GrauConfig,
+	LimitesEscala,
+} from '@/features/instrumentos/types/escala'
+import type {
+	QuestionnaireVersionApi,
+	ReplaceVulnerabilityBandsPayload,
+} from '@/features/instrumentos/types/questionnaireApi'
 
-export function toEscala(version: QuestionnaireVersionApi): { limites: LimitesEscala; graus: GrauConfig[] } {
-	const bands = [...version.vulnerabilityBands].sort((a, b) => a.order - b.order)
+export function toEscala(version: QuestionnaireVersionApi): {
+	limites: LimitesEscala
+	graus: GrauConfig[]
+} {
+	const bands = [...version.vulnerabilityBands].sort(
+		(a, b) => a.order - b.order,
+	)
 
 	const graus: GrauConfig[] = bands.map((band) => ({
 		id: band.id,
@@ -24,7 +35,9 @@ export function toEscala(version: QuestionnaireVersionApi): { limites: LimitesEs
 	return { limites, graus }
 }
 
-export function toReplaceVulnerabilityBandsPayload(graus: GrauConfig[]): ReplaceVulnerabilityBandsPayload {
+export function toReplaceVulnerabilityBandsPayload(
+	graus: GrauConfig[],
+): ReplaceVulnerabilityBandsPayload {
 	return {
 		bands: graus.map((grau, order) => ({
 			level: grau.nome.trim(),
@@ -32,10 +45,12 @@ export function toReplaceVulnerabilityBandsPayload(graus: GrauConfig[]): Replace
 			minScore: grau.min,
 			maxScore: grau.max,
 			order,
-			recommendations: grau.recomendacoes.map((recomendacao, recomendacaoOrder) => ({
-				text: recomendacao.texto.trim(),
-				order: recomendacaoOrder,
-			})),
+			recommendations: grau.recomendacoes.map(
+				(recomendacao, recomendacaoOrder) => ({
+					text: recomendacao.texto.trim(),
+					order: recomendacaoOrder,
+				}),
+			),
 		})),
 	}
 }

@@ -12,7 +12,10 @@ import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
 import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 import { useUpdateGestante } from '@/features/gestantes/composables/useUpdateGestante'
-import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
+import type {
+	CreateGestantePayload,
+	Gestante,
+} from '@/features/gestantes/types/gestante'
 import { toast } from 'sonner'
 
 export function GestantesPage() {
@@ -23,8 +26,14 @@ export function GestantesPage() {
 	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
 	const [sheetOpen, setSheetOpen] = useState(false)
 
-	const criar = useCreateGestante({ onSuccess: onMutateSuccess, onError: onMutateError })
-	const atualizar = useUpdateGestante({ onSuccess: onMutateSuccess, onError: onMutateError })
+	const criar = useCreateGestante({
+		onSuccess: onMutateSuccess,
+		onError: onMutateError,
+	})
+	const atualizar = useUpdateGestante({
+		onSuccess: onMutateSuccess,
+		onError: onMutateError,
+	})
 
 	function buscar() {
 		void setBusca(termo.trim())
@@ -60,7 +69,8 @@ export function GestantesPage() {
 		const action = emEdicao ? 'editar' : 'criar'
 
 		toast.error(`Houve um erro ao ${action} a gestante`, {
-			description: 'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.'
+			description:
+				'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
 		})
 	}
 
@@ -100,7 +110,10 @@ export function GestantesPage() {
 							className="flex-1"
 						/>
 						<Button onClick={buscar}>Buscar</Button>
-						<Button variant="outline" className="font-bold text-n-600">
+						<Button
+							variant="outline"
+							className="font-bold text-n-600"
+						>
 							Filtros
 						</Button>
 					</div>
@@ -114,7 +127,11 @@ export function GestantesPage() {
 
 					{data ? (
 						<div className="flex justify-center pt-4">
-							<Pagination page={page} totalPages={totalPages} onPageChange={(next) => void setPage(next)} />
+							<Pagination
+								page={page}
+								totalPages={totalPages}
+								onPageChange={(next) => void setPage(next)}
+							/>
 						</div>
 					) : null}
 				</div>

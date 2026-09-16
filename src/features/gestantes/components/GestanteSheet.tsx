@@ -3,12 +3,34 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import {
+	Field,
+	FieldContent,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '@/components/ui/field'
 import { Input, applyMask } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
-import { formatCns, formatCpf, onlyDigits } from '@/features/gestantes/utils/document'
-import { gestanteSchema, type GestanteFormValues } from '@/features/gestantes/validation/gestanteSchema'
+import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
+import type {
+	CreateGestantePayload,
+	Gestante,
+} from '@/features/gestantes/types/gestante'
+import {
+	formatCns,
+	formatCpf,
+	onlyDigits,
+} from '@/features/gestantes/utils/document'
+import {
+	gestanteSchema,
+	type GestanteFormValues,
+} from '@/features/gestantes/validation/gestanteSchema'
 
 const VALORES_VAZIOS: GestanteFormValues = {
 	nome: '',
@@ -55,8 +77,12 @@ export function GestanteSheet({
 				? {
 						nome: gestante.name,
 						dataNascimento: gestante.birthDate.slice(0, 10),
-						cpf: gestante.identifiers.cpf ? formatCpf(gestante.identifiers.cpf) : '',
-						cns: gestante.identifiers.cns ? formatCns(gestante.identifiers.cns) : '',
+						cpf: gestante.identifiers.cpf
+							? formatCpf(gestante.identifiers.cpf)
+							: '',
+						cns: gestante.identifiers.cns
+							? formatCns(gestante.identifiers.cns)
+							: '',
 						nomeMae: gestante.motherName ?? '',
 						telefone: applyMask('telefone', gestante.phone ?? ''),
 					}
@@ -81,10 +107,16 @@ export function GestanteSheet({
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar gestante' : 'Nova gestante'}</SheetTitle>
+					<SheetTitle>
+						{isEdit ? 'Editar gestante' : 'Nova gestante'}
+					</SheetTitle>
 				</SheetHeader>
 
-				<form id="gestante-form" className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
+				<form
+					id="gestante-form"
+					className="flex flex-col gap-4"
+					onSubmit={handleSubmit(submit)}
+				>
 					<FieldGroup>
 						<Field>
 							<FieldLabel htmlFor="gestante-nome" required>
@@ -102,7 +134,10 @@ export function GestanteSheet({
 						</Field>
 
 						<Field>
-							<FieldLabel htmlFor="gestante-data-nascimento" required>
+							<FieldLabel
+								htmlFor="gestante-data-nascimento"
+								required
+							>
 								Data de nascimento
 							</FieldLabel>
 							<FieldContent>
@@ -125,7 +160,12 @@ export function GestanteSheet({
 						<Field>
 							<FieldLabel htmlFor="gestante-cpf">CPF</FieldLabel>
 							<FieldContent>
-								<Input id="gestante-cpf" maskType="cpf" aria-invalid={!!errors.cpf} {...register('cpf')} />
+								<Input
+									id="gestante-cpf"
+									maskType="cpf"
+									aria-invalid={!!errors.cpf}
+									{...register('cpf')}
+								/>
 								<FieldError errors={[errors.cpf]} />
 							</FieldContent>
 						</Field>
@@ -133,34 +173,63 @@ export function GestanteSheet({
 						<Field>
 							<FieldLabel htmlFor="gestante-cns">CNS</FieldLabel>
 							<FieldContent>
-								<Input id="gestante-cns" maskType="cns" aria-invalid={!!errors.cns} {...register('cns')} />
+								<Input
+									id="gestante-cns"
+									maskType="cns"
+									aria-invalid={!!errors.cns}
+									{...register('cns')}
+								/>
 								<FieldError errors={[errors.cns]} />
 							</FieldContent>
 						</Field>
 
-						<p className="text-caption text-n-500">Informe pelo menos um documento: CPF ou CNS.</p>
+						<p className="text-caption text-n-500">
+							Informe pelo menos um documento: CPF ou CNS.
+						</p>
 
 						<Field>
-							<FieldLabel htmlFor="gestante-nome-mae">Nome da mãe</FieldLabel>
+							<FieldLabel htmlFor="gestante-nome-mae">
+								Nome da mãe
+							</FieldLabel>
 							<FieldContent>
-								<Input id="gestante-nome-mae" placeholder="Opcional" {...register('nomeMae')} />
+								<Input
+									id="gestante-nome-mae"
+									placeholder="Opcional"
+									{...register('nomeMae')}
+								/>
 							</FieldContent>
 						</Field>
 
 						<Field>
-							<FieldLabel htmlFor="gestante-telefone">Telefone</FieldLabel>
+							<FieldLabel htmlFor="gestante-telefone">
+								Telefone
+							</FieldLabel>
 							<FieldContent>
-								<Input id="gestante-telefone" type="tel" autoComplete="tel-national" maskType="telefone" {...register('telefone')} />
+								<Input
+									id="gestante-telefone"
+									type="tel"
+									autoComplete="tel-national"
+									maskType="telefone"
+									{...register('telefone')}
+								/>
 							</FieldContent>
 						</Field>
 					</FieldGroup>
 				</form>
 
 				<SheetFooter className="p-0">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+					>
 						Cancelar
 					</Button>
-					<Button type="submit" form="gestante-form" isLoading={isSubmitting}>
+					<Button
+						type="submit"
+						form="gestante-form"
+						isLoading={isSubmitting}
+					>
 						Confirmar
 					</Button>
 				</SheetFooter>

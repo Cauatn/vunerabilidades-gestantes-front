@@ -31,10 +31,15 @@ export function InstrumentoLayout({
 					<span className="w-fit rounded-full bg-n-20 px-4.5 py-1 text-base font-semibold text-n-600">
 						{versao}
 					</span>
-					<Heading size="display" className="text-balance text-heading-2 font-semibold">
+					<Heading
+						size="display"
+						className="text-balance text-heading-2 font-semibold"
+					>
 						{titulo}
 					</Heading>
-					<Description className="text-n-600">{descricao}</Description>
+					<Description className="text-n-600">
+						{descricao}
+					</Description>
 				</div>
 
 				<div className="flex flex-col gap-12">{children}</div>
@@ -44,7 +49,11 @@ export function InstrumentoLayout({
 				<Button type="button" variant="outline" onClick={onCancelar}>
 					Cancelar
 				</Button>
-				<Button type="button" onClick={onPublicar} disabled={publicarDisabled}>
+				<Button
+					type="button"
+					onClick={onPublicar}
+					disabled={publicarDisabled}
+				>
 					{publicarLabel}
 				</Button>
 			</div>

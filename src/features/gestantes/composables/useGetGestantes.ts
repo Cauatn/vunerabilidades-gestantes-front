@@ -8,7 +8,10 @@ export const gestantesQueryKey = ['patients']
 
 export function useGetGestantes() {
 	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1))
-	const [busca, setBusca] = useQueryState('busca', parseAsString.withDefault(''))
+	const [busca, setBusca] = useQueryState(
+		'busca',
+		parseAsString.withDefault(''),
+	)
 
 	const query = useQuery({
 		queryKey: [...gestantesQueryKey, { page, busca }],

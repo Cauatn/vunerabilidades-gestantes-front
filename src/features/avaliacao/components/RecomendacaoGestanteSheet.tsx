@@ -2,7 +2,13 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
 
@@ -27,7 +33,15 @@ export function RecomendacaoGestanteSheet({
 	const [dados, setDados] = useState(VALORES_VAZIOS)
 
 	useEffect(() => {
-		if (open) setDados(recomendacao ? { titulo: recomendacao.titulo, observacoes: recomendacao.observacoes } : VALORES_VAZIOS)
+		if (open)
+			setDados(
+				recomendacao
+					? {
+							titulo: recomendacao.titulo,
+							observacoes: recomendacao.observacoes,
+						}
+					: VALORES_VAZIOS,
+			)
 	}, [open, recomendacao])
 
 	function handleSubmit(event: FormEvent) {
@@ -39,10 +53,16 @@ export function RecomendacaoGestanteSheet({
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar recomendação' : 'Nova recomendação'}</SheetTitle>
+					<SheetTitle>
+						{isEdit ? 'Editar recomendação' : 'Nova recomendação'}
+					</SheetTitle>
 				</SheetHeader>
 
-				<form id="recomendacao-form" className="flex min-h-0 flex-1 flex-col gap-4" onSubmit={handleSubmit}>
+				<form
+					id="recomendacao-form"
+					className="flex min-h-0 flex-1 flex-col gap-4"
+					onSubmit={handleSubmit}
+				>
 					<Field>
 						<FieldLabel htmlFor="recomendacao-titulo" required>
 							Recomendação
@@ -53,19 +73,31 @@ export function RecomendacaoGestanteSheet({
 								placeholder="Digite..."
 								required
 								value={dados.titulo}
-								onChange={(event) => setDados((atual) => ({ ...atual, titulo: event.target.value }))}
+								onChange={(event) =>
+									setDados((atual) => ({
+										...atual,
+										titulo: event.target.value,
+									}))
+								}
 							/>
 						</FieldContent>
 					</Field>
 
 					<Field>
-						<FieldLabel htmlFor="recomendacao-observacoes">Observações</FieldLabel>
+						<FieldLabel htmlFor="recomendacao-observacoes">
+							Observações
+						</FieldLabel>
 						<FieldContent>
 							<Textarea
 								id="recomendacao-observacoes"
 								placeholder="Digite..."
 								value={dados.observacoes}
-								onChange={(event) => setDados((atual) => ({ ...atual, observacoes: event.target.value }))}
+								onChange={(event) =>
+									setDados((atual) => ({
+										...atual,
+										observacoes: event.target.value,
+									}))
+								}
 							/>
 						</FieldContent>
 					</Field>

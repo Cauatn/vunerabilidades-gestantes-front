@@ -15,7 +15,10 @@ export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
 		<div className="flex gap-2.5">
 			<div className="flex flex-col gap-3">
 				{graus.map((g) => (
-					<span key={g.id} className="flex h-4 items-center text-sm text-n-900">
+					<span
+						key={g.id}
+						className="flex h-4 items-center text-sm text-n-900"
+					>
 						{g.nome}
 					</span>
 				))}
@@ -24,7 +27,9 @@ export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
 				<div className="flex flex-col gap-3">
 					{graus.map((g) => {
 						const left = clamp(((g.min - min) / span) * 100)
-						const width = clamp(((Math.max(g.max, g.min) - g.min + 1) / span) * 100)
+						const width = clamp(
+							((Math.max(g.max, g.min) - g.min + 1) / span) * 100,
+						)
 						return (
 							<div
 								key={g.id}
@@ -32,7 +37,11 @@ export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
 							>
 								<div
 									className="absolute inset-y-0 rounded"
-									style={{ left: `${left}%`, width: `${width}%`, background: g.cor }}
+									style={{
+										left: `${left}%`,
+										width: `${width}%`,
+										background: g.cor,
+									}}
 								/>
 							</div>
 						)

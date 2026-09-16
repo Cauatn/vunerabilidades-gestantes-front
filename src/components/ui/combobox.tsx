@@ -2,7 +2,11 @@ import { Plus, Search } from 'lucide-react'
 import * as React from 'react'
 
 import { Input } from '@/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface ComboboxOption {
@@ -43,7 +47,9 @@ export function Combobox({
 	}, [open, selecionada])
 
 	const termo = busca.trim().toLowerCase()
-	const filtradas = termo ? options.filter((option) => option.label.toLowerCase().includes(termo)) : options
+	const filtradas = termo
+		? options.filter((option) => option.label.toLowerCase().includes(termo))
+		: options
 
 	function selecionar(option: ComboboxOption) {
 		onValueChange(option.value)
@@ -84,7 +90,9 @@ export function Combobox({
 								onClick={() => selecionar(option)}
 								className={cn(
 									'flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm outline-hidden',
-									isSelected ? 'bg-t-100 font-semibold text-t-600' : 'text-n-700 hover:bg-t-50',
+									isSelected
+										? 'bg-t-100 font-semibold text-t-600'
+										: 'text-n-700 hover:bg-t-50',
 								)}
 							>
 								{option.label}
@@ -93,7 +101,9 @@ export function Combobox({
 					})}
 
 					{filtradas.length === 0 && !onCreateNew && (
-						<p className="px-2 py-3 text-center text-sm text-n-400">{emptyMessage}</p>
+						<p className="px-2 py-3 text-center text-sm text-n-400">
+							{emptyMessage}
+						</p>
 					)}
 				</div>
 

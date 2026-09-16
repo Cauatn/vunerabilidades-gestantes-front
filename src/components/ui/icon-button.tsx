@@ -11,7 +11,9 @@ type IconButtonVariant = 'default' | 'danger'
 const iconButtonConfig: Record<
 	IconButtonVariant,
 	{
-		buttonVariant: NonNullable<VariantProps<typeof buttonVariants>['variant']>
+		buttonVariant: NonNullable<
+			VariantProps<typeof buttonVariants>['variant']
+		>
 		iconClassName: string
 	}
 > = {
@@ -45,9 +47,27 @@ export function IconButton({
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<span className={cn('inline-flex', props.disabled && 'cursor-not-allowed', className)}>
-					<Button type="button" variant={config.buttonVariant} size="icon" className="size-9" {...props}>
-						<Icon className={cn('size-4', config.iconClassName, iconClassName)} />
+				<span
+					className={cn(
+						'inline-flex',
+						props.disabled && 'cursor-not-allowed',
+						className,
+					)}
+				>
+					<Button
+						type="button"
+						variant={config.buttonVariant}
+						size="icon"
+						className="size-9"
+						{...props}
+					>
+						<Icon
+							className={cn(
+								'size-4',
+								config.iconClassName,
+								iconClassName,
+							)}
+						/>
 					</Button>
 				</span>
 			</TooltipTrigger>

@@ -3,11 +3,29 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import {
+	Field,
+	FieldContent,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import type { CreateHealthUnitPayload, HealthUnit } from '@/features/healthUnits/types/healthUnit'
-import { healthUnitSchema, type HealthUnitFormValues } from '@/features/healthUnits/validation/healthUnitSchema'
+import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
+import type {
+	CreateHealthUnitPayload,
+	HealthUnit,
+} from '@/features/healthUnits/types/healthUnit'
+import {
+	healthUnitSchema,
+	type HealthUnitFormValues,
+} from '@/features/healthUnits/validation/healthUnitSchema'
 
 const VALORES_VAZIOS: HealthUnitFormValues = {
 	name: '',
@@ -25,7 +43,13 @@ interface HealthUnitSheetProps {
 	isSubmitting?: boolean
 }
 
-export function HealthUnitSheet({ healthUnit, open, onOpenChange, onSubmit, isSubmitting }: HealthUnitSheetProps) {
+export function HealthUnitSheet({
+	healthUnit,
+	open,
+	onOpenChange,
+	onSubmit,
+	isSubmitting,
+}: HealthUnitSheetProps) {
 	const isEdit = !!healthUnit
 
 	const {
@@ -67,10 +91,16 @@ export function HealthUnitSheet({ healthUnit, open, onOpenChange, onSubmit, isSu
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="flex flex-col">
 				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar UBS' : 'Cadastrar UBS'}</SheetTitle>
+					<SheetTitle>
+						{isEdit ? 'Editar UBS' : 'Cadastrar UBS'}
+					</SheetTitle>
 				</SheetHeader>
 
-				<form id="health-unit-form" className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
+				<form
+					id="health-unit-form"
+					className="flex flex-col gap-4"
+					onSubmit={handleSubmit(submit)}
+				>
 					<FieldGroup>
 						<Field>
 							<FieldLabel htmlFor="health-unit-name" required>
@@ -135,19 +165,33 @@ export function HealthUnitSheet({ healthUnit, open, onOpenChange, onSubmit, isSu
 						</Field>
 
 						<Field>
-							<FieldLabel htmlFor="health-unit-address">Endereço</FieldLabel>
+							<FieldLabel htmlFor="health-unit-address">
+								Endereço
+							</FieldLabel>
 							<FieldContent>
-								<Input id="health-unit-address" placeholder="Opcional" {...register('address')} />
+								<Input
+									id="health-unit-address"
+									placeholder="Opcional"
+									{...register('address')}
+								/>
 							</FieldContent>
 						</Field>
 					</FieldGroup>
 				</form>
 
 				<SheetFooter className="p-0">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+					>
 						Cancelar
 					</Button>
-					<Button type="submit" form="health-unit-form" isLoading={isSubmitting}>
+					<Button
+						type="submit"
+						form="health-unit-form"
+						isLoading={isSubmitting}
+					>
 						Confirmar
 					</Button>
 				</SheetFooter>

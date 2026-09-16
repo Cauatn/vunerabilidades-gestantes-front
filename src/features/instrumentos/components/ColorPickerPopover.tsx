@@ -1,6 +1,10 @@
 import { useState } from 'react'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 import { CORES_GRAU } from '../constants'
@@ -16,8 +20,14 @@ export function ColorPickerPopover({ cor, onChange }: ColorPickerPopoverProps) {
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<button type="button" className="flex items-center rounded-lg border border-n-40 p-2">
-					<span className="size-4 rounded-full" style={{ background: cor }} />
+				<button
+					type="button"
+					className="flex items-center rounded-lg border border-n-40 p-2"
+				>
+					<span
+						className="size-4 rounded-full"
+						style={{ background: cor }}
+					/>
 				</button>
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-auto p-3">
@@ -34,7 +44,8 @@ export function ColorPickerPopover({ cor, onChange }: ColorPickerPopoverProps) {
 									}}
 									className={cn(
 										'size-8 rounded-[2px]',
-										cor === c && 'ring-2 ring-n-500 ring-offset-2',
+										cor === c &&
+											'ring-2 ring-n-500 ring-offset-2',
 									)}
 									style={{ background: c }}
 								/>

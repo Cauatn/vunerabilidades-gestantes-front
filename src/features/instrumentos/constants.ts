@@ -9,7 +9,11 @@ export const TIPO_PERGUNTA_LABEL: Record<string, string> = {
 	numerica: 'Numérica',
 }
 
-export const TIPO_PERGUNTA_OPCOES: TipoPergunta[] = ['dicotomica', 'dicotomica_complementar', 'multipla']
+export const TIPO_PERGUNTA_OPCOES: TipoPergunta[] = [
+	'dicotomica',
+	'dicotomica_complementar',
+	'multipla',
+]
 
 /** o tipo "dicotômica + complementar" habilita o bloco condicional "Se sim" */
 export const TIPO_COM_CONDICIONAL: TipoPergunta = 'dicotomica_complementar'

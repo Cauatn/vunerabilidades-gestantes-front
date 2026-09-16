@@ -1,7 +1,11 @@
 import { Check, ChevronDown, X } from 'lucide-react'
 import * as React from 'react'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface MultiSelectProps {
@@ -13,11 +17,22 @@ interface MultiSelectProps {
 	id?: string
 }
 
-export function MultiSelect({ options, value, onValueChange, placeholder = 'Selecione', className, id }: MultiSelectProps) {
+export function MultiSelect({
+	options,
+	value,
+	onValueChange,
+	placeholder = 'Selecione',
+	className,
+	id,
+}: MultiSelectProps) {
 	const [open, setOpen] = React.useState(false)
 
 	function toggle(option: string) {
-		onValueChange(value.includes(option) ? value.filter((item) => item !== option) : [...value, option])
+		onValueChange(
+			value.includes(option)
+				? value.filter((item) => item !== option)
+				: [...value, option],
+		)
 	}
 
 	function remove(option: string, event: React.MouseEvent) {
@@ -39,7 +54,9 @@ export function MultiSelect({ options, value, onValueChange, placeholder = 'Sele
 					)}
 				>
 					{value.length === 0 ? (
-						<span className="flex-1 text-left text-ink-faint md:text-sm">{placeholder}</span>
+						<span className="flex-1 text-left text-ink-faint md:text-sm">
+							{placeholder}
+						</span>
 					) : (
 						value.map((option) => (
 							<span
@@ -61,7 +78,10 @@ export function MultiSelect({ options, value, onValueChange, placeholder = 'Sele
 					<ChevronDown className="ml-auto size-4 shrink-0 self-center opacity-50" />
 				</button>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-1">
+			<PopoverContent
+				align="start"
+				className="w-(--radix-popover-trigger-width) p-1"
+			>
 				{options.map((option) => {
 					const selecionado = value.includes(option)
 					return (
@@ -74,7 +94,8 @@ export function MultiSelect({ options, value, onValueChange, placeholder = 'Sele
 							<span
 								className={cn(
 									'flex size-4 shrink-0 items-center justify-center rounded border border-n-200',
-									selecionado && 'border-(--t-500) bg-t-500 text-n-0',
+									selecionado &&
+										'border-(--t-500) bg-t-500 text-n-0',
 								)}
 							>
 								{selecionado && <Check className="size-3" />}

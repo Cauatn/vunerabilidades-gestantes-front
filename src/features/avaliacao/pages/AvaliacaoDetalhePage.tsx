@@ -1,27 +1,27 @@
-import { Page } from "@/components/Layout/Page";
-import { Divider } from "@/components/ui/divider";
-import { ResultadoAvaliacao } from "@/features/avaliacao/components/ResultadoAvaliacao";
-import { useAssessment } from "@/features/avaliacao/composables/useAssessments";
-import { useParams } from "react-router-dom";
-import { AvaliacaoRecomendacoesGestante } from "../components/AvaliacaoRecomendacoesGestante";
-import { GestanteResumoCard } from "../components/GestanteResumoCard";
-import { ResumoAplicacaoCard } from "../components/ResumoAplicacaoCard";
-import { CATEGORIA_PROFISSIONAL_LABEL } from "@/features/usuarios/constants/categoriaProfissional";
-import { ROLE_TO_CATEGORIA } from "@/features/usuarios/types/usuario";
+import { Page } from '@/components/Layout/Page'
+import { Divider } from '@/components/ui/divider'
+import { ResultadoAvaliacao } from '@/features/avaliacao/components/ResultadoAvaliacao'
+import { useAssessment } from '@/features/avaliacao/composables/useAssessments'
+import { useParams } from 'react-router-dom'
+import { AvaliacaoRecomendacoesGestante } from '../components/AvaliacaoRecomendacoesGestante'
+import { GestanteResumoCard } from '../components/GestanteResumoCard'
+import { ResumoAplicacaoCard } from '../components/ResumoAplicacaoCard'
+import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
+import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
 
 export function AvaliacaoDetalhePage() {
-	const { id } = useParams<{ id: string }>();
-	const { data: assessment, isLoading, isError } = useAssessment(id);
+	const { id } = useParams<{ id: string }>()
+	const { data: assessment, isLoading, isError } = useAssessment(id)
 
 	if (isLoading)
-		return <Page title="Avaliação" description="Carregando avaliação..." />;
+		return <Page title="Avaliação" description="Carregando avaliação..." />
 	if (isError || !assessment)
 		return (
 			<Page
 				title="Avaliação"
 				description="Não foi possível carregar esta avaliação."
 			/>
-		);
+		)
 
 	return (
 		<Page
@@ -35,8 +35,14 @@ export function AvaliacaoDetalhePage() {
 						appliedAt={assessment.appliedAt}
 						ubs={assessment.healthUnit.name}
 						aplicador={assessment.appliedByUser.name}
-						categoriaProfissional={CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[assessment.appliedByUser.role]]}
-						crmCoren={assessment.appliedByUser.professionalRegistration}
+						categoriaProfissional={
+							CATEGORIA_PROFISSIONAL_LABEL[
+								ROLE_TO_CATEGORIA[assessment.appliedByUser.role]
+							]
+						}
+						crmCoren={
+							assessment.appliedByUser.professionalRegistration
+						}
 						email={assessment.appliedByUser.email}
 					/>
 				</section>
@@ -51,8 +57,12 @@ export function AvaliacaoDetalhePage() {
 					<ResultadoAvaliacao
 						nomeGestante={assessment.patient.name}
 						pontuacao={assessment.result.totalScore}
-						vulnerabilityLevel={assessment.result.vulnerabilityLevel}
-						vulnerabilityBandId={assessment.result.vulnerabilityBandId}
+						vulnerabilityLevel={
+							assessment.result.vulnerabilityLevel
+						}
+						vulnerabilityBandId={
+							assessment.result.vulnerabilityBandId
+						}
 						bands={assessment.snapshot.props.vulnerabilityBands}
 					/>
 				</section>
@@ -65,8 +75,13 @@ export function AvaliacaoDetalhePage() {
 					<Divider text="Respostas" />
 					<ul className="space-y-2 text-sm text-n-700">
 						{assessment.answers.map((answer) => (
-							<li key={answer.id} className="rounded-md border border-n-40 p-3">
-								<p className="font-medium">{answer.questionStatement}</p>
+							<li
+								key={answer.id}
+								className="rounded-md border border-n-40 p-3"
+							>
+								<p className="font-medium">
+									{answer.questionStatement}
+								</p>
 								<p>{answer.optionLabel}</p>
 							</li>
 						))}
@@ -81,5 +96,5 @@ export function AvaliacaoDetalhePage() {
 				</section>
 			</div>
 		</Page>
-	);
+	)
 }

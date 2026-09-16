@@ -13,7 +13,8 @@ export const getUsuarios = (params: ListUsuariosParams) =>
 
 export const getUsuario = (id: string) => api.get<Usuario>(`/users/${id}`)
 
-export const inviteUsuario = (payload: InviteUsuarioPayload) => api.post('/invitations', payload)
+export const inviteUsuario = (payload: InviteUsuarioPayload) =>
+	api.post('/invitations', payload)
 
 export const updateUsuario = (id: string, payload: UpdateUsuarioPayload) =>
 	api.patch<Usuario>(`/users/${id}`, payload)

@@ -9,7 +9,12 @@ interface DashedAddButtonProps {
 	className?: string
 }
 
-export function DashedAddButton({ label, onClick, tone = 'teal', className }: DashedAddButtonProps) {
+export function DashedAddButton({
+	label,
+	onClick,
+	tone = 'teal',
+	className,
+}: DashedAddButtonProps) {
 	return (
 		<button
 			type="button"

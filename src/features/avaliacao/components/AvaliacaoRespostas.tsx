@@ -18,7 +18,9 @@ export function AvaliacaoRespostas({ categorias }: AvaliacaoRespostasProps) {
 								{respostaIndex + 1}. {resposta.pergunta}
 							</p>
 							<p className="text-sm text-n-600">
-								<span className="font-semibold">Resposta: </span>
+								<span className="font-semibold">
+									Resposta:{' '}
+								</span>
 								{resposta.resposta}
 							</p>
 						</div>

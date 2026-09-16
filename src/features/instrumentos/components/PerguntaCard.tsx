@@ -22,13 +22,19 @@ import {
 import type { QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
 import { DashedAddButton } from '@/features/instrumentos/components/DashedAddButton'
 import { FieldLabel } from '@/features/instrumentos/components/FieldLabel'
-import { SortableItem, type DragHandle } from '@/features/instrumentos/components/SortableItem'
+import {
+	SortableItem,
+	type DragHandle,
+} from '@/features/instrumentos/components/SortableItem'
 import {
 	TIPO_COM_CONDICIONAL,
 	TIPO_PERGUNTA_LABEL,
 	TIPO_PERGUNTA_OPCOES,
 } from '@/features/instrumentos/constants'
-import type { PerguntaConfig, TipoPergunta } from '@/features/instrumentos/types/questionario'
+import type {
+	PerguntaConfig,
+	TipoPergunta,
+} from '@/features/instrumentos/types/questionario'
 
 import { OpcaoRespostaRow } from './OpcaoRespostaRow'
 
@@ -49,7 +55,9 @@ export function PerguntaCard({
 	onRemoverPergunta,
 	onRemoverOpcao,
 }: PerguntaCardProps) {
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const opcoesIds = pergunta.opcoes.map((opcao) => opcao.id)
 
 	function handleDragEnd(event: DragEndEvent) {
@@ -74,15 +82,21 @@ export function PerguntaCard({
 							<GripVertical className="size-5" />
 						</button>
 					) : null}
-					<span className="text-sm text-n-500">{pergunta.codigo || '—'}</span>
+					<span className="text-sm text-n-500">
+						{pergunta.codigo || '—'}
+					</span>
 					<span className="line-clamp-1 text-sm text-n-900">
 						{pergunta.enunciado || 'Nova pergunta'}
 					</span>
 				</div>
 
 				<div className="flex items-center gap-3">
-					{condicional ? <Badge variant="orange">Condicional</Badge> : null}
-					<Badge variant="blue">{TIPO_PERGUNTA_LABEL[pergunta.tipo]}</Badge>
+					{condicional ? (
+						<Badge variant="orange">Condicional</Badge>
+					) : null}
+					<Badge variant="blue">
+						{TIPO_PERGUNTA_LABEL[pergunta.tipo]}
+					</Badge>
 					<IconButton
 						icon={Trash2}
 						variant="danger"
@@ -105,7 +119,9 @@ export function PerguntaCard({
 							className="w-[150px]"
 							value={pergunta.codigo}
 							onChange={(e) =>
-								config.atualizarCampos(pergunta.id, { codigo: e.target.value })
+								config.atualizarCampos(pergunta.id, {
+									codigo: e.target.value,
+								})
 							}
 						/>
 					</div>
@@ -114,7 +130,9 @@ export function PerguntaCard({
 						<Input
 							value={pergunta.enunciado}
 							onChange={(e) =>
-								config.atualizarCampos(pergunta.id, { enunciado: e.target.value })
+								config.atualizarCampos(pergunta.id, {
+									enunciado: e.target.value,
+								})
 							}
 						/>
 					</div>
@@ -125,7 +143,9 @@ export function PerguntaCard({
 					<Select
 						value={pergunta.tipo}
 						onValueChange={(v) =>
-							config.atualizarCampos(pergunta.id, { tipo: v as TipoPergunta })
+							config.atualizarCampos(pergunta.id, {
+								tipo: v as TipoPergunta,
+							})
 						}
 					>
 						<SelectTrigger className="w-full max-w-[504px]">
@@ -144,7 +164,10 @@ export function PerguntaCard({
 				<Divider text="Opções de resposta" />
 
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-					<SortableContext items={opcoesIds} strategy={verticalListSortingStrategy}>
+					<SortableContext
+						items={opcoesIds}
+						strategy={verticalListSortingStrategy}
+					>
 						<div className="flex flex-col gap-2.5">
 							{pergunta.opcoes.map((opcao) => (
 								<SortableItem key={opcao.id} id={opcao.id}>
@@ -155,7 +178,12 @@ export function PerguntaCard({
 											total={pergunta.opcoes.length}
 											config={config}
 											dragHandle={h}
-											onRemover={() => onRemoverOpcao(pergunta.id, opcao.id)}
+											onRemover={() =>
+												onRemoverOpcao(
+													pergunta.id,
+													opcao.id,
+												)
+											}
 										/>
 									)}
 								</SortableItem>
@@ -188,7 +216,9 @@ export function PerguntaCard({
 								<DashedAddButton
 									tone="orange"
 									label="Adicionar pergunta"
-									onClick={() => config.addSubPergunta(pergunta.id)}
+									onClick={() =>
+										config.addSubPergunta(pergunta.id)
+									}
 								/>
 							</div>
 						</div>

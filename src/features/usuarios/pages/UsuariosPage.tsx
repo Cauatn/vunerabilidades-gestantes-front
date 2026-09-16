@@ -16,7 +16,10 @@ import { useDeactivateUsuario } from '@/features/usuarios/composables/useDeactiv
 import { useGetUsuarios } from '@/features/usuarios/composables/useGetUsuarios'
 import { useInviteUsuario } from '@/features/usuarios/composables/useInviteUsuario'
 import { useUpdateUsuario } from '@/features/usuarios/composables/useUpdateUsuario'
-import type { InviteUsuarioPayload, Usuario } from '@/features/usuarios/types/usuario'
+import type {
+	InviteUsuarioPayload,
+	Usuario,
+} from '@/features/usuarios/types/usuario'
 import { toast } from 'sonner'
 
 export function UsuariosPage() {
@@ -26,26 +29,40 @@ export function UsuariosPage() {
 
 	const [searchTerm, setSearchTerm] = useState(busca)
 	const [sheetOpen, setSheetOpen] = useState(false)
-	const [editingUser, setEditingUser] = useState<Usuario | undefined>(undefined)
-	const [statusChangeTarget, setStatusChangeTarget] = useState<{data: Usuario, action: 'Ativar' | 'Desativar'} | undefined>(undefined)
-
-	const invite = useInviteUsuario({ onSuccess: onMutateSuccess, onError: onMutateError })
-	const update = useUpdateUsuario({ onSuccess: onMutateSuccess, onError: onMutateError })
-	const deactivate = useDeactivateUsuario(
-		{
-		onSuccess: () => toast.success('O acesso do profissional foi desativado com sucesso'),
-		onError: () => toast.error(
-			'Houve um erro ao desatiar o acesso do profissonal',
-			{ description: 'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.' }
-		)
-	}
+	const [editingUser, setEditingUser] = useState<Usuario | undefined>(
+		undefined,
 	)
+	const [statusChangeTarget, setStatusChangeTarget] = useState<
+		{ data: Usuario; action: 'Ativar' | 'Desativar' } | undefined
+	>(undefined)
+
+	const invite = useInviteUsuario({
+		onSuccess: onMutateSuccess,
+		onError: onMutateError,
+	})
+	const update = useUpdateUsuario({
+		onSuccess: onMutateSuccess,
+		onError: onMutateError,
+	})
+	const deactivate = useDeactivateUsuario({
+		onSuccess: () =>
+			toast.success(
+				'O acesso do profissional foi desativado com sucesso',
+			),
+		onError: () =>
+			toast.error('Houve um erro ao desatiar o acesso do profissonal', {
+				description:
+					'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
+			}),
+	})
 	const activate = useActivateUsuario({
-		onSuccess: () => toast.success('O acesso do profissional foi ativado com sucesso'),
-		onError: () => toast.error(
-			'Houve um erro ao reativar o acesso do profissonal',
-			{ description: 'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.' }
-		)
+		onSuccess: () =>
+			toast.success('O acesso do profissional foi ativado com sucesso'),
+		onError: () =>
+			toast.error('Houve um erro ao reativar o acesso do profissonal', {
+				description:
+					'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
+			}),
 	})
 
 	const ubsNomePorId = useMemo(() => {
@@ -63,7 +80,11 @@ export function UsuariosPage() {
 		if (editingUser) {
 			update.mutate({
 				id: editingUser.id,
-				payload: { role: payload.role, healthUnitIds: payload.healthUnitIds, password: payload.password },
+				payload: {
+					role: payload.role,
+					healthUnitIds: payload.healthUnitIds,
+					password: payload.password,
+				},
 			})
 		} else {
 			invite.mutate(payload)
@@ -71,33 +92,43 @@ export function UsuariosPage() {
 	}
 
 	function onMutateSuccess() {
-		const action = editingUser ? {
-			label: 'editado',
-		} : {
-			label: 'criado',
-			description: 'Um convite de acesso foi enviado para o email do usuário. O cadastro deve ser finalizado via convite.'
-		}
+		const action = editingUser
+			? {
+					label: 'editado',
+				}
+			: {
+					label: 'criado',
+					description:
+						'Um convite de acesso foi enviado para o email do usuário. O cadastro deve ser finalizado via convite.',
+				}
 
 		setSheetOpen(false)
-		toast.success(`Profissional ${action.label} com sucesso.`, { description: action.description })
+		toast.success(`Profissional ${action.label} com sucesso.`, {
+			description: action.description,
+		})
 	}
 
 	function onMutateError() {
 		const action = editingUser ? 'editar' : 'criar'
 
 		toast.error(`Houve um erro ao ${action} o profissional`, {
-			description: 'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.'
+			description:
+				'Por favor tente novamente. Se o erro persistir, entre em contato com o suporte.',
 		})
 	}
 
 	function handleToggleStatus(usuario: Usuario) {
 		// trava de segurança: ninguém altera o status da própria conta pelo front
 		if (usuario.id === user?.id) return
-		setStatusChangeTarget({ data: usuario, action: usuario.status === 'ACTIVE' ? 'Desativar' : 'Ativar' })
+		setStatusChangeTarget({
+			data: usuario,
+			action: usuario.status === 'ACTIVE' ? 'Desativar' : 'Ativar',
+		})
 	}
 
 	function buildStatusChangeModalDescription() {
-		const benefit = statusChangeTarget?.data.status === 'ACTIVE' ? 'perde' : 'ganha'
+		const benefit =
+			statusChangeTarget?.data.status === 'ACTIVE' ? 'perde' : 'ganha'
 		return `Ao ${statusChangeTarget?.action.toLowerCase()}, este profissional ${benefit} o acesso ao sistema. O cadastro é mantido e pode ser reativado depois.`
 	}
 
@@ -149,7 +180,11 @@ export function UsuariosPage() {
 				/>
 
 				{data ? (
-					<Pagination page={page} totalPages={totalPages} onPageChange={(next) => void setPage(next)} />
+					<Pagination
+						page={page}
+						totalPages={totalPages}
+						onPageChange={(next) => void setPage(next)}
+					/>
 				) : null}
 			</Page>
 
@@ -163,7 +198,9 @@ export function UsuariosPage() {
 
 			<Modal
 				open={!!statusChangeTarget}
-				onOpenChange={(open) => !open && setStatusChangeTarget(undefined)}
+				onOpenChange={(open) =>
+					!open && setStatusChangeTarget(undefined)
+				}
 				variant="warning"
 				title={`${statusChangeTarget?.action} profissional`}
 				description={buildStatusChangeModalDescription()}
@@ -172,7 +209,9 @@ export function UsuariosPage() {
 					const data = statusChangeTarget?.data
 					if (!statusChangeTarget) return
 
-					data?.status === 'ACTIVE' ? deactivate.mutate(data!.id) : activate.mutate(data!.id)
+					data?.status === 'ACTIVE'
+						? deactivate.mutate(data!.id)
+						: activate.mutate(data!.id)
 					setStatusChangeTarget(undefined)
 				}}
 			/>

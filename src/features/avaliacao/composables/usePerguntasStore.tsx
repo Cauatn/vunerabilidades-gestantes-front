@@ -1,4 +1,10 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import {
+	createContext,
+	useContext,
+	useMemo,
+	useState,
+	type ReactNode,
+} from 'react'
 
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 
@@ -19,7 +25,11 @@ const PERGUNTAS_INICIAIS: Pergunta[] = [
 		texto: 'A gestante possui vínculo empregatício?',
 		opcoes: [
 			{ id: 'vinculo-sim', texto: 'Sim', pontuacao: 0 },
-			{ id: 'vinculo-informal', texto: 'Trabalho informal', pontuacao: 6 },
+			{
+				id: 'vinculo-informal',
+				texto: 'Trabalho informal',
+				pontuacao: 6,
+			},
 			{ id: 'vinculo-nao', texto: 'Não', pontuacao: 12 },
 		],
 	},
@@ -34,8 +44,16 @@ interface PerguntasContextValue {
 	updatePerguntaTexto: (perguntaId: string, texto: string) => void
 	addOpcao: (perguntaId: string) => void
 	removeOpcao: (perguntaId: string, opcaoId: string) => void
-	updateOpcaoTexto: (perguntaId: string, opcaoId: string, texto: string) => void
-	updateOpcaoPontuacao: (perguntaId: string, opcaoId: string, pontuacao: number) => void
+	updateOpcaoTexto: (
+		perguntaId: string,
+		opcaoId: string,
+		texto: string,
+	) => void
+	updateOpcaoPontuacao: (
+		perguntaId: string,
+		opcaoId: string,
+		pontuacao: number,
+	) => void
 }
 
 const PerguntasContext = createContext<PerguntasContextValue | null>(null)
@@ -53,27 +71,47 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 						id: crypto.randomUUID(),
 						categoria,
 						texto: '',
-						opcoes: [{ id: crypto.randomUUID(), texto: '', pontuacao: 0 }],
+						opcoes: [
+							{
+								id: crypto.randomUUID(),
+								texto: '',
+								pontuacao: 0,
+							},
+						],
 					},
 				]),
 			removePergunta: (perguntaId) =>
-				setPerguntas((atual) => atual.filter((pergunta) => pergunta.id !== perguntaId)),
+				setPerguntas((atual) =>
+					atual.filter((pergunta) => pergunta.id !== perguntaId),
+				),
 			reorderPerguntas: (idsNaNovaOrdem) =>
 				setPerguntas((atual) => {
-					const porId = new Map(atual.map((pergunta) => [pergunta.id, pergunta]))
+					const porId = new Map(
+						atual.map((pergunta) => [pergunta.id, pergunta]),
+					)
 					const idsAReordenar = new Set(idsNaNovaOrdem)
 					let cursor = 0
 					return atual.map((pergunta) =>
-						idsAReordenar.has(pergunta.id) ? porId.get(idsNaNovaOrdem[cursor++])! : pergunta,
+						idsAReordenar.has(pergunta.id)
+							? porId.get(idsNaNovaOrdem[cursor++])!
+							: pergunta,
 					)
 				}),
 			updatePerguntaCategoria: (perguntaId, categoria) =>
 				setPerguntas((atual) =>
-					atual.map((pergunta) => (pergunta.id === perguntaId ? { ...pergunta, categoria } : pergunta)),
+					atual.map((pergunta) =>
+						pergunta.id === perguntaId
+							? { ...pergunta, categoria }
+							: pergunta,
+					),
 				),
 			updatePerguntaTexto: (perguntaId, texto) =>
 				setPerguntas((atual) =>
-					atual.map((pergunta) => (pergunta.id === perguntaId ? { ...pergunta, texto } : pergunta)),
+					atual.map((pergunta) =>
+						pergunta.id === perguntaId
+							? { ...pergunta, texto }
+							: pergunta,
+					),
 				),
 			addOpcao: (perguntaId) =>
 				setPerguntas((atual) =>
@@ -81,7 +119,14 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 						pergunta.id === perguntaId
 							? {
 									...pergunta,
-									opcoes: [...pergunta.opcoes, { id: crypto.randomUUID(), texto: '', pontuacao: 0 }],
+									opcoes: [
+										...pergunta.opcoes,
+										{
+											id: crypto.randomUUID(),
+											texto: '',
+											pontuacao: 0,
+										},
+									],
 								}
 							: pergunta,
 					),
@@ -90,7 +135,12 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 				setPerguntas((atual) =>
 					atual.map((pergunta) =>
 						pergunta.id === perguntaId
-							? { ...pergunta, opcoes: pergunta.opcoes.filter((opcao) => opcao.id !== opcaoId) }
+							? {
+									...pergunta,
+									opcoes: pergunta.opcoes.filter(
+										(opcao) => opcao.id !== opcaoId,
+									),
+								}
 							: pergunta,
 					),
 				),
@@ -100,7 +150,11 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 						pergunta.id === perguntaId
 							? {
 									...pergunta,
-									opcoes: pergunta.opcoes.map((opcao) => (opcao.id === opcaoId ? { ...opcao, texto } : opcao)),
+									opcoes: pergunta.opcoes.map((opcao) =>
+										opcao.id === opcaoId
+											? { ...opcao, texto }
+											: opcao,
+									),
 								}
 							: pergunta,
 					),
@@ -112,7 +166,9 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 							? {
 									...pergunta,
 									opcoes: pergunta.opcoes.map((opcao) =>
-										opcao.id === opcaoId ? { ...opcao, pontuacao } : opcao,
+										opcao.id === opcaoId
+											? { ...opcao, pontuacao }
+											: opcao,
 									),
 								}
 							: pergunta,
@@ -122,11 +178,18 @@ export function PerguntasProvider({ children }: { children: ReactNode }) {
 		[perguntas],
 	)
 
-	return <PerguntasContext.Provider value={value}>{children}</PerguntasContext.Provider>
+	return (
+		<PerguntasContext.Provider value={value}>
+			{children}
+		</PerguntasContext.Provider>
+	)
 }
 
 export function usePerguntas() {
 	const context = useContext(PerguntasContext)
-	if (!context) throw new Error('usePerguntas deve ser usado dentro de um PerguntasProvider')
+	if (!context)
+		throw new Error(
+			'usePerguntas deve ser usado dentro de um PerguntasProvider',
+		)
 	return context
 }

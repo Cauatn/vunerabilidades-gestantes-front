@@ -5,7 +5,10 @@ import {
 	useSensors,
 	type DragEndEvent,
 } from '@dnd-kit/core'
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
+import {
+	SortableContext,
+	horizontalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -20,7 +23,9 @@ interface SecaoTabsProps {
 }
 
 export function SecaoTabs({ config, onRemoverSecao }: SecaoTabsProps) {
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const ids = config.secoes.map((secao) => secao.id)
 
 	function handleDragEnd(event: DragEndEvent) {
@@ -32,7 +37,10 @@ export function SecaoTabs({ config, onRemoverSecao }: SecaoTabsProps) {
 	return (
 		<div className="flex flex-wrap items-center gap-2.5">
 			<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-				<SortableContext items={ids} strategy={horizontalListSortingStrategy}>
+				<SortableContext
+					items={ids}
+					strategy={horizontalListSortingStrategy}
+				>
 					{config.secoes.map((s, i) => (
 						<SortableItem key={s.id} id={s.id}>
 							{(h) => (

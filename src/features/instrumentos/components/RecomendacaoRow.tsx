@@ -36,7 +36,13 @@ export function RecomendacaoRow({
 				className="flex-1"
 				value={recomendacao.texto}
 				placeholder="Recomendação sugerida"
-				onChange={(e) => config.atualizarRecomendacao(grauId, recomendacao.id, e.target.value)}
+				onChange={(e) =>
+					config.atualizarRecomendacao(
+						grauId,
+						recomendacao.id,
+						e.target.value,
+					)
+				}
 			/>
 			<IconButton
 				icon={Trash2}

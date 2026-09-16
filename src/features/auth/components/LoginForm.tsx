@@ -6,25 +6,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSignIn } from '@/features/auth/composables/useSignIn'
-import { loginSchema, type LoginFormValues } from '@/features/auth/validation/loginSchema'
+import {
+	loginSchema,
+	type LoginFormValues,
+} from '@/features/auth/validation/loginSchema'
 import { toast } from 'sonner'
 
 export function LoginForm() {
 	const navigate = useNavigate()
-	const signIn = useSignIn(
-		{
-			onSuccess: () => {
-				toast.success('Login realizado com sucesso. Bem-vindo!')
-				navigate('/', { replace: true })
-			},
-			onError: () => {
-				toast.error(
-					'Houve um erro ao realizar o login',
-					{ description: 'Verifique suas credenciais e tente novamente. Caso o erro persista, entre em contato com o suporte.' }
-				)
-			}
-		}
-	)
+	const signIn = useSignIn({
+		onSuccess: () => {
+			toast.success('Login realizado com sucesso. Bem-vindo!')
+			navigate('/', { replace: true })
+		},
+		onError: () => {
+			toast.error('Houve um erro ao realizar o login', {
+				description:
+					'Verifique suas credenciais e tente novamente. Caso o erro persista, entre em contato com o suporte.',
+			})
+		},
+	})
 
 	const {
 		register,
@@ -40,7 +41,10 @@ export function LoginForm() {
 	}
 
 	return (
-		<form className="flex w-full flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+		<form
+			className="flex w-full flex-col gap-4"
+			onSubmit={handleSubmit(onSubmit)}
+		>
 			<div className="space-y-1.5">
 				<Label htmlFor="login-email">Email</Label>
 				<Input
@@ -51,7 +55,11 @@ export function LoginForm() {
 					aria-invalid={!!errors.email}
 					{...register('email')}
 				/>
-				{errors.email ? <p className="text-caption text-danger">{errors.email.message}</p> : null}
+				{errors.email ? (
+					<p className="text-caption text-danger">
+						{errors.email.message}
+					</p>
+				) : null}
 			</div>
 			<div className="space-y-1.5">
 				<Label htmlFor="login-senha">Senha</Label>
@@ -63,12 +71,24 @@ export function LoginForm() {
 					aria-invalid={!!errors.senha}
 					{...register('senha')}
 				/>
-				{errors.senha ? <p className="text-caption text-danger">{errors.senha.message}</p> : null}
+				{errors.senha ? (
+					<p className="text-caption text-danger">
+						{errors.senha.message}
+					</p>
+				) : null}
 			</div>
-			<a href="#" className="self-start text-[13px] text-[#2f64c1] underline">
+			<a
+				href="#"
+				className="self-start text-[13px] text-[#2f64c1] underline"
+			>
 				Esqueceu a senha?
 			</a>
-			<Button type="submit" size="lg" className="w-full" isLoading={signIn.isPending}>
+			<Button
+				type="submit"
+				size="lg"
+				className="w-full"
+				isLoading={signIn.isPending}
+			>
 				Login
 			</Button>
 		</form>

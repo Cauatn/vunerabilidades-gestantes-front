@@ -41,7 +41,9 @@ export function OpcaoRespostaRow({
 				value={opcao.texto}
 				placeholder="Opção de resposta"
 				onChange={(e) =>
-					config.atualizarOpcao(perguntaId, opcao.id, { texto: e.target.value })
+					config.atualizarOpcao(perguntaId, opcao.id, {
+						texto: e.target.value,
+					})
 				}
 			/>
 
@@ -55,7 +57,9 @@ export function OpcaoRespostaRow({
 					})
 				}
 				onPontuacaoChange={(v) =>
-					config.atualizarOpcao(perguntaId, opcao.id, { pontuacao: v })
+					config.atualizarOpcao(perguntaId, opcao.id, {
+						pontuacao: v,
+					})
 				}
 			/>
 

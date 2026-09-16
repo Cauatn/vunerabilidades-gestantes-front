@@ -8,7 +8,11 @@ interface RestrictedProps {
 	children: ReactNode
 }
 
-export function Restricted({ capability, fallback = null, children }: RestrictedProps): ReactNode {
+export function Restricted({
+	capability,
+	fallback = null,
+	children,
+}: RestrictedProps): ReactNode {
 	const can = useHasCapability()
 
 	if (!can(capability)) {

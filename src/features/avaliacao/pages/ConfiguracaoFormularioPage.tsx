@@ -1,5 +1,15 @@
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
-import { arrayMove, rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
+import {
+	DndContext,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+	arrayMove,
+	rectSortingStrategy,
+	SortableContext,
+} from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 import { useMemo } from 'react'
 
@@ -44,7 +54,9 @@ function GrupoDeCategoria({
 		updateOpcaoPontuacao,
 	} = usePerguntas()
 
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+	)
 	const ids = perguntasDoGrupo.map((pergunta) => pergunta.id)
 
 	function handleDragEnd(event: DragEndEvent) {
@@ -63,7 +75,8 @@ function GrupoDeCategoria({
 				<p className="text-lg font-semibold text-p-600">{categoria}</p>
 			</div>
 			<p className="-mt-2 text-caption text-n-500">
-				Cada categoria vira uma página do formulário; a gestante só avança quando responde tudo aqui.
+				Cada categoria vira uma página do formulário; a gestante só
+				avança quando responde tudo aqui.
 			</p>
 
 			<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
@@ -87,7 +100,12 @@ function GrupoDeCategoria({
 				</SortableContext>
 			</DndContext>
 
-			<Button type="button" variant="outline" size="sm" onClick={() => onAddPergunta(categoria)}>
+			<Button
+				type="button"
+				variant="outline"
+				size="sm"
+				onClick={() => onAddPergunta(categoria)}
+			>
 				<Plus className="size-4" />
 				Adicionar pergunta em "{categoria}"
 			</Button>
@@ -105,17 +123,25 @@ export function ConfiguracaoFormularioPage() {
 			description="Defina categorias, perguntas, opções de resposta e a pontuação de cada uma."
 		>
 			<div className="w-full space-y-10">
-				{Array.from(grupos.entries()).map(([categoria, perguntasDoGrupo], index) => (
-					<GrupoDeCategoria
-						key={categoria}
-						categoria={categoria}
-						numeroPagina={index + 1}
-						perguntasDoGrupo={perguntasDoGrupo}
-						onAddPergunta={(cat) => addPergunta(cat === SEM_CATEGORIA ? '' : cat)}
-					/>
-				))}
+				{Array.from(grupos.entries()).map(
+					([categoria, perguntasDoGrupo], index) => (
+						<GrupoDeCategoria
+							key={categoria}
+							categoria={categoria}
+							numeroPagina={index + 1}
+							perguntasDoGrupo={perguntasDoGrupo}
+							onAddPergunta={(cat) =>
+								addPergunta(cat === SEM_CATEGORIA ? '' : cat)
+							}
+						/>
+					),
+				)}
 
-				<Button type="button" variant="outline" onClick={() => addPergunta()}>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => addPergunta()}
+				>
 					<Plus className="size-4" />
 					Adicionar nova categoria
 				</Button>

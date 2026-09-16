@@ -4,7 +4,10 @@ import { LoginForm } from '@/features/auth/components/LoginForm'
 
 export function LoginPage() {
 	return (
-		<AuthLayout illustration={loginIllustration} tagline="Ciência e dados a serviço da saúde materna.">
+		<AuthLayout
+			illustration={loginIllustration}
+			tagline="Ciência e dados a serviço da saúde materna."
+		>
 			<LoginForm />
 		</AuthLayout>
 	)

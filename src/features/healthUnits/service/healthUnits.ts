@@ -9,7 +9,10 @@ import type {
 export const getHealthUnits = (params: ListHealthUnitsParams) =>
 	api.get<PaginatedHealthUnits>('/health-units', { params })
 
-export const createHealthUnit = (payload: CreateHealthUnitPayload) => api.post('/health-units', payload)
+export const createHealthUnit = (payload: CreateHealthUnitPayload) =>
+	api.post('/health-units', payload)
 
-export const updateHealthUnit = (id: string, payload: UpdateHealthUnitPayload) =>
-	api.patch(`/health-units/${id}`, payload)
+export const updateHealthUnit = (
+	id: string,
+	payload: UpdateHealthUnitPayload,
+) => api.patch(`/health-units/${id}`, payload)
