@@ -1,38 +1,40 @@
-import type { GrauConfig } from '../types/escala'
+import type { LevelConfig } from '../types/scale'
 
-interface FaixasEscalaBarProps {
-	graus: GrauConfig[]
+interface ScaleBandsBarProps {
+	levels: LevelConfig[]
 	min: number
 	max: number
 }
 
 /** trilhas horizontais (uma por grau) com a faixa preenchida na posição proporcional */
-export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
+export function ScaleBandsBar({ levels, min, max }: ScaleBandsBarProps) {
 	const span = Math.max(1, max - min + 1)
 	const clamp = (n: number) => Math.min(100, Math.max(0, n))
 
 	return (
 		<div className="flex gap-2.5">
 			<div className="flex flex-col gap-3">
-				{graus.map((g) => (
+				{levels.map((level) => (
 					<span
-						key={g.id}
+						key={level.id}
 						className="flex h-4 items-center text-sm text-n-900"
 					>
-						{g.nome}
+						{level.name}
 					</span>
 				))}
 			</div>
 			<div className="flex flex-1 flex-col gap-3">
 				<div className="flex flex-col gap-3">
-					{graus.map((g) => {
-						const left = clamp(((g.min - min) / span) * 100)
+					{levels.map((level) => {
+						const left = clamp(((level.min - min) / span) * 100)
 						const width = clamp(
-							((Math.max(g.max, g.min) - g.min + 1) / span) * 100,
+							((Math.max(level.max, level.min) - level.min + 1) /
+								span) *
+								100,
 						)
 						return (
 							<div
-								key={g.id}
+								key={level.id}
 								className="relative h-4 w-full overflow-hidden rounded bg-n-30"
 							>
 								<div
@@ -40,7 +42,7 @@ export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
 									style={{
 										left: `${left}%`,
 										width: `${width}%`,
-										background: g.cor,
+										background: level.color,
 									}}
 								/>
 							</div>

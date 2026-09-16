@@ -7,9 +7,9 @@ import { AvaliacaoDetalhePage } from '@/features/avaliacao/pages/AvaliacaoDetalh
 import { AvaliacaoImprimirVisaoGeralPage } from '@/features/avaliacao/pages/AvaliacaoImprimirVisaoGeralPage'
 import { AvaliacaoImprimirVisaoGestantePage } from '@/features/avaliacao/pages/AvaliacaoImprimirVisaoGestantePage'
 import { FormularioPage } from '@/features/avaliacao/pages/FormularioPage'
-import { InstrumentoDraftProvider } from '@/features/instrumentos/composables/useInstrumentoDraft'
-import { ConfigurarEscalaPage } from '@/features/instrumentos/pages/ConfigurarEscalaPage'
-import { ConfigurarQuestionarioPage } from '@/features/instrumentos/pages/ConfigurarQuestionarioPage'
+import { InstrumentDraftProvider } from '@/features/instrumentos/composables/useInstrumentDraft'
+import { ConfigureScalePage } from '@/features/instrumentos/pages/ConfigureScalePage'
+import { ConfigureQuestionnairePage } from '@/features/instrumentos/pages/ConfigureQuestionnairePage'
 import { HistoricoPage } from '@/features/avaliacao/pages/HistoricoPage'
 import { ResultadoPage } from '@/features/avaliacao/pages/ResultadoPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -68,18 +68,18 @@ export function AppRoutes() {
 					<Route path="/resultado" element={<ResultadoPage />} />
 					<Route
 						element={
-							<InstrumentoDraftProvider>
+							<InstrumentDraftProvider>
 								<Outlet />
-							</InstrumentoDraftProvider>
+							</InstrumentDraftProvider>
 						}
 					>
 						<Route
 							path="/configuracao"
-							element={<ConfigurarQuestionarioPage />}
+							element={<ConfigureQuestionnairePage />}
 						/>
 						<Route
 							path="/configuracao/escala"
-							element={<ConfigurarEscalaPage />}
+							element={<ConfigureScalePage />}
 						/>
 					</Route>
 				</Route>

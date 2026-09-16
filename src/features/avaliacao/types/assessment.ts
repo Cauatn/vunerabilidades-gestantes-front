@@ -1,7 +1,7 @@
 import type { Classificacao } from '@/features/avaliacao/constants'
 import type { Gestante } from '@/features/gestantes/types/gestante'
 import type { HealthUnit } from '@/features/healthUnits/types/healthUnit'
-import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 import type { Usuario } from '@/features/usuarios/types/usuario'
 
 export interface ResumoAplicacao {

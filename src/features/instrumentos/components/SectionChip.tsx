@@ -1,34 +1,34 @@
 import { GripHorizontal, X } from 'lucide-react'
 
-import type { QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import type { QuestionnaireConfig } from '@/features/instrumentos/composables/useQuestionnaireConfig'
 import type { DragHandle } from '@/features/instrumentos/components/SortableItem'
-import type { SecaoConfig } from '@/features/instrumentos/types/questionario'
+import type { SectionConfig } from '@/features/instrumentos/types/questionnaire'
 import { cn } from '@/lib/utils'
 
-interface SecaoChipProps {
-	secao: SecaoConfig
+interface SectionChipProps {
+	section: SectionConfig
 	numero: number
-	ativa: boolean
-	podeRemover: boolean
-	config: QuestionarioConfig
+	active: boolean
+	canRemove: boolean
+	config: QuestionnaireConfig
 	dragHandle: DragHandle
 	onRemover: () => void
 }
 
-export function SecaoChip({
-	secao,
+export function SectionChip({
+	section,
 	numero,
-	ativa,
-	podeRemover,
+	active,
+	canRemove,
 	config,
 	dragHandle,
 	onRemover,
-}: SecaoChipProps) {
+}: SectionChipProps) {
 	return (
 		<div
 			className={cn(
 				'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm',
-				ativa
+				active
 					? 'border-(--color-t-300) bg-t-100 font-semibold text-t-600'
 					: 'border-n-40 text-n-700',
 			)}
@@ -44,16 +44,16 @@ export function SecaoChip({
 
 			<span className="opacity-60">{numero}.</span>
 
-			{ativa ? (
+			{active ? (
 				<>
 					<input
-						value={secao.nome}
+						value={section.name}
 						onChange={(e) =>
-							config.renomearSecao(secao.id, e.target.value)
+							config.renameSection(section.id, e.target.value)
 						}
 						className="w-[220px] max-w-[38vw] bg-transparent font-semibold outline-none"
 					/>
-					{podeRemover ? (
+					{canRemove ? (
 						<button
 							type="button"
 							aria-label="Remover seção"
@@ -67,9 +67,9 @@ export function SecaoChip({
 			) : (
 				<button
 					type="button"
-					onClick={() => config.selecionarSecao(secao.id)}
+					onClick={() => config.selectSection(section.id)}
 				>
-					{secao.nome || 'Sem nome'}
+					{section.name || 'Sem nome'}
 				</button>
 			)}
 		</div>

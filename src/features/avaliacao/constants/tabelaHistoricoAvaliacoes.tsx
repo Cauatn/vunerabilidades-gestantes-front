@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { applyMask } from '@/components/ui/input'
 import CellSubItem from '@/features/core/components/CellSubItem'
 import { calcularIdade, formatarDataHoraBr } from '@/features/core/utils/date'
+import { darkenForText } from '@/features/core/utils/color'
 import type { Gestante } from '@/features/gestantes/types/gestante'
 import type { HealthUnit } from '@/features/healthUnits/types/healthUnit'
 import {
@@ -13,6 +14,12 @@ import type { ColumnDef } from '@tanstack/react-table'
 import AcoesTabelaAvaliacoes from '../components/AcoesTabelaAvaliacoes'
 import type { Assessment, QuestionnaireSnapshot } from '../types/assessment'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
+
+function getVulnerabilityBand(assessment: Assessment) {
+	return assessment.snapshot.props.vulnerabilityBands.find(
+		(band) => band.id === assessment.result.vulnerabilityBandId,
+	)
+}
 
 export const columns: ColumnDef<Assessment>[] = [
 	{
@@ -103,20 +110,50 @@ export const columns: ColumnDef<Assessment>[] = [
 			)
 		},
 	},
-	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
 		accessorKey: 'result.vulnerabilityLevel',
 		header: 'Vulnerabilidade',
-		cell: ({ getValue }) => {
-			return <Badge variant="neutral">{getValue<string>()}</Badge>
+		cell: ({ row }) => {
+			const band = getVulnerabilityBand(row.original)
+			return (
+				<Badge
+					variant="neutral"
+					className="border-transparent"
+					style={
+						band
+							? {
+									background: `${band.color}26`,
+									color: darkenForText(band.color),
+								}
+							: undefined
+					}
+				>
+					{row.original.result.vulnerabilityLevel}
+				</Badge>
+			)
 		},
 	},
-	//! a cor tem que vir da configuração da escala, não da pra hardcodar no front
 	{
 		accessorKey: 'result.totalScore',
 		header: 'Score',
-		cell: ({ getValue }) => {
-			return <Badge variant="neutral">{getValue<number>()}</Badge>
+		cell: ({ row }) => {
+			const band = getVulnerabilityBand(row.original)
+			return (
+				<Badge
+					variant="neutral"
+					className="border-transparent"
+					style={
+						band
+							? {
+									background: `${band.color}26`,
+									color: darkenForText(band.color),
+								}
+							: undefined
+					}
+				>
+					{row.original.result.totalScore}
+				</Badge>
+			)
 		},
 	},
 	{

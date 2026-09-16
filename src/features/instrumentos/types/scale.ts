@@ -1,26 +1,26 @@
-export interface RecomendacaoConfig {
+export interface RecommendationConfig {
 	id: string
-	texto: string
+	text: string
 }
 
-export interface GrauConfig {
+export interface LevelConfig {
 	id: string
-	nome: string
+	name: string
 	/** cor em hex, escolhida na paleta do color picker */
-	cor: string
+	color: string
 	min: number
 	max: number
-	recomendacoes: RecomendacaoConfig[]
+	recommendations: RecommendationConfig[]
 }
 
-export interface LimitesEscala {
+export interface ScaleLimits {
 	min: number
 	max: number
 }
 
-export interface ValidacaoEscala {
-	gerais: string[]
-	porGrau: Record<string, string>
+export interface ScaleValidation {
+	general: string[]
+	byLevel: Record<string, string>
 }
 
 interface VulnerabilityBandRecommendation {

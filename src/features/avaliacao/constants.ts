@@ -1,4 +1,4 @@
-import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 
 export interface Recomendacao {
 	id: string

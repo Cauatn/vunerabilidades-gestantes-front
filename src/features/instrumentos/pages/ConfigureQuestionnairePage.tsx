@@ -11,64 +11,66 @@ import { useNavigate } from 'react-router-dom'
 
 import { Modal } from '@/features/core/components/Modal'
 import { DashedAddButton } from '@/features/instrumentos/components/DashedAddButton'
-import { InstrumentoLayout } from '@/features/instrumentos/components/InstrumentoLayout'
-import { PerguntaCard } from '@/features/instrumentos/components/PerguntaCard'
-import { SecaoTabs } from '@/features/instrumentos/components/SecaoTabs'
+import { InstrumentLayout } from '@/features/instrumentos/components/InstrumentLayout'
+import { QuestionCard } from '@/features/instrumentos/components/QuestionCard'
+import { SectionTabs } from '@/features/instrumentos/components/SectionTabs'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
-import { useInstrumentoDraft } from '@/features/instrumentos/composables/useInstrumentoDraft'
+import { useInstrumentDraft } from '@/features/instrumentos/composables/useInstrumentDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
 import { toast } from 'sonner'
 
-type Remocao = {
+type RemovalTarget = {
 	tipo: 'secao' | 'pergunta' | 'opcao'
 	id: string
-	perguntaId?: string
+	questionId?: string
 }
 
-const DESCRICAO_REMOCAO: Record<Remocao['tipo'], string> = {
+const REMOVAL_DESCRIPTION: Record<RemovalTarget['tipo'], string> = {
 	secao: 'Ao clicar em remover você estará removendo a seção e todas as perguntas contidas nela. Essa ação não pode ser desfeita.',
 	pergunta:
 		'Ao clicar em remover você estará removendo uma pergunta inteira do formulário. Essa ação não pode ser desfeita.',
 	opcao: 'Ao clicar em remover você estará removendo uma opção de resposta da pergunta. Essa ação não pode ser desfeita.',
 }
 
-const TITULO_REMOCAO: Record<Remocao['tipo'], string> = {
+const REMOVAL_TITLE: Record<RemovalTarget['tipo'], string> = {
 	secao: 'Remover seção',
 	pergunta: 'Remover pergunta',
 	opcao: 'Remover opção de resposta',
 }
 
-export function ConfigurarQuestionarioPage() {
+export function ConfigureQuestionnairePage() {
 	const navigate = useNavigate()
 	const {
 		config,
-		publicar,
-		publicando,
-		rascunhoPronto,
-		erroCarregamento,
+		publish,
+		publishing,
+		draftReady,
+		loadError,
 		versionNumber,
-	} = useInstrumentoDraft()
+	} = useInstrumentDraft()
 
-	const [remocao, setRemocao] = useState<Remocao | null>(null)
-	const [publicarAberto, setPublicarAberto] = useState(false)
-	const [descartarAberto, setDescartarAberto] = useState(false)
+	const [removalTarget, setRemovalTarget] = useState<RemovalTarget | null>(
+		null,
+	)
+	const [publishModalOpen, setPublishModalOpen] = useState(false)
+	const [discardModalOpen, setDiscardModalOpen] = useState(false)
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
 	)
-	const perguntas = config.secaoAtiva?.perguntas ?? []
-	const perguntasIds = perguntas.map((pergunta) => pergunta.id)
+	const questions = config.activeSection?.questions ?? []
+	const questionIds = questions.map((question) => question.id)
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event
 		if (!over || active.id === over.id) return
-		config.reordenarPerguntas(String(active.id), String(over.id))
+		config.reorderQuestions(String(active.id), String(over.id))
 	}
 
-	function handlePublicar() {
-		if (publicando) return
-		setPublicarAberto(false)
-		publicar({
+	function handlePublish() {
+		if (publishing) return
+		setPublishModalOpen(false)
+		publish({
 			onSuccess: () => {
 				toast.success('Questionário publicado com sucesso.')
 			},
@@ -84,52 +86,60 @@ export function ConfigurarQuestionarioPage() {
 	}
 
 	return (
-		<InstrumentoLayout
-			versao={
+		<InstrumentLayout
+			version={
 				versionNumber
 					? `Versão atual v${versionNumber}`
 					: 'Sem versão publicada'
 			}
-			titulo="Configurar questionário"
-			descricao="Configure as seções e perguntas do formulário para disponibilizar novas versões."
-			onCancelar={() => setDescartarAberto(true)}
-			onPublicar={() => setPublicarAberto(true)}
-			publicarDisabled={publicando || !rascunhoPronto}
+			title="Configurar questionário"
+			description="Configure as seções e perguntas do formulário para disponibilizar novas versões."
+			onCancel={() => setDiscardModalOpen(true)}
+			onPublish={() => setPublishModalOpen(true)}
+			publishDisabled={publishing || !draftReady}
 		>
-			{erroCarregamento ? (
+			{loadError ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
 					{apiErrorMessage(
-						erroCarregamento,
+						loadError,
 						'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.',
 					)}
 				</p>
 			) : null}
-			<SecaoTabs
+			<SectionTabs
 				config={config}
-				onRemoverSecao={(id) => setRemocao({ tipo: 'secao', id })}
+				onRemoveSection={(id) =>
+					setRemovalTarget({ tipo: 'secao', id })
+				}
 			/>
 
 			<div className="flex flex-col gap-3">
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
 					<SortableContext
-						items={perguntasIds}
+						items={questionIds}
 						strategy={verticalListSortingStrategy}
 					>
-						{perguntas.map((p) => (
+						{questions.map((p) => (
 							<SortableItem key={p.id} id={p.id}>
 								{(h) => (
-									<PerguntaCard
-										pergunta={p}
+									<QuestionCard
+										question={p}
 										config={config}
 										dragHandle={h}
-										onRemoverPergunta={(id) =>
-											setRemocao({ tipo: 'pergunta', id })
+										onRemoveQuestion={(id) =>
+											setRemovalTarget({
+												tipo: 'pergunta',
+												id,
+											})
 										}
-										onRemoverOpcao={(perguntaId, opcaoId) =>
-											setRemocao({
+										onRemoveOption={(
+											questionId,
+											optionId,
+										) =>
+											setRemovalTarget({
 												tipo: 'opcao',
-												id: opcaoId,
-												perguntaId,
+												id: optionId,
+												questionId,
 											})
 										}
 									/>
@@ -142,54 +152,59 @@ export function ConfigurarQuestionarioPage() {
 
 			<DashedAddButton
 				label="Adicionar item"
-				onClick={config.addPergunta}
+				onClick={config.addQuestion}
 			/>
 
 			<Modal
-				open={!!remocao}
-				onOpenChange={(o) => !o && setRemocao(null)}
+				open={!!removalTarget}
+				onOpenChange={(o) => !o && setRemovalTarget(null)}
 				variant="danger"
-				title={remocao ? TITULO_REMOCAO[remocao.tipo] : ''}
-				description={remocao ? DESCRICAO_REMOCAO[remocao.tipo] : ''}
+				title={removalTarget ? REMOVAL_TITLE[removalTarget.tipo] : ''}
+				description={
+					removalTarget ? REMOVAL_DESCRIPTION[removalTarget.tipo] : ''
+				}
 				confirmLabel="Remover"
 				onConfirm={() => {
-					if (!remocao) return
-					if (remocao.tipo === 'secao') {
-						config.removeSecao(remocao.id)
+					if (!removalTarget) return
+					if (removalTarget.tipo === 'secao') {
+						config.removeSection(removalTarget.id)
 						toast.success('Seção removida com sucesso.')
-					} else if (remocao.tipo === 'pergunta') {
-						config.removePergunta(remocao.id)
+					} else if (removalTarget.tipo === 'pergunta') {
+						config.removeQuestion(removalTarget.id)
 						toast.success('Pergunta removida com sucesso.')
-					} else if (remocao.perguntaId) {
-						config.removeOpcao(remocao.perguntaId, remocao.id)
+					} else if (removalTarget.questionId) {
+						config.removeOption(
+							removalTarget.questionId,
+							removalTarget.id,
+						)
 						toast.success('Opção de resposta removida com sucesso.')
 					}
-					setRemocao(null)
+					setRemovalTarget(null)
 				}}
 			/>
 
 			<Modal
-				open={publicarAberto}
-				onOpenChange={setPublicarAberto}
+				open={publishModalOpen}
+				onOpenChange={setPublishModalOpen}
 				variant="warning"
 				title="Publicar nova versão"
 				description="Ao publicar as alterações, uma nova versão do questionário será disponibilizada. As respostas já registradas não serão afetadas."
 				confirmLabel="Publicar"
-				onConfirm={handlePublicar}
+				onConfirm={handlePublish}
 			/>
 
 			<Modal
-				open={descartarAberto}
-				onOpenChange={setDescartarAberto}
+				open={discardModalOpen}
+				onOpenChange={setDiscardModalOpen}
 				variant="warning"
 				title="Descarte de alterações"
 				description="Ao continuar, todas as alterações feitas neste questionário serão descartadas e não poderão ser recuperadas."
 				confirmLabel="Continuar"
 				onConfirm={() => {
-					setDescartarAberto(false)
+					setDiscardModalOpen(false)
 					navigate('/')
 				}}
 			/>
-		</InstrumentoLayout>
+		</InstrumentLayout>
 	)
 }

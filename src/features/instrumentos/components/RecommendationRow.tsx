@@ -4,24 +4,24 @@ import { IconButton } from '@/components/ui/icon-button'
 import { Input } from '@/components/ui/input'
 
 import type { DragHandle } from './SortableItem'
-import type { EscalaConfig } from '../composables/useEscalaConfig'
-import type { RecomendacaoConfig } from '../types/escala'
+import type { ScaleConfig } from '../composables/useScaleConfig'
+import type { RecommendationConfig } from '../types/scale'
 
-interface RecomendacaoRowProps {
-	grauId: string
-	recomendacao: RecomendacaoConfig
-	config: EscalaConfig
+interface RecommendationRowProps {
+	levelId: string
+	recommendation: RecommendationConfig
+	config: ScaleConfig
 	dragHandle: DragHandle
 	onRemover: () => void
 }
 
-export function RecomendacaoRow({
-	grauId,
-	recomendacao,
+export function RecommendationRow({
+	levelId,
+	recommendation,
 	config,
 	dragHandle,
 	onRemover,
-}: RecomendacaoRowProps) {
+}: RecommendationRowProps) {
 	return (
 		<div className="flex items-center gap-3">
 			<button
@@ -34,12 +34,12 @@ export function RecomendacaoRow({
 			</button>
 			<Input
 				className="flex-1"
-				value={recomendacao.texto}
+				value={recommendation.text}
 				placeholder="Recomendação sugerida"
 				onChange={(e) =>
-					config.atualizarRecomendacao(
-						grauId,
-						recomendacao.id,
+					config.updateRecommendation(
+						levelId,
+						recommendation.id,
 						e.target.value,
 					)
 				}

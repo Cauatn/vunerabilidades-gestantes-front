@@ -1,6 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 
-import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 import { cn } from '@/lib/utils'
 
 interface ScoreMeterProps {

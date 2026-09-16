@@ -1,4 +1,4 @@
-import type { VulnerabilityBand } from '@/features/instrumentos/types/escala'
+import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 import { cn } from '@/lib/utils'
 import { ScoreMeter } from './ScoreMeter'
 

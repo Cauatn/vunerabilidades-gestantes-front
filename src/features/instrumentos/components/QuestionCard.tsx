@@ -19,7 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import type { QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import type { QuestionnaireConfig } from '@/features/instrumentos/composables/useQuestionnaireConfig'
 import { DashedAddButton } from '@/features/instrumentos/components/DashedAddButton'
 import { FieldLabel } from '@/features/instrumentos/components/FieldLabel'
 import {
@@ -27,46 +27,44 @@ import {
 	type DragHandle,
 } from '@/features/instrumentos/components/SortableItem'
 import {
-	TIPO_COM_CONDICIONAL,
-	TIPO_PERGUNTA_LABEL,
-	TIPO_PERGUNTA_OPCOES,
+	CONDITIONAL_QUESTION_TYPE,
+	QUESTION_TYPE_LABEL,
+	QUESTION_TYPE_OPTIONS,
 } from '@/features/instrumentos/constants'
 import type {
-	PerguntaConfig,
-	TipoPergunta,
-} from '@/features/instrumentos/types/questionario'
+	QuestionConfig,
+	QuestionType,
+} from '@/features/instrumentos/types/questionnaire'
 
-import { OpcaoRespostaRow } from './OpcaoRespostaRow'
+import { AnswerOptionRow } from './AnswerOptionRow'
 
-interface PerguntaCardProps {
-	pergunta: PerguntaConfig
-	config: QuestionarioConfig
-	condicional?: boolean
+interface QuestionCardProps {
+	question: QuestionConfig
+	config: QuestionnaireConfig
+	conditional?: boolean
 	dragHandle?: DragHandle
-	onRemoverPergunta: (id: string) => void
-	onRemoverOpcao: (perguntaId: string, opcaoId: string) => void
+	onRemoveQuestion: (id: string) => void
+	onRemoveOption: (questionId: string, optionId: string) => void
 }
 
-export function PerguntaCard({
-	pergunta,
+export function QuestionCard({
+	question,
 	config,
-	condicional,
+	conditional,
 	dragHandle,
-	onRemoverPergunta,
-	onRemoverOpcao,
-}: PerguntaCardProps) {
+	onRemoveQuestion,
+	onRemoveOption,
+}: QuestionCardProps) {
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
 	)
-	const opcoesIds = pergunta.opcoes.map((opcao) => opcao.id)
+	const optionIds = question.options.map((option) => option.id)
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event
 		if (!over || active.id === over.id) return
-		config.reordenarOpcoes(pergunta.id, String(active.id), String(over.id))
+		config.reorderOptions(question.id, String(active.id), String(over.id))
 	}
-
-	const codigoId = `pergunta-${pergunta.id}-codigo`
 
 	return (
 		<div className="overflow-hidden rounded-xl border border-n-40 bg-n-0">
@@ -82,26 +80,23 @@ export function PerguntaCard({
 							<GripVertical className="size-5" />
 						</button>
 					) : null}
-					<span className="text-sm text-n-500">
-						{pergunta.codigo || '—'}
-					</span>
 					<span className="line-clamp-1 text-sm text-n-900">
-						{pergunta.enunciado || 'Nova pergunta'}
+						{question.statement || 'Nova pergunta'}
 					</span>
 				</div>
 
 				<div className="flex items-center gap-3">
-					{condicional ? (
+					{conditional ? (
 						<Badge variant="orange">Condicional</Badge>
 					) : null}
 					<Badge variant="blue">
-						{TIPO_PERGUNTA_LABEL[pergunta.tipo]}
+						{QUESTION_TYPE_LABEL[question.type]}
 					</Badge>
 					<IconButton
 						icon={Trash2}
 						variant="danger"
 						tooltipText="Remover pergunta"
-						onClick={() => onRemoverPergunta(pergunta.id)}
+						onClick={() => onRemoveQuestion(question.id)}
 					/>
 				</div>
 			</div>
@@ -109,52 +104,35 @@ export function PerguntaCard({
 			<div className="flex flex-col gap-2.5 p-4">
 				<Divider text="Dados da pergunta" />
 
-				<div className="flex items-end gap-3">
-					<div>
-						<FieldLabel required htmlFor={codigoId}>
-							Código da pergunta
-						</FieldLabel>
-						<Input
-							id={codigoId}
-							className="w-[150px]"
-							value={pergunta.codigo}
-							onChange={(e) =>
-								config.atualizarCampos(pergunta.id, {
-									codigo: e.target.value,
-								})
-							}
-						/>
-					</div>
-					<div className="flex-1">
-						<FieldLabel required>Enunciado</FieldLabel>
-						<Input
-							value={pergunta.enunciado}
-							onChange={(e) =>
-								config.atualizarCampos(pergunta.id, {
-									enunciado: e.target.value,
-								})
-							}
-						/>
-					</div>
+				<div>
+					<FieldLabel required>Enunciado</FieldLabel>
+					<Input
+						value={question.statement}
+						onChange={(e) =>
+							config.updateFields(question.id, {
+								statement: e.target.value,
+							})
+						}
+					/>
 				</div>
 
 				<div>
 					<FieldLabel required>Tipo da pergunta</FieldLabel>
 					<Select
-						value={pergunta.tipo}
+						value={question.type}
 						onValueChange={(v) =>
-							config.atualizarCampos(pergunta.id, {
-								tipo: v as TipoPergunta,
+							config.updateFields(question.id, {
+								type: v as QuestionType,
 							})
 						}
 					>
-						<SelectTrigger className="w-full max-w-[504px]">
+						<SelectTrigger className="w-full max-w-126">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
-							{TIPO_PERGUNTA_OPCOES.map((t) => (
+							{QUESTION_TYPE_OPTIONS.map((t) => (
 								<SelectItem key={t} value={t}>
-									{TIPO_PERGUNTA_LABEL[t]}
+									{QUESTION_TYPE_LABEL[t]}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -165,23 +143,23 @@ export function PerguntaCard({
 
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
 					<SortableContext
-						items={opcoesIds}
+						items={optionIds}
 						strategy={verticalListSortingStrategy}
 					>
 						<div className="flex flex-col gap-2.5">
-							{pergunta.opcoes.map((opcao) => (
-								<SortableItem key={opcao.id} id={opcao.id}>
+							{question.options.map((option) => (
+								<SortableItem key={option.id} id={option.id}>
 									{(h) => (
-										<OpcaoRespostaRow
-											perguntaId={pergunta.id}
-											opcao={opcao}
-											total={pergunta.opcoes.length}
+										<AnswerOptionRow
+											questionId={question.id}
+											option={option}
+											total={question.options.length}
 											config={config}
 											dragHandle={h}
 											onRemover={() =>
-												onRemoverOpcao(
-													pergunta.id,
-													opcao.id,
+												onRemoveOption(
+													question.id,
+													option.id,
 												)
 											}
 										/>
@@ -194,30 +172,30 @@ export function PerguntaCard({
 
 				<DashedAddButton
 					label="Adicionar opção"
-					onClick={() => config.addOpcao(pergunta.id)}
+					onClick={() => config.addOption(question.id)}
 				/>
 
-				{pergunta.tipo === TIPO_COM_CONDICIONAL ? (
+				{question.type === CONDITIONAL_QUESTION_TYPE ? (
 					<>
 						<Divider text="Se sim" />
 						<div className="flex gap-3 pl-5">
 							<div className="w-0.5 shrink-0 self-stretch rounded bg-o-400" />
 							<div className="flex flex-1 flex-col gap-3">
-								{(pergunta.subPerguntas ?? []).map((sub) => (
-									<PerguntaCard
+								{(question.subQuestions ?? []).map((sub) => (
+									<QuestionCard
 										key={sub.id}
-										pergunta={sub}
+										question={sub}
 										config={config}
-										condicional
-										onRemoverPergunta={onRemoverPergunta}
-										onRemoverOpcao={onRemoverOpcao}
+										conditional
+										onRemoveQuestion={onRemoveQuestion}
+										onRemoveOption={onRemoveOption}
 									/>
 								))}
 								<DashedAddButton
 									tone="orange"
 									label="Adicionar pergunta"
 									onClick={() =>
-										config.addSubPergunta(pergunta.id)
+										config.addSubQuestion(question.id)
 									}
 								/>
 							</div>

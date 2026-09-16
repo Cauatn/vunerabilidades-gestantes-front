@@ -2,21 +2,21 @@ import { Input } from '@/components/ui/input'
 
 import { FieldLabel } from './FieldLabel'
 
-interface LimitesRangeProps {
+interface LimitsRangeProps {
 	min: number
 	max: number
-	onMinChange: (valor: number) => void
-	onMaxChange: (valor: number) => void
+	onMinChange: (value: number) => void
+	onMaxChange: (value: number) => void
 	idPrefix: string
 }
 
-export function LimitesRange({
+export function LimitsRange({
 	min,
 	max,
 	onMinChange,
 	onMaxChange,
 	idPrefix,
-}: LimitesRangeProps) {
+}: LimitsRangeProps) {
 	return (
 		<div className="flex items-end gap-2.5">
 			<div className="flex-1 space-y-2">

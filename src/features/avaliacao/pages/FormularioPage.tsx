@@ -24,7 +24,7 @@ import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendac
 import { toClassificacao } from '@/features/avaliacao/utils/classificacao'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
-import { useGetQuestionarioAtivo } from '@/features/instrumentos/composables/useGetQuestionarioAtivo'
+import { useGetActiveQuestionnaire } from '@/features/instrumentos/composables/useGetActiveQuestionnaire'
 import { toast } from 'sonner'
 
 const ETAPA_RESULTADO_LABEL = 'Resultado e recomendações'
@@ -81,7 +81,7 @@ export function FormularioPage() {
 		data: activeQuestionnaire,
 		isFetching: carregandoQuestionario,
 		refetch: refetchActiveQuestionnaire,
-	} = useGetQuestionarioAtivo({ enabled: false })
+	} = useGetActiveQuestionnaire({ enabled: false })
 
 	const [iniciado, setIniciado] = useState(false)
 	const [gestanteId, setGestanteId] = useState<string | null>(null)

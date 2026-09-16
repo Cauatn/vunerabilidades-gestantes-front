@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
-import { CORES_GRAU } from '../constants'
+import { LEVEL_COLORS } from '../constants'
 
 interface ColorPickerPopoverProps {
 	cor: string
@@ -32,7 +32,7 @@ export function ColorPickerPopover({ cor, onChange }: ColorPickerPopoverProps) {
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-auto p-3">
 				<div className="flex flex-col gap-2">
-					{CORES_GRAU.map((linha, i) => (
+					{LEVEL_COLORS.map((linha, i) => (
 						<div key={i} className="flex gap-2">
 							{linha.map((c) => (
 								<button

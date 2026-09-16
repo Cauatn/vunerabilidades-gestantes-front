@@ -2,29 +2,29 @@ import { GripVertical, Trash2 } from 'lucide-react'
 
 import { IconButton } from '@/components/ui/icon-button'
 import { Input } from '@/components/ui/input'
-import type { QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import type { QuestionnaireConfig } from '@/features/instrumentos/composables/useQuestionnaireConfig'
 import type { DragHandle } from '@/features/instrumentos/components/SortableItem'
-import type { OpcaoResposta } from '@/features/instrumentos/types/questionario'
+import type { AnswerOption } from '@/features/instrumentos/types/questionnaire'
 
-import { PontuavelField } from './PontuavelField'
+import { ScorableField } from './ScorableField'
 
-interface OpcaoRespostaRowProps {
-	perguntaId: string
-	opcao: OpcaoResposta
+interface AnswerOptionRowProps {
+	questionId: string
+	option: AnswerOption
 	total: number
-	config: QuestionarioConfig
+	config: QuestionnaireConfig
 	dragHandle: DragHandle
 	onRemover: () => void
 }
 
-export function OpcaoRespostaRow({
-	perguntaId,
-	opcao,
+export function AnswerOptionRow({
+	questionId,
+	option,
 	total,
 	config,
 	dragHandle,
 	onRemover,
-}: OpcaoRespostaRowProps) {
+}: AnswerOptionRowProps) {
 	return (
 		<div className="flex items-center gap-3">
 			<button
@@ -38,27 +38,27 @@ export function OpcaoRespostaRow({
 
 			<Input
 				className="flex-1"
-				value={opcao.texto}
+				value={option.text}
 				placeholder="Opção de resposta"
 				onChange={(e) =>
-					config.atualizarOpcao(perguntaId, opcao.id, {
-						texto: e.target.value,
+					config.updateOption(questionId, option.id, {
+						text: e.target.value,
 					})
 				}
 			/>
 
-			<PontuavelField
-				pontuavel={opcao.pontuavel}
-				pontuacao={opcao.pontuacao}
-				onTogglePontuavel={(next) =>
-					config.atualizarOpcao(perguntaId, opcao.id, {
-						pontuavel: next,
-						pontuacao: next ? opcao.pontuacao : null,
+			<ScorableField
+				scorable={option.scorable}
+				score={option.score}
+				onToggleScorable={(next) =>
+					config.updateOption(questionId, option.id, {
+						scorable: next,
+						score: next ? option.score : null,
 					})
 				}
-				onPontuacaoChange={(v) =>
-					config.atualizarOpcao(perguntaId, opcao.id, {
-						pontuacao: v,
+				onScoreChange={(v) =>
+					config.updateOption(questionId, option.id, {
+						score: v,
 					})
 				}
 			/>

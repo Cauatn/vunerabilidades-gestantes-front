@@ -15,51 +15,57 @@ import { Divider } from '@/components/ui/divider'
 
 import { Modal } from '@/features/core/components/Modal'
 import { DashedAddButton } from '../components/DashedAddButton'
-import { FaixasEscalaBar } from '../components/FaixasEscalaBar'
-import { GrauVulnerabilidadeCard } from '../components/GrauVulnerabilidadeCard'
-import { InstrumentoLayout } from '../components/InstrumentoLayout'
-import { LimitesRange } from '../components/LimitesRange'
+import { ScaleBandsBar } from '../components/ScaleBandsBar'
+import { VulnerabilityLevelCard } from '../components/VulnerabilityLevelCard'
+import { InstrumentLayout } from '../components/InstrumentLayout'
+import { LimitsRange } from '../components/LimitsRange'
 import { SortableItem } from '../components/SortableItem'
-import { PONTUACAO_SUGERIDA } from '../constants'
-import { useInstrumentoDraft } from '../composables/useInstrumentoDraft'
+import { SUGGESTED_SCORE } from '../constants'
+import { useInstrumentDraft } from '../composables/useInstrumentDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
 import { toast } from 'sonner'
 
-type Remocao = { tipo: 'grau' | 'recomendacao'; grauId: string; recId?: string }
+type RemovalTarget = {
+	tipo: 'grau' | 'recomendacao'
+	levelId: string
+	recommendationId?: string
+}
 
-export function ConfigurarEscalaPage() {
+export function ConfigureScalePage() {
 	const navigate = useNavigate()
 	const {
-		escala: config,
-		publicar,
-		publicando,
-		rascunhoPronto,
-		erroCarregamento,
+		scale: config,
+		publish,
+		publishing,
+		draftReady,
+		loadError,
 		versionNumber,
-	} = useInstrumentoDraft()
+	} = useInstrumentDraft()
 
 	const [avisoVisivel, setAvisoVisivel] = useState(true)
-	const [remocao, setRemocao] = useState<Remocao | null>(null)
-	const [publicarAberto, setPublicarAberto] = useState(false)
-	const [descartarAberto, setDescartarAberto] = useState(false)
+	const [removalTarget, setRemovalTarget] = useState<RemovalTarget | null>(
+		null,
+	)
+	const [publishModalOpen, setPublishModalOpen] = useState(false)
+	const [discardModalOpen, setDiscardModalOpen] = useState(false)
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
 	)
-	const grausIds = config.graus.map((g) => g.id)
+	const levelIds = config.levels.map((l) => l.id)
 
-	const temErroValidacao = config.validacao.gerais.length > 0
+	const hasValidationError = config.validation.general.length > 0
 
 	function handleDragEnd(e: DragEndEvent) {
 		const { active, over } = e
 		if (!over || active.id === over.id) return
-		config.reordenarGraus(String(active.id), String(over.id))
+		config.reorderLevels(String(active.id), String(over.id))
 	}
 
-	function handlePublicar() {
-		if (publicando) return
-		setPublicarAberto(false)
-		publicar({
+	function handlePublish() {
+		if (publishing) return
+		setPublishModalOpen(false)
+		publish({
 			onSuccess: () => {
 				toast.success('Escala publicada com sucesso.')
 			},
@@ -75,32 +81,32 @@ export function ConfigurarEscalaPage() {
 	}
 
 	return (
-		<InstrumentoLayout
-			versao={
+		<InstrumentLayout
+			version={
 				versionNumber
 					? `Versão atual v${versionNumber}`
 					: 'Sem versão publicada'
 			}
-			titulo="Configurar escala"
-			descricao="Defina os intervalos de pontuação de cada grau de vulnerabilidade e as recomendações associadas."
-			onCancelar={() => setDescartarAberto(true)}
-			onPublicar={() => setPublicarAberto(true)}
-			publicarDisabled={temErroValidacao || publicando || !rascunhoPronto}
+			title="Configurar escala"
+			description="Defina os intervalos de pontuação de cada grau de vulnerabilidade e as recomendações associadas."
+			onCancel={() => setDiscardModalOpen(true)}
+			onPublish={() => setPublishModalOpen(true)}
+			publishDisabled={hasValidationError || publishing || !draftReady}
 		>
-			{temErroValidacao ? (
+			{hasValidationError ? (
 				<div className="flex items-start gap-2 rounded-lg border border-danger bg-r-100 px-5 py-4 text-sm text-r-600">
 					<CircleAlert className="mt-0.5 size-5 shrink-0" />
 					<ul className="space-y-1">
-						{config.validacao.gerais.map((e) => (
+						{config.validation.general.map((e) => (
 							<li key={e}>{e}</li>
 						))}
 					</ul>
 				</div>
 			) : null}
-			{erroCarregamento ? (
+			{loadError ? (
 				<p className="rounded-md bg-r-100 px-4 py-3 text-sm text-r-500">
 					{apiErrorMessage(
-						erroCarregamento,
+						loadError,
 						'Não foi possível carregar o questionário vigente. Recarregue a página antes de publicar.',
 					)}
 				</p>
@@ -115,9 +121,9 @@ export function ConfigurarEscalaPage() {
 							<Info className="size-5 shrink-0" />
 							<span>
 								A versão mais atual do formulário soma{' '}
-								{PONTUACAO_SUGERIDA} pontos. Se a escala definir
-								um teto diferente, pontuações fora dele ficarão
-								sem grau.
+								{SUGGESTED_SCORE} pontos. Se a escala definir um
+								teto diferente, pontuações fora dele ficarão sem
+								grau.
 							</span>
 						</div>
 						<button
@@ -132,22 +138,18 @@ export function ConfigurarEscalaPage() {
 
 				<div className="flex items-end gap-2.5">
 					<div className="flex-1">
-						<LimitesRange
-							min={config.limites.min}
-							max={config.limites.max}
-							onMinChange={(v) =>
-								config.atualizarLimite('min', v)
-							}
-							onMaxChange={(v) =>
-								config.atualizarLimite('max', v)
-							}
+						<LimitsRange
+							min={config.limits.min}
+							max={config.limits.max}
+							onMinChange={(v) => config.updateLimit('min', v)}
+							onMaxChange={(v) => config.updateLimit('max', v)}
 							idPrefix="escala"
 						/>
 					</div>
 					<Button
 						type="button"
 						onClick={() =>
-							config.usarPontuacaoSugerida(PONTUACAO_SUGERIDA)
+							config.useSuggestedScore(SUGGESTED_SCORE)
 						}
 					>
 						Usar pontuação sugerida
@@ -158,42 +160,42 @@ export function ConfigurarEscalaPage() {
 			<div className="flex flex-col gap-3">
 				<Divider text="Graus de vulnerabilidade" />
 
-				<FaixasEscalaBar
-					graus={config.graus}
-					min={config.limites.min}
-					max={config.limites.max}
+				<ScaleBandsBar
+					levels={config.levels}
+					min={config.limits.min}
+					max={config.limits.max}
 				/>
 
 				<DndContext sensors={sensors} onDragEnd={handleDragEnd}>
 					<SortableContext
-						items={grausIds}
+						items={levelIds}
 						strategy={verticalListSortingStrategy}
 					>
 						<div className="flex flex-col gap-3">
-							{config.graus.map((g) => (
-								<SortableItem key={g.id} id={g.id}>
+							{config.levels.map((l) => (
+								<SortableItem key={l.id} id={l.id}>
 									{(h) => (
-										<GrauVulnerabilidadeCard
-											grau={g}
+										<VulnerabilityLevelCard
+											level={l}
 											config={config}
 											erro={
-												config.validacao.porGrau[g.id]
+												config.validation.byLevel[l.id]
 											}
 											dragHandle={h}
 											onRemover={() =>
-												setRemocao({
+												setRemovalTarget({
 													tipo: 'grau',
-													grauId: g.id,
+													levelId: l.id,
 												})
 											}
-											onRemoverRecomendacao={(
-												grauId,
+											onRemoveRecommendation={(
+												levelId,
 												recId,
 											) =>
-												setRemocao({
+												setRemovalTarget({
 													tipo: 'recomendacao',
-													grauId,
-													recId,
+													levelId,
+													recommendationId: recId,
 												})
 											}
 										/>
@@ -206,62 +208,65 @@ export function ConfigurarEscalaPage() {
 
 				<DashedAddButton
 					label="Adicionar grau de vulnerabilidade"
-					onClick={config.addGrau}
+					onClick={config.addLevel}
 				/>
 			</div>
 
 			<Modal
-				open={!!remocao}
-				onOpenChange={(o) => !o && setRemocao(null)}
+				open={!!removalTarget}
+				onOpenChange={(o) => !o && setRemovalTarget(null)}
 				variant="danger"
 				title={
-					remocao?.tipo === 'grau'
+					removalTarget?.tipo === 'grau'
 						? 'Remover grau de vulnerabilidade'
 						: 'Remover recomendação'
 				}
 				description={
-					remocao?.tipo === 'grau'
+					removalTarget?.tipo === 'grau'
 						? 'Ao clicar em remover você estará removendo o grau de vulnerabilidade e todas as recomendações associadas a ele. Essa ação não pode ser desfeita.'
 						: 'Ao clicar em remover você estará removendo uma recomendação sugerida deste grau. Essa ação não pode ser desfeita.'
 				}
 				onConfirm={() => {
-					if (!remocao) return
-					if (remocao.tipo === 'grau') {
-						config.removeGrau(remocao.grauId)
+					if (!removalTarget) return
+					if (removalTarget.tipo === 'grau') {
+						config.removeLevel(removalTarget.levelId)
 						toast.success(
 							'Grau de vulnerabilidade removido com sucesso.',
 						)
-					} else if (remocao.recId) {
-						config.removeRecomendacao(remocao.grauId, remocao.recId)
+					} else if (removalTarget.recommendationId) {
+						config.removeRecommendation(
+							removalTarget.levelId,
+							removalTarget.recommendationId,
+						)
 						toast.success('Recomendação removida com sucesso.')
 					}
-					setRemocao(null)
+					setRemovalTarget(null)
 				}}
 				confirmLabel="Confirmar"
 			/>
 
 			<Modal
-				open={publicarAberto}
-				onOpenChange={setPublicarAberto}
+				open={publishModalOpen}
+				onOpenChange={setPublishModalOpen}
 				variant="warning"
 				title="Publicar nova versão"
 				description="Ao publicar as alterações, uma nova versão da escala será disponibilizada. As avaliações já registradas não serão afetadas."
 				confirmLabel="Publicar"
-				onConfirm={handlePublicar}
+				onConfirm={handlePublish}
 			/>
 
 			<Modal
-				open={descartarAberto}
-				onOpenChange={setDescartarAberto}
+				open={discardModalOpen}
+				onOpenChange={setDiscardModalOpen}
 				variant="warning"
 				title="Descarte de alterações"
 				description="Ao continuar, todas as alterações feitas nesta escala serão descartadas e não poderão ser recuperadas."
 				confirmLabel="Continuar"
 				onConfirm={() => {
-					setDescartarAberto(false)
+					setDiscardModalOpen(false)
 					navigate('/configuracao')
 				}}
 			/>
-		</InstrumentoLayout>
+		</InstrumentLayout>
 	)
 }

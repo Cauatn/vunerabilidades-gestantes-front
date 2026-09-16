@@ -12,26 +12,26 @@ import {
 import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import type { QuestionarioConfig } from '@/features/instrumentos/composables/useQuestionarioConfig'
+import type { QuestionnaireConfig } from '@/features/instrumentos/composables/useQuestionnaireConfig'
 import { SortableItem } from '@/features/instrumentos/components/SortableItem'
 
-import { SecaoChip } from './SecaoChip'
+import { SectionChip } from './SectionChip'
 
-interface SecaoTabsProps {
-	config: QuestionarioConfig
-	onRemoverSecao: (id: string) => void
+interface SectionTabsProps {
+	config: QuestionnaireConfig
+	onRemoveSection: (id: string) => void
 }
 
-export function SecaoTabs({ config, onRemoverSecao }: SecaoTabsProps) {
+export function SectionTabs({ config, onRemoveSection }: SectionTabsProps) {
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
 	)
-	const ids = config.secoes.map((secao) => secao.id)
+	const ids = config.sections.map((section) => section.id)
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event
 		if (!over || active.id === over.id) return
-		config.reordenarSecoes(String(active.id), String(over.id))
+		config.reorderSections(String(active.id), String(over.id))
 	}
 
 	return (
@@ -41,17 +41,17 @@ export function SecaoTabs({ config, onRemoverSecao }: SecaoTabsProps) {
 					items={ids}
 					strategy={horizontalListSortingStrategy}
 				>
-					{config.secoes.map((s, i) => (
+					{config.sections.map((s, i) => (
 						<SortableItem key={s.id} id={s.id}>
 							{(h) => (
-								<SecaoChip
-									secao={s}
+								<SectionChip
+									section={s}
 									numero={i + 1}
-									ativa={s.id === config.secaoAtivaId}
-									podeRemover={config.secoes.length > 1}
+									active={s.id === config.activeSectionId}
+									canRemove={config.sections.length > 1}
 									config={config}
 									dragHandle={h}
-									onRemover={() => onRemoverSecao(s.id)}
+									onRemover={() => onRemoveSection(s.id)}
 								/>
 							)}
 						</SortableItem>
@@ -59,7 +59,7 @@ export function SecaoTabs({ config, onRemoverSecao }: SecaoTabsProps) {
 				</SortableContext>
 			</DndContext>
 
-			<Button type="button" size="sm" onClick={config.addSecao}>
+			<Button type="button" size="sm" onClick={config.addSection}>
 				<Plus />
 				Adicionar seção
 			</Button>
