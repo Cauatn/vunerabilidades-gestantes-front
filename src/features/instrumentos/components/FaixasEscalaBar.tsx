@@ -8,7 +8,7 @@ interface FaixasEscalaBarProps {
 
 /** trilhas horizontais (uma por grau) com a faixa preenchida na posição proporcional */
 export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
-	const span = Math.max(1, max - min)
+	const span = Math.max(1, max - min + 1)
 	const clamp = (n: number) => Math.min(100, Math.max(0, n))
 
 	return (
@@ -24,7 +24,7 @@ export function FaixasEscalaBar({ graus, min, max }: FaixasEscalaBarProps) {
 				<div className="flex flex-col gap-3">
 					{graus.map((g) => {
 						const left = clamp(((g.min - min) / span) * 100)
-						const width = clamp(((Math.max(g.max, g.min) - g.min) / span) * 100)
+						const width = clamp(((Math.max(g.max, g.min) - g.min + 1) / span) * 100)
 						return (
 							<div
 								key={g.id}
