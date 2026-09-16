@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { applyMask } from "@/components/ui/input";
 import CellSubItem from "@/features/core/components/CellSubItem";
 import { calcularIdade, formatarDataHoraBr } from "@/features/core/utils/date";
 import type { Gestante } from "@/features/gestantes/types/gestante";
@@ -14,31 +15,31 @@ import type { Assessment, QuestionnaireSnapshot } from "../types/assessment";
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional';
 
 export const columns: ColumnDef<Assessment>[] = [
-	{
-		accessorKey: "id",
-		header: "Identificador",
-		cell: ({ getValue }) => `#${getValue()}`,
-	},
-	{
-		accessorKey: "appliedAt",
-		header: "Data da aplicação",
-		cell: ({ getValue }) => formatarDataHoraBr(getValue() as string),
-	},
-	{
-		accessorKey: "snapshot.props",
-		header: "Versão do questionário",
-		cell: ({ getValue }) => {
-			const data = getValue() as QuestionnaireSnapshot;
-			return <Badge variant="neutral">{data.versionNumber}</Badge>;
-		},
-	},
-	{
-		accessorKey: "appliedByUser",
-		header: "Dados do aplicador",
-		cell({ getValue }) {
-			const appliedByUser = getValue() as Usuario;
-			const professionalRegistrationLabel =
-				appliedByUser.role === CATEGORIA_TO_ROLE.medico ? "CRM" : "COREN";
+  {
+    accessorKey: "id",
+    header: "Identificador",
+    cell: ({ getValue }) => `#${getValue()}`,
+  },
+  {
+    accessorKey: "appliedAt",
+    header: "Data da aplicação",
+    cell: ({ getValue }) => formatarDataHoraBr(getValue() as string),
+  },
+  {
+    accessorKey: "snapshot.props",
+    header: "Versão do questionário",
+    cell: ({ getValue }) => {
+      const data = getValue() as QuestionnaireSnapshot;
+      return <Badge variant="neutral">{data.versionNumber}</Badge>;
+    },
+  },
+  {
+    accessorKey: "appliedByUser",
+    header: "Dados do aplicador",
+    cell({ getValue }) {
+      const appliedByUser = getValue() as Usuario;
+      const professionalRegistrationLabel =
+        appliedByUser.role === CATEGORIA_TO_ROLE.medico ? "CRM" : "COREN";
 
 			return (
 				<div className="space-y-0">
@@ -78,11 +79,19 @@ export const columns: ColumnDef<Assessment>[] = [
 					/>
 					<CellSubItem
 						label="CPF"
-						value={patient.identifiers.cpf ?? '--'}
+						value={
+							patient.identifiers.cpf
+								? applyMask("cpf", patient.identifiers.cpf)
+								: "--"
+						}
 					/>
 					<CellSubItem
-						label='CNS'
-						value={patient.identifiers.cns ?? '--'}
+						label="CNS"
+						value={
+							patient.identifiers.cns
+								? applyMask("cns", patient.identifiers.cns)
+								: "--"
+						}
 					/>
 				</div>
 			);
