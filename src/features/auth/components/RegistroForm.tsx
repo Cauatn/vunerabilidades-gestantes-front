@@ -29,6 +29,7 @@ export function RegistroForm() {
 	const [searchParams] = useSearchParams()
 	const isEnfermeiro =
 		searchParams.get('role') === CATEGORIA_TO_ROLE.enfermeiro
+	const isAdmin = searchParams.get('role') === CATEGORIA_TO_ROLE.administrador
 	const token = searchParams.get('token')
 	const conselhoLabel = isEnfermeiro ? 'COREN' : 'CRM'
 	const aceitarConvite = useAcceptInvitation({
@@ -42,7 +43,7 @@ export function RegistroForm() {
 		control,
 		formState: { errors },
 	} = useForm<RegistroFormValues>({
-		resolver: zodResolver(registroSchema),
+		resolver: zodResolver(registroSchema(isAdmin)),
 		defaultValues: {
 			nome: '',
 			conselhoUf: '',
@@ -84,6 +85,7 @@ export function RegistroForm() {
 	}
 
 	function buildProfessionalRegistrationData(values: RegistroFormValues) {
+		if (isAdmin) return undefined
 		const data = `${conselhoLabel}-${values.conselhoUf} ${values.conselhoNumero}`
 		if (isEnfermeiro) return `${data}-${values.categoriaConselho}`
 		return data
@@ -119,88 +121,92 @@ export function RegistroForm() {
 				</div>
 			</section>
 
-			<section className="flex flex-col gap-3">
-				<Divider text={conselhoLabel} />
-				<div className="flex items-start gap-3">
-					<div className="w-38 space-y-1.5">
-						<Label required>UF</Label>
-						<Controller
-							control={control}
-							name="conselhoUf"
-							render={({ field }) => (
-								<Select
-									value={field.value}
-									onValueChange={field.onChange}
-								>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Selecione" />
-									</SelectTrigger>
-									<SelectContent>
-										{ESTADOS.map((estado) => (
-											<SelectItem
-												key={estado.uf}
-												value={estado.uf}
-											>
-												{estado.uf}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							)}
-						/>
-						{errors.conselhoUf ? (
-							<p className="text-caption text-danger">
-								{errors.conselhoUf.message}
-							</p>
-						) : null}
+			{!isAdmin ? (
+				<section className="flex flex-col gap-3">
+					<Divider text={conselhoLabel} />
+					<div className="flex items-start gap-3">
+						<div className="w-38 space-y-1.5">
+							<Label required>UF</Label>
+							<Controller
+								control={control}
+								name="conselhoUf"
+								render={({ field }) => (
+									<Select
+										value={field.value}
+										onValueChange={field.onChange}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Selecione" />
+										</SelectTrigger>
+										<SelectContent>
+											{ESTADOS.map((estado) => (
+												<SelectItem
+													key={estado.uf}
+													value={estado.uf}
+												>
+													{estado.uf}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								)}
+							/>
+							{errors.conselhoUf ? (
+								<p className="text-caption text-danger">
+									{errors.conselhoUf.message}
+								</p>
+							) : null}
+						</div>
+						<div className="flex-1 space-y-1.5">
+							<Label htmlFor="reg-numero" required>
+								Número
+							</Label>
+							<Input
+								id="reg-numero"
+								placeholder="Digite..."
+								aria-invalid={!!errors.conselhoNumero}
+								{...register('conselhoNumero')}
+							/>
+							{errors.conselhoNumero ? (
+								<p className="text-caption text-danger">
+									{errors.conselhoNumero.message}
+								</p>
+							) : null}
+						</div>
 					</div>
-					<div className="flex-1 space-y-1.5">
-						<Label htmlFor="reg-numero" required>
-							Número
-						</Label>
-						<Input
-							id="reg-numero"
-							placeholder="Digite..."
-							aria-invalid={!!errors.conselhoNumero}
-							{...register('conselhoNumero')}
-						/>
-						{errors.conselhoNumero ? (
-							<p className="text-caption text-danger">
-								{errors.conselhoNumero.message}
-							</p>
-						) : null}
-					</div>
-				</div>
-				{isEnfermeiro ? (
-					<div className="space-y-1.5">
-						<Label required>Categoria</Label>
-						<Controller
-							control={control}
-							name="categoriaConselho"
-							render={({ field }) => (
-								<Select
-									value={field.value}
-									onValueChange={field.onChange}
-								>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Selecione" />
-									</SelectTrigger>
-									<SelectContent>
-										{CATEGORIAS_ENFERMAGEM.map((cat) => (
-											<SelectItem
-												key={cat.name}
-												value={cat.key}
-											>
-												{cat.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							)}
-						/>
-					</div>
-				) : null}
-			</section>
+					{isEnfermeiro ? (
+						<div className="space-y-1.5">
+							<Label required>Categoria</Label>
+							<Controller
+								control={control}
+								name="categoriaConselho"
+								render={({ field }) => (
+									<Select
+										value={field.value}
+										onValueChange={field.onChange}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Selecione" />
+										</SelectTrigger>
+										<SelectContent>
+											{CATEGORIAS_ENFERMAGEM.map(
+												(cat) => (
+													<SelectItem
+														key={cat.name}
+														value={cat.key}
+													>
+														{cat.name}
+													</SelectItem>
+												),
+											)}
+										</SelectContent>
+									</Select>
+								)}
+							/>
+						</div>
+					) : null}
+				</section>
+			) : null}
 
 			<section className="flex flex-col gap-3">
 				<Divider text="Segurança" />
