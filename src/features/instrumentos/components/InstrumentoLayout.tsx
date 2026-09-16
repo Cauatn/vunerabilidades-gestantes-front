@@ -31,7 +31,7 @@ export function InstrumentoLayout({
 					<span className="w-fit rounded-full bg-n-20 px-[18px] py-1 text-base font-semibold text-n-600">
 						{versao}
 					</span>
-					<Heading size="display" className="text-n-900">
+					<Heading size="display" className="text-balance text-heading-2 font-semibold">
 						{titulo}
 					</Heading>
 					<Description className="text-n-600">{descricao}</Description>
