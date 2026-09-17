@@ -18,6 +18,8 @@ export interface Gestante {
 	birthDate: string
 	phone: string | null
 	motherName: string | null
+	state: string
+	city: string
 	lastMenstrualPeriod: string | null
 	createdAt: string
 	updatedAt: string
@@ -38,6 +40,8 @@ export interface CreateGestantePayload {
 	phone?: string
 	motherName?: string
 	lastMenstrualPeriod?: string
+	state: string
+	city: string
 }
 
 export interface UpdateGestantePayload {
@@ -48,4 +52,6 @@ export interface UpdateGestantePayload {
 	phone?: string | null
 	motherName?: string | null
 	lastMenstrualPeriod?: string | null
+	state: string
+	city: string
 }

@@ -51,6 +51,8 @@ export function GestantesPage() {
 					birthDate: payload.birthDate,
 					motherName: payload.motherName ?? null,
 					phone: payload.phone ?? null,
+					state: payload.state,
+					city: payload.city,
 				},
 			})
 		} else {
@@ -99,7 +101,6 @@ export function GestantesPage() {
 			>
 				<div className="flex flex-col gap-8">
 					<div className="flex items-end gap-3">
-						{/* //TODO: espaçar verticalmente esse input da tabela */}
 						<Input
 							placeholder="Buscar por nome, CPF ou CNS..."
 							value={termo}
