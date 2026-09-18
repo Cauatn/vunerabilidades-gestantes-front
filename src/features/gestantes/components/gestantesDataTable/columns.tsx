@@ -65,12 +65,12 @@ export function createGestantesColumns({
 		{
 			id: 'state',
 			header: 'Estado',
-			cell: ({ row }) => row.original.state,
+			cell: ({ row }) => row.original.state?.trim() || '—',
 		},
 		{
 			id: 'city',
 			header: 'Cidade',
-			cell: ({ row }) => capitalizeFirst(row.original.city),
+			cell: ({ row }) => capitalizeFirst(row.original.city) || '—',
 		},
 		{
 			id: 'vulnerability',

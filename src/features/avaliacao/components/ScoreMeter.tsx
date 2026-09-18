@@ -2,6 +2,7 @@ import { ChevronDown } from 'lucide-react'
 
 import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 import { cn } from '@/lib/utils'
+import { scaleColor } from '@/features/core/utils/color'
 
 interface ScoreMeterProps {
 	pontuacao: number
@@ -34,13 +35,13 @@ export function ScoreMeter({
 				>
 					<span
 						className="text-[11px] leading-5 font-semibold"
-						style={{ color: bandaAtiva?.color }}
+						style={{ color: scaleColor(bandaAtiva?.color) }}
 					>
 						{bandaAtiva?.level ?? ''}
 					</span>
 					<ChevronDown
 						className="size-4"
-						style={{ color: bandaAtiva?.color }}
+						style={{ color: scaleColor(bandaAtiva?.color) }}
 					/>
 				</div>
 			</div>
@@ -51,7 +52,7 @@ export function ScoreMeter({
 						key={band.id}
 						className="h-full flex-1 rounded-sm"
 						style={{
-							background: band.color,
+							background: scaleColor(band.color),
 							opacity: band.id === activeBandId ? 1 : 0.35,
 						}}
 					/>
@@ -67,7 +68,7 @@ export function ScoreMeter({
 								'font-normal',
 								band.id === activeBandId && 'font-semibold',
 							)}
-							style={{ color: band.color }}
+							style={{ color: scaleColor(band.color) }}
 						>
 							{band.level}
 						</span>

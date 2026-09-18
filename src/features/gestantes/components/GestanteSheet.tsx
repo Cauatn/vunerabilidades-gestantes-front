@@ -118,8 +118,8 @@ export function GestanteSheet({
 							: '',
 						nomeMae: gestante.motherName ?? '',
 						telefone: applyMask('telefone', gestante.phone ?? ''),
-						estado: gestante.state,
-						municipio: gestante.city,
+						estado: gestante.state ?? '',
+						municipio: gestante.city ?? '',
 					}
 				: { ...VALORES_VAZIOS, nome: nomeInicial ?? '' },
 		)
@@ -142,8 +142,12 @@ export function GestanteSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="flex flex-col">
-				<SheetHeader className="gap-0 p-0 mb-6">
+			<SheetContent
+				side="right"
+				className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden p-4 sm:p-6"
+				showCloseButton
+			>
+				<SheetHeader className="mb-4 shrink-0 gap-0 p-0 pr-8">
 					<SheetTitle>
 						{isEdit ? 'Editar gestante' : 'Nova gestante'}
 					</SheetTitle>
@@ -151,7 +155,7 @@ export function GestanteSheet({
 
 				<form
 					id="gestante-form"
-					className="flex flex-col gap-4"
+					className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain pr-2 pb-4 [scrollbar-gutter:stable]"
 					onSubmit={handleSubmit(submit)}
 				>
 					<FieldGroup>
@@ -195,7 +199,7 @@ export function GestanteSheet({
 							</FieldContent>
 						</Field>
 
-						<div className="flex gap-4">
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<Field>
 								<FieldLabel htmlFor="gestante-cpf">
 									CPF
@@ -338,7 +342,7 @@ export function GestanteSheet({
 					</FieldGroup>
 				</form>
 
-				<SheetFooter className="p-0">
+				<SheetFooter className="shrink-0 flex-wrap border-t pt-4">
 					<Button
 						type="button"
 						variant="outline"

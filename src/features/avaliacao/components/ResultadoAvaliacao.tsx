@@ -1,6 +1,7 @@
 import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
 import { cn } from '@/lib/utils'
 import { ScoreMeter } from './ScoreMeter'
+import { scaleColor } from '@/features/core/utils/color'
 
 interface ResultadoAvaliacaoProps {
 	nomeGestante: string
@@ -31,12 +32,12 @@ export function ResultadoAvaliacao({
 			<div className="flex flex-col items-center gap-3">
 				<div
 					className="flex size-47.75 shrink-0 items-center justify-center rounded-full border-4"
-					style={{ borderColor: bandaAtiva?.color }}
+					style={{ borderColor: scaleColor(bandaAtiva?.color) }}
 				>
 					<div className="flex flex-col items-center gap-1 px-2 text-center">
 						<span
 							className="text-5xl font-bold"
-							style={{ color: bandaAtiva?.color }}
+							style={{ color: scaleColor(bandaAtiva?.color) }}
 						>
 							{pontuacao}
 						</span>
@@ -52,7 +53,7 @@ export function ResultadoAvaliacao({
 					categorizada como vulnerabilidade{' '}
 					<span
 						className="font-semibold"
-						style={{ color: bandaAtiva?.color }}
+						style={{ color: scaleColor(bandaAtiva?.color) }}
 					>
 						{vulnerabilityLevel}
 					</span>

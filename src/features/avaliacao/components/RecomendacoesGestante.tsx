@@ -4,16 +4,13 @@ import { useState } from 'react'
 import { Divider } from '@/components/ui/divider'
 import { IconButton } from '@/components/ui/icon-button'
 import { RecomendacaoGestanteSheet } from '@/features/avaliacao/components/RecomendacaoGestanteSheet'
-import {
-	CLASSIFICACAO_COR_TEXTO,
-	CLASSIFICACAO_LABEL,
-	type Classificacao,
-} from '@/features/avaliacao/constants'
+import { darkenForText } from '@/features/core/utils/color'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
 import { cn } from '@/lib/utils'
 
 interface RecomendacoesGestanteProps {
-	classificacao: Classificacao
+	classificacao: string
+	color?: string
 	recomendacoes: RecomendacaoGestante[]
 	onAdd: (dados: {
 		titulo: string
@@ -30,6 +27,7 @@ interface RecomendacoesGestanteProps {
 
 export function RecomendacoesGestante({
 	classificacao,
+	color,
 	recomendacoes,
 	onAdd,
 	onUpdate,
@@ -75,12 +73,10 @@ export function RecomendacoesGestante({
 			<p className="text-sm text-n-900">
 				Dado o cenário de vulnerabilidade{' '}
 				<span
-					className={cn(
-						'font-semibold',
-						CLASSIFICACAO_COR_TEXTO[classificacao],
-					)}
+					className="font-semibold"
+					style={{ color: darkenForText(color) }}
 				>
-					{CLASSIFICACAO_LABEL[classificacao]}
+					{classificacao}
 				</span>{' '}
 				da gestante, recomende ações que podem auxiliar na saúde de sua
 				gestação:

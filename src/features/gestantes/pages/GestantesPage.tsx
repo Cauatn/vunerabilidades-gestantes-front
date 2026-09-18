@@ -17,10 +17,27 @@ import type {
 	Gestante,
 } from '@/features/gestantes/types/gestante'
 import { toast } from 'sonner'
+import { ListFiltersSheet } from '@/features/shared/components/ListFiltersSheet'
+import {
+	activeFilterCount,
+	type ListFilters,
+} from '@/features/shared/types/listFilters'
 
 export function GestantesPage() {
 	const navigate = useNavigate()
-	const { data, page, setPage, busca, setBusca } = useGetGestantes()
+	const [filters, setFilters] = useState<ListFilters>({})
+	const [filtersOpen, setFiltersOpen] = useState(false)
+	const {
+		data,
+		page,
+		setPage,
+		busca,
+		setBusca,
+		isLoading,
+		isError,
+		refetch,
+	} = useGetGestantes(filters)
+	const filterCount = activeFilterCount(filters)
 
 	const [termo, setTermo] = useState(busca)
 	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
@@ -114,19 +131,37 @@ export function GestantesPage() {
 						<Button
 							variant="outline"
 							className="font-bold text-n-600"
+							onClick={() => setFiltersOpen(true)}
 						>
-							Filtros
+							Filtros{filterCount > 0 ? ` (${filterCount})` : ''}
 						</Button>
 					</div>
 
-					<DataTable
-						columns={columns}
-						data={data?.items}
-						emptyStateTitle="Nenhuma gestante encontrada."
-						emptyStateDescription="Cadastre uma gestante para começar."
-					/>
+					{isError ? (
+						<div role="alert" className="space-y-3">
+							Não foi possível carregar as gestantes.{' '}
+							<Button
+								variant="outline"
+								onClick={() => void refetch()}
+							>
+								Tentar novamente
+							</Button>
+						</div>
+					) : (
+						<DataTable
+							columns={columns}
+							data={data?.items}
+							isLoading={isLoading}
+							emptyStateTitle="Nenhuma gestante encontrada."
+							emptyStateDescription={
+								filterCount || busca
+									? 'Nenhuma gestante corresponde à busca e aos filtros selecionados. Tente ajustar os critérios.'
+									: 'Cadastre uma gestante para começar.'
+							}
+						/>
+					)}
 
-					{data ? (
+					{data && !isError ? (
 						<div className="flex justify-center pt-4">
 							<Pagination
 								page={page}
@@ -145,6 +180,17 @@ export function GestantesPage() {
 				onSubmit={handleSubmit}
 				isSubmitting={criar.isPending || atualizar.isPending}
 			/>
+			{filtersOpen && (
+				<ListFiltersSheet
+					mode="patients"
+					value={filters}
+					onClose={() => setFiltersOpen(false)}
+					onApply={(next) => {
+						setFilters(next)
+						void setPage(1)
+					}}
+				/>
+			)}
 		</>
 	)
 }

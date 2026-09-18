@@ -18,8 +18,8 @@ export interface Gestante {
 	birthDate: string
 	phone: string | null
 	motherName: string | null
-	state: string
-	city: string
+	state?: string | null
+	city?: string | null
 	lastMenstrualPeriod: string | null
 	createdAt: string
 	updatedAt: string
@@ -28,6 +28,11 @@ export interface Gestante {
 
 export type ListGestantesParams = PaginationParams & {
 	name?: string
+	doctorId?: string
+	healthUnitId?: string
+	vulnerabilityLevel?: string
+	state?: string
+	city?: string
 }
 
 export type PaginatedGestantes = Paginated<Gestante>

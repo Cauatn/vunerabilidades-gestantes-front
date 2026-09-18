@@ -5,6 +5,8 @@ export type AvaliacaoTimelineItem = {
 	data: string
 	titulo: string
 	vulnerabilidade: Vulnerabilidade
+	vulnerabilityLevel?: string
+	color?: string
 	descricao: string
 }
 
