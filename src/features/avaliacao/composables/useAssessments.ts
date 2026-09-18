@@ -36,6 +36,8 @@ export function usePatientAssessments(patientId?: string) {
 	})
 }
 
+export const assessmentsQueryKey = ['assessments'] as const
+
 export function useAssessment(id?: string) {
 	return useQuery({
 		queryKey: ['assessment', id],
@@ -47,7 +49,7 @@ export function useAssessment(id?: string) {
 
 export function useAssessments() {
 	return useQuery({
-		queryKey: ['assessments'],
+		queryKey: assessmentsQueryKey,
 		queryFn: () => getAssessments(),
 		select: (response) => response.data,
 	})
