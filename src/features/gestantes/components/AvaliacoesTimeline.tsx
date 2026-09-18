@@ -65,13 +65,15 @@ export function AvaliacoesTimeline({ items, onViewDetails }: Props) {
 							<p className="text-[11px] leading-6 text-n-600">
 								{item.descricao}
 							</p>
-							<button
-								type="button"
-								onClick={() => onViewDetails?.(item.id)}
-								className="text-left text-[11px] leading-6 text-b-400 underline"
-							>
-								Ver detalhamento da aplicação
-							</button>
+							{onViewDetails ? (
+								<button
+									type="button"
+									onClick={() => onViewDetails(item.id)}
+									className="text-left text-[11px] leading-6 text-b-400 underline"
+								>
+									Ver detalhamento da aplicação
+								</button>
+							) : null}
 						</div>
 					</div>
 				)

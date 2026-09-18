@@ -6,12 +6,9 @@ import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoais
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
-import { normalizeText } from '@/features/core/utils/text'
 import { formatarDataHoraBr } from '@/features/core/utils/date'
-import type {
-	AvaliacaoTimelineItem,
-	Vulnerabilidade,
-} from '@/features/gestantes/data/mock'
+import type { AvaliacaoTimelineItem } from '@/features/gestantes/data/mock'
+import { toVulnerabilidade } from '@/features/gestantes/utils/vulnerabilidade'
 
 export function GestantesPerfilPage() {
 	const navigate = useNavigate()
@@ -65,12 +62,4 @@ export function GestantesPerfilPage() {
 			</div>
 		</Page>
 	)
-}
-
-function toVulnerabilidade(level: string): Vulnerabilidade {
-	const normalized = normalizeText(level).toLowerCase()
-	if (normalized.includes('alta')) return 'alta'
-	if (normalized.includes('moderada')) return 'moderada'
-	if (normalized.includes('media')) return 'media'
-	return 'baixa'
 }
