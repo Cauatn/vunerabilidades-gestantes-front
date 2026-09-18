@@ -3,16 +3,19 @@ import { formatarDataHoraBr } from '@/features/core/utils/date'
 
 import { Logo } from '@/components/Logo'
 import { useSession } from '@/features/auth/composables/useSession'
+import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
 import { AvaliacoesTimeline } from '@/features/gestantes/components/AvaliacoesTimeline'
 import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoaisCard'
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
-import { avaliacoesMock } from '@/features/gestantes/data/mock'
+import type { AvaliacaoTimelineItem } from '@/features/gestantes/data/mock'
+import { toVulnerabilidade } from '@/features/gestantes/utils/vulnerabilidade'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 
 export function GestantesImprimirPage() {
 	const { id } = useParams<{ id: string }>()
 	const { data } = useGetGestante(id)
+	const { data: historico } = usePatientAssessments(id)
 	const { user } = useSession()
 	const { data: healthUnits } = useGetHealthUnits()
 
@@ -21,6 +24,21 @@ export function GestantesImprimirPage() {
 	const ubsNome =
 		healthUnits?.items.find((unit) => unit.id === user?.currentHealthUnitId)
 			?.name ?? '—'
+
+	const avaliacoes: AvaliacaoTimelineItem[] = (
+		historico?.data.assessments.items ?? []
+	).map((assessment) => {
+		const result = assessment.result
+		return {
+			id: assessment.id,
+			data: formatarDataHoraBr(assessment.appliedAt),
+			titulo: `Avaliação #${assessment.id}`,
+			vulnerabilidade: toVulnerabilidade(
+				result.vulnerabilityLevel ?? 'BAIXA',
+			),
+			descricao: `Pontuação: ${result.totalScore ?? 0}.`,
+		}
+	})
 
 	return (
 		<div className="min-h-screen bg-n-0 text-n-800">
@@ -41,7 +59,7 @@ export function GestantesImprimirPage() {
 
 					<section className="flex flex-col gap-3">
 						<SectionDivider label="Histórico de avaliações" />
-						<AvaliacoesTimeline items={avaliacoesMock} />
+						<AvaliacoesTimeline items={avaliacoes} />
 					</section>
 				</div>
 
