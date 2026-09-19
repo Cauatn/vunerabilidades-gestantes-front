@@ -3,19 +3,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
 import { PAGE_SIZE } from '@/features/core/constants/pagination'
-import { ListFiltersSheet } from '@/features/shared/components/ListFiltersSheet'
+import { HistoricoFiltersSheet } from '@/features/avaliacao/components/HistoricoFiltersSheet'
 import {
 	activeFilterCount,
 	assessmentFilterParams,
-	type ListFilters,
 } from '@/features/shared/types/listFilters'
 import { Page } from '@/components/Layout/Page'
 import { DataTable } from '@/components/ui/data-table'
 import { useAssessments } from '@/features/avaliacao/composables/useAssessments'
 import { columns } from '../constants/tabelaHistoricoAvaliacoes'
 
+import { useListFilters } from '@/features/shared/composables/useListFilters'
+
 export function HistoricoPage() {
-	const [filters, setFilters] = useState<ListFilters>({})
+	const [filters, setFilters] = useListFilters()
 	const [filtersOpen, setFiltersOpen] = useState(false)
 	const [page, setPage] = useState(1)
 	const [termo, setTermo] = useState('')
@@ -68,7 +69,7 @@ export function HistoricoPage() {
 							<Button
 								variant="ghost"
 								onClick={() => {
-									setFilters({})
+									void setFilters(null)
 									setPage(1)
 								}}
 							>
@@ -120,12 +121,11 @@ export function HistoricoPage() {
 				</div>
 			</Page>
 			{filtersOpen && (
-				<ListFiltersSheet
-					mode="assessments"
+				<HistoricoFiltersSheet
 					value={filters}
 					onClose={() => setFiltersOpen(false)}
 					onApply={(next) => {
-						setFilters(next)
+						void setFilters(next)
 						setPage(1)
 					}}
 				/>

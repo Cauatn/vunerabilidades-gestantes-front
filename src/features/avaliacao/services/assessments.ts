@@ -33,6 +33,7 @@ export interface AssessmentSearchParams {
 	healthUnitId?: string
 	appliedByUserId?: string
 	patientId?: string
+	vulnerabilityLevel?: string
 	appliedFrom?: string
 	appliedTo?: string
 }

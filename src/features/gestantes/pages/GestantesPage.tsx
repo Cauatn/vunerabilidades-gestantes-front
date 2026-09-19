@@ -17,15 +17,16 @@ import type {
 	Gestante,
 } from '@/features/gestantes/types/gestante'
 import { toast } from 'sonner'
-import { ListFiltersSheet } from '@/features/shared/components/ListFiltersSheet'
+import { GestantesFiltersSheet } from '@/features/gestantes/components/GestantesFiltersSheet'
 import {
 	activeFilterCount,
-	type ListFilters,
 } from '@/features/shared/types/listFilters'
+
+import { useListFilters } from '@/features/shared/composables/useListFilters'
 
 export function GestantesPage() {
 	const navigate = useNavigate()
-	const [filters, setFilters] = useState<ListFilters>({})
+	const [filters, setFilters] = useListFilters()
 	const [filtersOpen, setFiltersOpen] = useState(false)
 	const {
 		data,
@@ -181,8 +182,7 @@ export function GestantesPage() {
 				isSubmitting={criar.isPending || atualizar.isPending}
 			/>
 			{filtersOpen && (
-				<ListFiltersSheet
-					mode="patients"
+				<GestantesFiltersSheet
 					value={filters}
 					onClose={() => setFiltersOpen(false)}
 					onApply={(next) => {

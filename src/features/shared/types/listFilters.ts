@@ -16,6 +16,7 @@ export function assessmentFilterParams(filters: ListFilters) {
 		healthUnitId: filters.healthUnitId,
 		appliedByUserId: filters.appliedByUserId,
 		patientId: filters.patientId,
+		vulnerabilityLevel: filters.vulnerabilityLevel,
 		appliedFrom: filters.from
 			? new Date(`${filters.from}T00:00:00`).toISOString()
 			: undefined,

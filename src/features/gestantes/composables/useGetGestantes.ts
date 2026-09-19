@@ -8,7 +8,7 @@ import type { ListGestantesParams } from '../types/gestante'
 export const gestantesQueryKey = ['patients']
 
 export function useGetGestantes(
-	filters: Omit<ListGestantesParams, 'page' | 'pageSize' | 'name'> = {},
+	params: Partial<ListGestantesParams> = {},
 ) {
 	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1))
 	const [busca, setBusca] = useQueryState(
@@ -16,15 +16,16 @@ export function useGetGestantes(
 		parseAsString.withDefault(''),
 	)
 
+	const mergedParams = {
+		page,
+		pageSize: PAGE_SIZE,
+		name: busca,
+		...params,
+	}
+
 	const query = useQuery({
-		queryKey: [...gestantesQueryKey, { page, busca, ...filters }],
-		queryFn: () =>
-			getGestantes({
-				page,
-				pageSize: PAGE_SIZE,
-				name: busca,
-				...filters,
-			}),
+		queryKey: [...gestantesQueryKey, mergedParams],
+		queryFn: () => getGestantes(mergedParams),
 		select: (response) => response.data,
 	})
 
