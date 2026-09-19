@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { applyMask } from '@/components/ui/input'
 import CellSubItem from '@/features/core/components/CellSubItem'
 import { calcularIdade, formatarDataHoraBr } from '@/features/core/utils/date'
-import { darkenForText } from '@/features/core/utils/color'
+import { darkenForText, scaleColor } from '@/features/core/utils/color'
 import type { Gestante } from '@/features/gestantes/types/gestante'
 import type { HealthUnit } from '@/features/healthUnits/types/healthUnit'
 import {
@@ -122,7 +122,7 @@ export const columns: ColumnDef<Assessment>[] = [
 					style={
 						band
 							? {
-									background: `${band.color}26`,
+									background: `${scaleColor(band.color)}26`,
 									color: darkenForText(band.color),
 								}
 							: undefined
@@ -145,7 +145,7 @@ export const columns: ColumnDef<Assessment>[] = [
 					style={
 						band
 							? {
-									background: `${band.color}26`,
+									background: `${scaleColor(band.color)}26`,
 									color: darkenForText(band.color),
 								}
 							: undefined

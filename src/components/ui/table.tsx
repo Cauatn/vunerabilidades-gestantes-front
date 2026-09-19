@@ -2,11 +2,21 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-function Table({ className, ...props }: React.ComponentProps<'table'>) {
+function Table({
+	className,
+	containerClassName,
+	...props
+}: React.ComponentProps<'table'> & { containerClassName?: string }) {
 	return (
 		<div
 			data-slot="table-container"
-			className="relative w-full overflow-x-auto"
+			className={cn(
+				'relative w-full min-w-0 overflow-x-auto',
+				containerClassName,
+			)}
+			tabIndex={containerClassName ? 0 : undefined}
+			role={containerClassName ? 'region' : undefined}
+			aria-label={containerClassName ? props['aria-label'] : undefined}
 		>
 			<table
 				data-slot="table"

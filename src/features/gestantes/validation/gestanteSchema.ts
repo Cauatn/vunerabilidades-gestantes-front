@@ -10,6 +10,8 @@ export const gestanteSchema = z
 		cns: z.string(),
 		nomeMae: z.string(),
 		telefone: z.string(),
+		estado: z.string().min(1, 'Informe o estado.'),
+		municipio: z.string().min(1, 'Informe o município.'),
 	})
 	.superRefine((dados, ctx) => {
 		const cpf = onlyDigits(dados.cpf)

@@ -26,9 +26,22 @@ export const submitAssessment = (payload: {
 export const getAssessment = (id: string) =>
 	api.get<Assessment>(`/assessments/${id}`)
 
-export const getAssessments = async (): Promise<
-	AxiosResponse<Paginated<Assessment>>
-> => api.get<Paginated<Assessment>>('/assessments')
+export interface AssessmentSearchParams {
+	search?: string
+	page?: number
+	pageSize?: number
+	healthUnitId?: string
+	appliedByUserId?: string
+	patientId?: string
+	vulnerabilityLevel?: string
+	appliedFrom?: string
+	appliedTo?: string
+}
+
+export const getAssessments = async (
+	params: AssessmentSearchParams = {},
+): Promise<AxiosResponse<Paginated<Assessment>>> =>
+	api.get<Paginated<Assessment>>('/assessments', { params })
 
 export const updateAssessmentRecommendations = (
 	id: string,

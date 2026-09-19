@@ -17,10 +17,28 @@ import type {
 	Gestante,
 } from '@/features/gestantes/types/gestante'
 import { toast } from 'sonner'
+import { GestantesFiltersSheet } from '@/features/gestantes/components/GestantesFiltersSheet'
+import {
+	activeFilterCount,
+} from '@/features/shared/types/listFilters'
+
+import { useListFilters } from '@/features/shared/composables/useListFilters'
 
 export function GestantesPage() {
 	const navigate = useNavigate()
-	const { data, page, setPage, busca, setBusca } = useGetGestantes()
+	const [filters, setFilters] = useListFilters()
+	const [filtersOpen, setFiltersOpen] = useState(false)
+	const {
+		data,
+		page,
+		setPage,
+		busca,
+		setBusca,
+		isLoading,
+		isError,
+		refetch,
+	} = useGetGestantes(filters)
+	const filterCount = activeFilterCount(filters)
 
 	const [termo, setTermo] = useState(busca)
 	const [emEdicao, setEmEdicao] = useState<Gestante | undefined>(undefined)
@@ -51,6 +69,8 @@ export function GestantesPage() {
 					birthDate: payload.birthDate,
 					motherName: payload.motherName ?? null,
 					phone: payload.phone ?? null,
+					state: payload.state,
+					city: payload.city,
 				},
 			})
 		} else {
@@ -99,7 +119,6 @@ export function GestantesPage() {
 			>
 				<div className="flex flex-col gap-8">
 					<div className="flex items-end gap-3">
-						{/* //TODO: espaçar verticalmente esse input da tabela */}
 						<Input
 							placeholder="Buscar por nome, CPF ou CNS..."
 							value={termo}
@@ -113,19 +132,37 @@ export function GestantesPage() {
 						<Button
 							variant="outline"
 							className="font-bold text-n-600"
+							onClick={() => setFiltersOpen(true)}
 						>
-							Filtros
+							Filtros{filterCount > 0 ? ` (${filterCount})` : ''}
 						</Button>
 					</div>
 
-					<DataTable
-						columns={columns}
-						data={data?.items}
-						emptyStateTitle="Nenhuma gestante encontrada."
-						emptyStateDescription="Cadastre uma gestante para começar."
-					/>
+					{isError ? (
+						<div role="alert" className="space-y-3">
+							Não foi possível carregar as gestantes.{' '}
+							<Button
+								variant="outline"
+								onClick={() => void refetch()}
+							>
+								Tentar novamente
+							</Button>
+						</div>
+					) : (
+						<DataTable
+							columns={columns}
+							data={data?.items}
+							isLoading={isLoading}
+							emptyStateTitle="Nenhuma gestante encontrada."
+							emptyStateDescription={
+								filterCount || busca
+									? 'Nenhuma gestante corresponde à busca e aos filtros selecionados. Tente ajustar os critérios.'
+									: 'Cadastre uma gestante para começar.'
+							}
+						/>
+					)}
 
-					{data ? (
+					{data && !isError ? (
 						<div className="flex justify-center pt-4">
 							<Pagination
 								page={page}
@@ -144,6 +181,16 @@ export function GestantesPage() {
 				onSubmit={handleSubmit}
 				isSubmitting={criar.isPending || atualizar.isPending}
 			/>
+			{filtersOpen && (
+				<GestantesFiltersSheet
+					value={filters}
+					onClose={() => setFiltersOpen(false)}
+					onApply={(next) => {
+						setFilters(next)
+						void setPage(1)
+					}}
+				/>
+			)}
 		</>
 	)
 }

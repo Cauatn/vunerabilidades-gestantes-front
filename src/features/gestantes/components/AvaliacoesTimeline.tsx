@@ -1,4 +1,6 @@
 import { FileText } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { darkenForText, scaleColor } from '@/features/core/utils/color'
 
 import { cn } from '@/lib/utils'
 import { VulnerabilidadeBadge } from '@/features/gestantes/components/VulnerabilidadeBadge'
@@ -40,6 +42,7 @@ export function AvaliacoesTimeline({ items, onViewDetails }: Props) {
 
 						<div className="flex flex-col items-center gap-2 self-stretch">
 							<span
+								style={item.vulnerabilityLevel ? { borderColor: scaleColor(item.color), color: darkenForText(item.color) } : undefined}
 								className={cn(
 									'flex items-center rounded-full border p-1',
 									ringColor[item.vulnerabilidade],
@@ -56,12 +59,16 @@ export function AvaliacoesTimeline({ items, onViewDetails }: Props) {
 							<p className="text-sm font-semibold leading-6 text-n-900">
 								{item.titulo}
 							</p>
-							<VulnerabilidadeBadge
+							{item.vulnerabilityLevel ? (
+								<Badge className="self-start" style={{ background: `${scaleColor(item.color)}26`, color: darkenForText(item.color) }}>
+									Vulnerabilidade {item.vulnerabilityLevel}
+								</Badge>
+							) : <VulnerabilidadeBadge
 								vulnerabilidade={item.vulnerabilidade}
 								withIcon
 								label={badgeLabel[item.vulnerabilidade]}
 								className="self-start"
-							/>
+							/>}
 							<p className="text-[11px] leading-6 text-n-600">
 								{item.descricao}
 							</p>

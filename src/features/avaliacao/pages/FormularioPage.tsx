@@ -21,7 +21,6 @@ import {
 import type { SavedAssessment } from '@/features/avaliacao/types/assessment'
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 import type { RecomendacaoGestante } from '@/features/avaliacao/types/recomendacaoGestante'
-import { toClassificacao } from '@/features/avaliacao/utils/classificacao'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
 import { useGetGestantes } from '@/features/gestantes/composables/useGetGestantes'
 import { useGetActiveQuestionnaire } from '@/features/instrumentos/composables/useGetActiveQuestionnaire'
@@ -60,7 +59,6 @@ function AvisoInicial({
 						substitui o julgamento profissional.
 					</p>
 				</div>
-
 				<Button size="lg" onClick={onInit} isLoading={carregando}>
 					Iniciar
 				</Button>
@@ -458,12 +456,16 @@ export function FormularioPage() {
 
 								<RecomendacoesGestante
 									classificacao={
-										assessment
-											? toClassificacao(
-													assessment.result
-														.vulnerabilityLevel,
-												)
-											: 'BAIXA'
+										assessment?.result.vulnerabilityLevel ??
+										'—'
+									}
+									color={
+										assessment?.snapshot.props.vulnerabilityBands.find(
+											(band) =>
+												band.id ===
+												assessment.result
+													.vulnerabilityBandId,
+										)?.color
 									}
 									recomendacoes={recomendacoes}
 									onAdd={handleAddRecomendacao}

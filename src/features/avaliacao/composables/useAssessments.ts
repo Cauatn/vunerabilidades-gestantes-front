@@ -7,6 +7,7 @@ import {
 	updateAssessmentRecommendations,
 } from '@/features/avaliacao/services/assessments'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import type { AssessmentSearchParams } from '../services/assessments'
 
 export function useStartAssessment() {
 	return useMutation({ mutationFn: startAssessment })
@@ -36,6 +37,8 @@ export function usePatientAssessments(patientId?: string) {
 	})
 }
 
+export const assessmentsQueryKey = ['assessments'] as const
+
 export function useAssessment(id?: string) {
 	return useQuery({
 		queryKey: ['assessment', id],
@@ -45,10 +48,10 @@ export function useAssessment(id?: string) {
 	})
 }
 
-export function useAssessments() {
+export function useAssessments(params: AssessmentSearchParams = {}) {
 	return useQuery({
-		queryKey: ['assessments'],
-		queryFn: () => getAssessments(),
+		queryKey: [...assessmentsQueryKey, params],
+		queryFn: () => getAssessments(params),
 		select: (response) => response.data,
 	})
 }

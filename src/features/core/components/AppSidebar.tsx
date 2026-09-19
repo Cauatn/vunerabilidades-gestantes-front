@@ -4,6 +4,7 @@ import {
 	ChevronRight,
 	ClipboardPlus,
 	DoorOpen,
+	Loader2,
 	PanelLeftClose,
 	PanelLeftOpen,
 	Stethoscope,
@@ -118,7 +119,13 @@ export function AppSidebar() {
 	const { pathname } = useLocation()
 	const { user, logout } = useSession()
 	const { data: healthUnits } = useGetHealthUnits()
-	const trocarUbs = useSetCurrentHealthUnit()
+	const trocarUbs = useSetCurrentHealthUnit({
+		onSuccess: () => toast.success('Troca de UBS realizada com sucesso.'),
+		onError: () =>
+			toast.error(
+				'Houve um error ao realizar a troca de UBS. Tente novamente e, se o erro persistir, contate o suporte.',
+			),
+	})
 	const [open, setOpen] = useState(true)
 
 	const minhasUbs =
@@ -129,6 +136,10 @@ export function AppSidebar() {
 		? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]]
 		: ''
 
+	const targetUbsName = trocarUbs.isPending
+		? minhasUbs.find((u) => u.id === trocarUbs.variables)?.name
+		: null
+
 	function sair() {
 		logout()
 		toast.success(
@@ -137,126 +148,141 @@ export function AppSidebar() {
 		navigate('/login', { replace: true })
 	}
 
+	const overlay = trocarUbs.isPending ? (
+		<div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+			<Loader2 className="mb-4 size-10 animate-spin text-primary" />
+			<p className="animate-pulse text-lg font-semibold text-n-700">
+				Indo para a {targetUbsName}...
+			</p>
+		</div>
+	) : null
+
 	if (!open) {
 		return (
-			<aside className="flex h-screen w-14 shrink-0 flex-col items-center border-r border-n-40 pt-4 pb-5">
-				<div className="flex h-[74px] shrink-0 items-center justify-center">
-					<button
-						type="button"
-						aria-label="Exibir menu"
-						onClick={() => setOpen(true)}
-						className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
-					>
-						<PanelLeftOpen className="size-5" />
-					</button>
-				</div>
-			</aside>
+			<>
+				{overlay}
+				<aside className="flex h-screen w-14 shrink-0 flex-col items-center border-r border-n-40 pt-4 pb-5">
+					<div className="flex h-18.5 shrink-0 items-center justify-center">
+						<button
+							type="button"
+							aria-label="Exibir menu"
+							onClick={() => setOpen(true)}
+							className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
+						>
+							<PanelLeftOpen className="size-5" />
+						</button>
+					</div>
+				</aside>
+			</>
 		)
 	}
 
 	return (
-		<aside className="flex h-screen w-[252px] shrink-0 flex-col gap-4 overflow-hidden border-r border-n-40 px-4 pt-4 pb-5">
-			<div className="flex h-[74px] shrink-0 items-center justify-between">
-				<Logo className="h-9 w-auto" />
-				<button
-					type="button"
-					aria-label="Ocultar menu"
-					onClick={() => setOpen(false)}
-					className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
-				>
-					<PanelLeftClose className="size-5" />
-				</button>
-			</div>
-
-			<div className="h-px w-full shrink-0 bg-n-40" />
-
-			<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
-				{items.map((item) => {
-					const row = item.children ? (
-						<NavGroup
-							key={item.label}
-							item={{
-								...item,
-								children: item.children.filter(
-									(child) =>
-										!child.capability ||
-										can(child.capability),
-								),
-							}}
-							pathname={pathname}
-						/>
-					) : (
-						<NavRow
-							key={item.label}
-							item={item}
-							pathname={pathname}
-						/>
-					)
-
-					if (!item.capability) return row
-
-					return (
-						<Restricted
-							key={item.label}
-							capability={item.capability}
-						>
-							{row}
-						</Restricted>
-					)
-				})}
-			</nav>
-
-			<div className="flex shrink-0 flex-col items-center gap-4 pt-2">
-				{minhasUbs.length > 0 ? (
-					<Select
-						value={user?.currentHealthUnitId ?? undefined}
-						onValueChange={(next) => trocarUbs.mutate(next)}
+		<>
+			{overlay}
+			<aside className="flex h-screen w-63 shrink-0 flex-col gap-4 overflow-hidden border-r border-n-40 px-4 pt-4 pb-5">
+				<div className="flex h-18.5 shrink-0 items-center justify-between">
+					<Logo className="h-9 w-auto" />
+					<button
+						type="button"
+						aria-label="Ocultar menu"
+						onClick={() => setOpen(false)}
+						className="rounded-md p-1.5 text-n-500 hover:bg-n-20 hover:text-n-700"
 					>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Selecione a UBS" />
-						</SelectTrigger>
-						<SelectContent>
-							{minhasUbs.map((unit) => (
-								<SelectItem key={unit.id} value={unit.id}>
-									{unit.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				) : null}
-
-				<div className="flex w-full items-center justify-between">
-					<div className="flex min-w-0 items-center gap-3">
-						<span className="sidebar-footer-avatar">
-							{user ? iniciais(user.name) : '--'}
-						</span>
-						<div className="min-w-0 leading-none">
-							<p className="truncate text-sm font-semibold text-n-700">
-								{user?.name ?? ''}
-							</p>
-							<p className="mt-1.5 truncate text-xs text-n-500">
-								{categoria}
-							</p>
-						</div>
-					</div>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<button
-								type="button"
-								aria-label="Sair"
-								onClick={sair}
-								className="shrink-0 cursor-pointer"
-							>
-								<DoorOpen className="size-5 text-n-500 hover:text-n-700 transition-colors duration-200" />
-							</button>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Sair</p>
-						</TooltipContent>
-					</Tooltip>
+						<PanelLeftClose className="size-5" />
+					</button>
 				</div>
-			</div>
-		</aside>
+
+				<div className="h-px w-full shrink-0 bg-n-40" />
+
+				<nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+					{items.map((item) => {
+						const row = item.children ? (
+							<NavGroup
+								key={item.label}
+								item={{
+									...item,
+									children: item.children.filter(
+										(child) =>
+											!child.capability ||
+											can(child.capability),
+									),
+								}}
+								pathname={pathname}
+							/>
+						) : (
+							<NavRow
+								key={item.label}
+								item={item}
+								pathname={pathname}
+							/>
+						)
+
+						if (!item.capability) return row
+
+						return (
+							<Restricted
+								key={item.label}
+								capability={item.capability}
+							>
+								{row}
+							</Restricted>
+						)
+					})}
+				</nav>
+
+				<div className="flex shrink-0 flex-col items-center gap-4 pt-2">
+					{minhasUbs.length > 0 ? (
+						<Select
+							value={user?.currentHealthUnitId ?? undefined}
+							onValueChange={(next) => trocarUbs.mutate(next)}
+						>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Selecione a UBS" />
+							</SelectTrigger>
+							<SelectContent>
+								{minhasUbs.map((unit) => (
+									<SelectItem key={unit.id} value={unit.id}>
+										{unit.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					) : null}
+
+					<div className="flex w-full items-center justify-between">
+						<div className="flex min-w-0 items-center gap-3">
+							<span className="sidebar-footer-avatar">
+								{user ? iniciais(user.name) : '--'}
+							</span>
+							<div className="min-w-0 leading-none">
+								<p className="truncate text-sm font-semibold text-n-700">
+									{user?.name ?? ''}
+								</p>
+								<p className="mt-1.5 truncate text-xs text-n-500">
+									{categoria}
+								</p>
+							</div>
+						</div>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<button
+									type="button"
+									aria-label="Sair"
+									onClick={sair}
+									className="shrink-0 cursor-pointer"
+								>
+									<DoorOpen className="size-5 text-n-500 hover:text-n-700 transition-colors duration-200" />
+								</button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Sair</p>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+				</div>
+			</aside>
+		</>
 	)
 }
 

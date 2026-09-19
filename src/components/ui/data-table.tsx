@@ -19,6 +19,7 @@ interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
 	data: TData[] | undefined
 	isLoading?: boolean
+	scrollable?: boolean
 	emptyStateTitle?: string
 	emptyStateDescription?: string
 	onRowClick?: (row: TData) => void
@@ -28,6 +29,7 @@ export function DataTable<TData, TValue>({
 	columns,
 	data,
 	isLoading,
+	scrollable = false,
 	emptyStateTitle = 'Nenhum registro encontrado.',
 	emptyStateDescription = 'Assim que houver dados, eles aparecerão aqui.',
 	onRowClick,
@@ -57,8 +59,20 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<div className="w-full min-w-0 overflow-x-auto rounded-lg border border-n-30">
-			<Table className="min-w-max">
-				<TableHeader className="bg-n-20">
+			<Table
+				className="min-w-max"
+				containerClassName={
+					scrollable
+						? 'max-h-[60dvh] overflow-auto [scrollbar-gutter:stable]'
+						: undefined
+				}
+				aria-label={scrollable ? 'Histórico de avaliações' : undefined}
+			>
+				<TableHeader
+					className={
+						scrollable ? 'sticky top-0 z-10 bg-n-20' : 'bg-n-20'
+					}
+				>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow
 							key={headerGroup.id}

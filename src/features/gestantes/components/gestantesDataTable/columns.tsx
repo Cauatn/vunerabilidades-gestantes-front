@@ -1,8 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table'
 
 import { calcularIdade, formatarDataBr } from '@/features/core/utils/date'
-import type { Gestante } from '@/features/gestantes/types/gestante'
 import { VulnerabilityLevelBadge } from '@/features/gestantes/components/VulnerabilityLevelBadge'
+import type { Gestante } from '@/features/gestantes/types/gestante'
+import { capitalizeFirst } from '@/features/shared/utils/capitalizeFirst'
 import { formatCns, formatCpf } from '../../utils/document'
 import { GestanteActionsCell } from './actionsCell'
 
@@ -60,6 +61,16 @@ export function createGestantesColumns({
 					<span className="text-n-400">—</span>
 				)
 			},
+		},
+		{
+			id: 'state',
+			header: 'Estado',
+			cell: ({ row }) => row.original.state?.trim() || '—',
+		},
+		{
+			id: 'city',
+			header: 'Cidade',
+			cell: ({ row }) => capitalizeFirst(row.original.city) || '—',
 		},
 		{
 			id: 'vulnerability',

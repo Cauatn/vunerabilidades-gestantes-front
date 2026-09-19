@@ -1,6 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { ESTADOS } from '@/features/core/constants/localizacao'
+import { useGetLocalitiesByUf } from '@/features/shared/composables/useGetLocalitiesByUf'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -56,11 +65,30 @@ export function HealthUnitSheet({
 		register,
 		handleSubmit,
 		reset,
+		control,
+		setValue,
+		setError,
 		formState: { errors },
 	} = useForm<HealthUnitFormValues>({
 		resolver: zodResolver(healthUnitSchema),
 		defaultValues: VALORES_VAZIOS,
 	})
+	const uf = useWatch({ control, name: 'state' })
+	const {
+		data: localidades,
+		isFetching,
+		isError,
+		refetch,
+	} = useGetLocalitiesByUf(open ? uf : '')
+	const municipios = [...(localidades ?? [])].sort((a, b) =>
+		a.nome.localeCompare(b.nome, 'pt-BR'),
+	)
+	const normalizar = (value: string) =>
+		value
+			.trim()
+			.normalize('NFD')
+			.replace(/\p{Diacritic}/gu, '')
+			.toUpperCase()
 
 	useEffect(() => {
 		if (!open) return
@@ -70,7 +98,7 @@ export function HealthUnitSheet({
 						name: healthUnit.name,
 						code: healthUnit.code,
 						city: healthUnit.city,
-						state: healthUnit.state,
+						state: healthUnit.state.trim().toUpperCase(),
 						address: healthUnit.address ?? '',
 					}
 				: VALORES_VAZIOS,
@@ -78,10 +106,19 @@ export function HealthUnitSheet({
 	}, [open, healthUnit, reset])
 
 	function submit(values: HealthUnitFormValues) {
+		const municipio = municipios.find(
+			(item) => normalizar(item.nome) === normalizar(values.city),
+		)
+		if (!municipio) {
+			setError('city', {
+				message: 'Selecione um município da UF escolhida.',
+			})
+			return
+		}
 		onSubmit({
 			name: values.name,
 			code: values.code,
-			city: values.city,
+			city: municipio.nome,
 			state: values.state,
 			address: values.address.trim() || undefined,
 		})
@@ -134,33 +171,152 @@ export function HealthUnitSheet({
 						</Field>
 
 						<Field>
-							<FieldLabel htmlFor="health-unit-city" required>
-								Município
-							</FieldLabel>
-							<FieldContent>
-								<Input
-									id="health-unit-city"
-									placeholder="Município"
-									aria-invalid={!!errors.city}
-									{...register('city')}
-								/>
-								<FieldError errors={[errors.city]} />
-							</FieldContent>
-						</Field>
-
-						<Field>
 							<FieldLabel htmlFor="health-unit-state" required>
 								UF
 							</FieldLabel>
 							<FieldContent>
-								<Input
-									id="health-unit-state"
-									placeholder="UF"
-									maxLength={2}
-									aria-invalid={!!errors.state}
-									{...register('state')}
+								<Controller
+									name="state"
+									control={control}
+									render={({ field }) => (
+										<Select
+											value={field.value}
+											onValueChange={(value) => {
+												if (value === field.value)
+													return
+												field.onChange(value)
+												setValue('city', '', {
+													shouldDirty: true,
+													shouldValidate: true,
+												})
+											}}
+										>
+											<SelectTrigger
+												id="health-unit-state"
+												ref={field.ref}
+												onBlur={field.onBlur}
+												aria-invalid={!!errors.state}
+												className="w-full"
+											>
+												<SelectValue placeholder="Selecione a UF" />
+											</SelectTrigger>
+											<SelectContent>
+												{ESTADOS.map((estado) => (
+													<SelectItem
+														key={estado.uf}
+														value={estado.uf}
+													>
+														{estado.uf} —{' '}
+														{estado.nome}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
 								/>
 								<FieldError errors={[errors.state]} />
+							</FieldContent>
+						</Field>
+
+						<Field>
+							<FieldLabel htmlFor="health-unit-city" required>
+								Município
+							</FieldLabel>
+							<FieldContent>
+								<Controller
+									name="city"
+									control={control}
+									render={({ field }) => {
+										const selected =
+											municipios.find(
+												(item) =>
+													normalizar(item.nome) ===
+													normalizar(field.value),
+											)?.nome ?? field.value
+										return (
+											<Select
+												value={selected}
+												onValueChange={(value) =>
+													setValue('city', value, {
+														shouldDirty: true,
+														shouldTouch: true,
+														shouldValidate: true,
+													})
+												}
+												disabled={
+													!uf || isFetching || isError
+												}
+											>
+												<SelectTrigger
+													id="health-unit-city"
+													ref={field.ref}
+													onBlur={field.onBlur}
+													aria-invalid={!!errors.city}
+													className="w-full"
+												>
+													<SelectValue
+														placeholder={
+															!uf
+																? 'Selecione a UF primeiro'
+																: isFetching
+																	? 'Carregando municípios...'
+																	: 'Selecione o município'
+														}
+													/>
+												</SelectTrigger>
+												<SelectContent>
+													{selected &&
+														!municipios.some(
+															(item) =>
+																item.nome ===
+																selected,
+														) && (
+															<SelectItem
+																value={selected}
+															>
+																{selected}
+															</SelectItem>
+														)}
+													{municipios.map((item) => (
+														<SelectItem
+															key={
+																item.codigo_ibge
+															}
+															value={item.nome}
+														>
+															{item.nome}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										)
+									}}
+								/>
+								{isError && (
+									<div
+										role="alert"
+										className="text-sm text-r-500"
+									>
+										Não foi possível carregar os municípios.{' '}
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => void refetch()}
+										>
+											Tentar novamente
+										</Button>
+									</div>
+								)}
+								{uf &&
+									!isFetching &&
+									!isError &&
+									localidades?.length === 0 && (
+										<p className="text-sm text-n-600">
+											Nenhum município encontrado para
+											esta UF.
+										</p>
+									)}
+								<FieldError errors={[errors.city]} />
 							</FieldContent>
 						</Field>
 
@@ -191,6 +347,7 @@ export function HealthUnitSheet({
 						type="submit"
 						form="health-unit-form"
 						isLoading={isSubmitting}
+						disabled={isFetching || isError}
 					>
 						Confirmar
 					</Button>
