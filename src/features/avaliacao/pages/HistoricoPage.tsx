@@ -1,51 +1,135 @@
-import type { ColumnDef } from '@tanstack/react-table'
-import { useNavigate } from 'react-router-dom'
-
-import { Badge } from '@/components/ui/badge'
-import { DataTable } from '@/components/ui/data-table'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Pagination } from '@/components/ui/pagination'
+import { PAGE_SIZE } from '@/features/core/constants/pagination'
+import { HistoricoFiltersSheet } from '@/features/avaliacao/components/HistoricoFiltersSheet'
+import {
+	activeFilterCount,
+	assessmentFilterParams,
+} from '@/features/shared/types/listFilters'
 import { Page } from '@/components/Layout/Page'
-import { formatarDataBr } from '@/features/core/utils/date'
-import { type HistoricoAplicacao, HISTORICO } from '@/features/avaliacao/utils/avaliacaoMock'
-import { VULNERABILIDADE_BADGE_VARIANT, VULNERABILIDADE_LABEL } from '@/features/gestantes/constants/vulnerabilidade'
-import type { Vulnerabilidade } from '@/features/gestantes/constants/vulnerabilidade'
+import { DataTable } from '@/components/ui/data-table'
+import { useAssessments } from '@/features/avaliacao/composables/useAssessments'
+import { columns } from '../constants/tabelaHistoricoAvaliacoes'
 
-const columns: ColumnDef<HistoricoAplicacao>[] = [
-	{
-		accessorKey: 'gestante',
-		header: 'Gestante',
-		cell: ({ getValue }) => <span className="font-medium text-n-700">{getValue() as string}</span>,
-	},
-	{
-		accessorKey: 'data',
-		header: 'Data da aplicação',
-		cell: ({ getValue }) => formatarDataBr(getValue() as string),
-	},
-	{
-		accessorKey: 'vulnerabilidade',
-		header: 'Vulnerabilidade',
-		cell: ({ getValue }) => {
-			const vulnerabilidade = getValue() as Vulnerabilidade
-			return <Badge variant={VULNERABILIDADE_BADGE_VARIANT[vulnerabilidade]}>{VULNERABILIDADE_LABEL[vulnerabilidade]}</Badge>
-		},
-	},
-	{
-		accessorKey: 'aplicadoPor',
-		header: 'Aplicado por',
-	},
-]
+import { useListFilters } from '@/features/shared/composables/useListFilters'
 
 export function HistoricoPage() {
-	const navigate = useNavigate()
+	const [filters, setFilters] = useListFilters()
+	const [filtersOpen, setFiltersOpen] = useState(false)
+	const [page, setPage] = useState(1)
+	const [termo, setTermo] = useState('')
+	const [busca, setBusca] = useState('')
+	function buscar() {
+		setBusca(termo.trim())
+		setPage(1)
+	}
+	const {
+		data: assessments,
+		isLoading,
+		isError,
+		refetch,
+	} = useAssessments({
+		...assessmentFilterParams(filters),
+		search: busca,
+		page,
+		pageSize: PAGE_SIZE,
+	})
+	const count = activeFilterCount(filters)
 
 	return (
-		<Page title="Histórico" description="Aplicações da Escala já realizadas.">
-			<DataTable
-				columns={columns}
-				data={HISTORICO}
-				emptyStateTitle="Nenhuma aplicação registrada."
-				emptyStateDescription="As aplicações da escala aparecerão aqui."
-				onRowClick={(row) => navigate(`/historico/${row.id}`)}
-			/>
-		</Page>
+		<>
+			<Page
+				className="max-w-full p-4 sm:p-6 lg:p-10"
+				title="Avaliações"
+				description="Verifique o histórico de avaliações aplicadas."
+			>
+				<div className="flex min-w-0 max-w-full flex-col gap-8">
+					<div className="flex flex-wrap items-end gap-3">
+						<Input
+							aria-label="Buscar avaliações por nome, CPF ou CNS da gestante"
+							placeholder="Buscar por nome, CPF ou CNS..."
+							value={termo}
+							onChange={(event) => setTermo(event.target.value)}
+							onKeyDown={(event) => {
+								if (event.key === 'Enter') buscar()
+							}}
+							className="min-w-0 flex-1 basis-full sm:basis-0"
+						/>
+						<Button onClick={buscar}>Buscar</Button>
+						<Button
+							variant="outline"
+							className="font-bold text-n-600"
+							onClick={() => setFiltersOpen(true)}
+						>
+							Filtros{count > 0 ? ` (${count})` : ''}
+						</Button>
+						{count > 0 && (
+							<Button
+								variant="ghost"
+								onClick={() => {
+									void setFilters(null)
+									setPage(1)
+								}}
+							>
+								Limpar filtros
+							</Button>
+						)}
+					</div>
+					{isError ? (
+						<div role="alert" className="space-y-3">
+							Não foi possível carregar as avaliações.{' '}
+							<Button
+								variant="outline"
+								onClick={() => void refetch()}
+							>
+								Tentar novamente
+							</Button>
+						</div>
+					) : (
+						<DataTable
+							scrollable
+							columns={columns}
+							data={assessments?.items}
+							isLoading={isLoading}
+							emptyStateTitle={
+								count || busca
+									? 'Nenhuma avaliação encontrada.'
+									: 'Nenhuma aplicação registrada.'
+							}
+							emptyStateDescription={
+								count || busca
+									? 'Nenhuma avaliação corresponde aos filtros selecionados. Tente ajustar os critérios.'
+									: 'As aplicações da escala aparecerão aqui.'
+							}
+						/>
+					)}
+					{assessments && !isError && (
+						<div className="flex justify-center pt-4">
+							<Pagination
+								className="flex-wrap"
+								page={page}
+								totalPages={Math.max(
+									1,
+									Math.ceil(assessments.total / PAGE_SIZE),
+								)}
+								onPageChange={setPage}
+							/>
+						</div>
+					)}
+				</div>
+			</Page>
+			{filtersOpen && (
+				<HistoricoFiltersSheet
+					value={filters}
+					onClose={() => setFiltersOpen(false)}
+					onApply={(next) => {
+						void setFilters(next)
+						setPage(1)
+					}}
+				/>
+			)}
+		</>
 	)
 }

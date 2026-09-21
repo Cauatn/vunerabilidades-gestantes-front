@@ -1,6 +1,9 @@
 import type { Pergunta } from '@/features/avaliacao/types/pergunta'
 
-export function calcularPontuacao(respostas: Record<string, string>, perguntas: Pergunta[]) {
+export function calcularPontuacao(
+	respostas: Record<string, string>,
+	perguntas: Pergunta[],
+) {
 	const entradas = Object.entries(respostas)
 	if (entradas.length === 0) return 0
 

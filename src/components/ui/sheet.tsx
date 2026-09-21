@@ -9,19 +9,28 @@ function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
 	return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
 
-function SheetTrigger({ ...props }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
+function SheetTrigger({
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
 	return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />
 }
 
-function SheetClose({ ...props }: React.ComponentProps<typeof SheetPrimitive.Close>) {
+function SheetClose({
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Close>) {
 	return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
 }
 
-function SheetPortal({ ...props }: React.ComponentProps<typeof SheetPrimitive.Portal>) {
+function SheetPortal({
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Portal>) {
 	return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />
 }
 
-function SheetOverlay({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
+function SheetOverlay({
+	className,
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
 	return (
 		<SheetPrimitive.Overlay
 			data-slot="sheet-overlay"
@@ -52,7 +61,7 @@ function SheetContent({
 				className={cn(
 					'bg-background px-4 data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
 					side === 'right' &&
-						'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 flex h-full w-full flex-col gap-0 border-l border-n-40 p-5 sm:max-w-[500px]',
+						'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 flex h-full w-full flex-col gap-0 border-l border-n-40 p-[30px] sm:max-w-[500px]',
 					side === 'left' &&
 						'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-lg',
 					side === 'top' &&
@@ -76,7 +85,13 @@ function SheetContent({
 }
 
 function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
-	return <div data-slot="sheet-header" className={cn('flex flex-col gap-1.5 pb-6', className)} {...props} />
+	return (
+		<div
+			data-slot="sheet-header"
+			className={cn('flex flex-col gap-1.5 pb-6', className)}
+			{...props}
+		/>
+	)
 }
 
 interface SheetFooterProps extends React.ComponentProps<'div'> {
@@ -104,14 +119,30 @@ function SheetFooter({
 	...props
 }: SheetFooterProps) {
 	return (
-		<div data-slot="sheet-footer" className={cn('mt-auto flex flex-row items-center justify-end gap-3 pt-4', className)} {...props}>
+		<div
+			data-slot="sheet-footer"
+			className={cn(
+				'mt-auto flex flex-row items-center justify-end gap-3 pt-4',
+				className,
+			)}
+			{...props}
+		>
 			{cancelLabel && (
-				<Button type="button" variant="outline" onClick={onCancel} {...cancelProps}>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={onCancel}
+					{...cancelProps}
+				>
 					{cancelLabel}
 				</Button>
 			)}
 			{confirmLabel && (
-				<Button onClick={onConfirm} disabled={confirmDisabled || isConfirmLoading} {...confirmProps}>
+				<Button
+					onClick={onConfirm}
+					disabled={confirmDisabled || isConfirmLoading}
+					{...confirmProps}
+				>
 					{isConfirmLoading ? 'Salvando...' : confirmLabel}
 				</Button>
 			)}
@@ -120,11 +151,23 @@ function SheetFooter({
 	)
 }
 
-function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
-	return <SheetPrimitive.Title data-slot="sheet-title" className={cn('text-n-800 font-semibold text-2xl', className)} {...props} />
+function SheetTitle({
+	className,
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Title>) {
+	return (
+		<SheetPrimitive.Title
+			data-slot="sheet-title"
+			className={cn('text-n-800 font-semibold text-2xl', className)}
+			{...props}
+		/>
+	)
 }
 
-function SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
+function SheetDescription({
+	className,
+	...props
+}: React.ComponentProps<typeof SheetPrimitive.Description>) {
 	return (
 		<SheetPrimitive.Description
 			data-slot="sheet-description"
@@ -134,4 +177,13 @@ function SheetDescription({ className, ...props }: React.ComponentProps<typeof S
 	)
 }
 
-export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger }
+export {
+	Sheet,
+	SheetClose,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+}

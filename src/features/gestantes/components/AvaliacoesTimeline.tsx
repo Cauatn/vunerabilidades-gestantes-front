@@ -1,8 +1,13 @@
 import { FileText } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { darkenForText, scaleColor } from '@/features/core/utils/color'
 
 import { cn } from '@/lib/utils'
 import { VulnerabilidadeBadge } from '@/features/gestantes/components/VulnerabilidadeBadge'
-import type { AvaliacaoTimelineItem, Vulnerabilidade } from '@/features/gestantes/data/mock'
+import type {
+	AvaliacaoTimelineItem,
+	Vulnerabilidade,
+} from '@/features/gestantes/data/mock'
 
 const ringColor: Record<Vulnerabilidade, string> = {
 	baixa: 'border-(--color-g-400) text-g-400',
@@ -20,9 +25,10 @@ const badgeLabel: Record<Vulnerabilidade, string> = {
 
 type Props = {
 	items: AvaliacaoTimelineItem[]
+	onViewDetails?: (assessmentId: string) => void
 }
 
-export function AvaliacoesTimeline({ items }: Props) {
+export function AvaliacoesTimeline({ items, onViewDetails }: Props) {
 	return (
 		<div className="flex w-full max-w-[731px] flex-col">
 			{items.map((item, index) => {
@@ -30,10 +36,13 @@ export function AvaliacoesTimeline({ items }: Props) {
 
 				return (
 					<div key={item.id} className="flex gap-2.5 p-2">
-						<p className="w-[70px] shrink-0 pt-0.5 text-[11px] leading-6 text-n-600">{item.data}</p>
+						<p className="w-[70px] shrink-0 pt-0.5 text-[11px] leading-6 text-n-600">
+							{item.data}
+						</p>
 
 						<div className="flex flex-col items-center gap-2 self-stretch">
 							<span
+								style={item.vulnerabilityLevel ? { borderColor: scaleColor(item.color), color: darkenForText(item.color) } : undefined}
 								className={cn(
 									'flex items-center rounded-full border p-1',
 									ringColor[item.vulnerabilidade],
@@ -41,21 +50,37 @@ export function AvaliacoesTimeline({ items }: Props) {
 							>
 								<FileText className="size-4" />
 							</span>
-							{!isLast ? <span className="w-px flex-1 bg-n-40" /> : null}
+							{!isLast ? (
+								<span className="w-px flex-1 bg-n-40" />
+							) : null}
 						</div>
 
 						<div className="flex flex-1 flex-col gap-1 pb-4">
-							<p className="text-sm font-semibold leading-6 text-n-900">{item.titulo}</p>
-							<VulnerabilidadeBadge
+							<p className="text-sm font-semibold leading-6 text-n-900">
+								{item.titulo}
+							</p>
+							{item.vulnerabilityLevel ? (
+								<Badge className="self-start" style={{ background: `${scaleColor(item.color)}26`, color: darkenForText(item.color) }}>
+									Vulnerabilidade {item.vulnerabilityLevel}
+								</Badge>
+							) : <VulnerabilidadeBadge
 								vulnerabilidade={item.vulnerabilidade}
 								withIcon
 								label={badgeLabel[item.vulnerabilidade]}
 								className="self-start"
-							/>
-							<p className="text-[11px] leading-6 text-n-600">{item.descricao}</p>
-							<a href="#" className="text-[11px] leading-6 text-b-400 underline">
-								Ver detalhamento da aplicação
-							</a>
+							/>}
+							<p className="text-[11px] leading-6 text-n-600">
+								{item.descricao}
+							</p>
+							{onViewDetails ? (
+								<button
+									type="button"
+									onClick={() => onViewDetails(item.id)}
+									className="text-left text-[11px] leading-6 text-b-400 underline"
+								>
+									Ver detalhamento da aplicação
+								</button>
+							) : null}
 						</div>
 					</div>
 				)

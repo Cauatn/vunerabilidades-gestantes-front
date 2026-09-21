@@ -10,9 +10,18 @@ interface FieldLabelProps {
 	className?: string
 }
 
-export function FieldLabel({ children, required, htmlFor, className }: FieldLabelProps) {
+export function FieldLabel({
+	children,
+	required,
+	htmlFor,
+	className,
+}: FieldLabelProps) {
 	return (
-		<Label htmlFor={htmlFor} required={required} className={cn('gap-1', className)}>
+		<Label
+			htmlFor={htmlFor}
+			required={required}
+			className={cn('gap-1', className)}
+		>
 			{children}
 		</Label>
 	)

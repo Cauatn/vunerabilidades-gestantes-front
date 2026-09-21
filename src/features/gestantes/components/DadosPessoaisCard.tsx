@@ -13,8 +13,15 @@ export function DadosPessoaisCard({ gestante }: Props) {
 		{ label: 'Nome:', value: gestante.name },
 		{ label: 'Data de nascimento:', value: formatarDataBr(nascimento) },
 		{ label: 'Idade:', value: String(calcularIdade(nascimento)) },
-		{ label: 'CPF:', value: gestante.identifier.type === 'CPF' ? gestante.identifier.value : '—' },
-		{ label: 'CNS:', value: gestante.identifier.type === 'SUS_CARD' ? gestante.identifier.value : '—' },
+		//TODO: corrigir tipagem
+		{
+			label: 'CPF:',
+			value: gestante.identifiers.cpf ? gestante.identifiers.cpf : '—',
+		},
+		{
+			label: 'CNS:',
+			value: gestante.identifiers.cns ? gestante.identifiers.cns : '—',
+		},
 	]
 
 	return (
@@ -25,7 +32,8 @@ export function DadosPessoaisCard({ gestante }: Props) {
 			<div className="grid flex-1 grid-cols-1 gap-3 text-sm text-n-800 sm:grid-cols-2 lg:grid-cols-3">
 				{fields.map((field) => (
 					<p key={field.label}>
-						<span className="font-semibold">{field.label}</span> {field.value}
+						<span className="font-semibold">{field.label}</span>{' '}
+						{field.value}
 					</p>
 				))}
 			</div>

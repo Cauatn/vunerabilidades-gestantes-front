@@ -17,7 +17,14 @@ interface SortableItemProps {
 }
 
 export function SortableItem({ id, className, children }: SortableItemProps) {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id })
 
 	return (
 		<div

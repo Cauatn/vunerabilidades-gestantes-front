@@ -21,7 +21,8 @@ interface JwtPayload {
 }
 
 const getCookieOptions = (expires: Date) => ({
-	secure: typeof window !== 'undefined' && window.location.protocol === 'https:',
+	secure:
+		typeof window !== 'undefined' && window.location.protocol === 'https:',
 	sameSite: 'lax' as const,
 	expires,
 })
@@ -49,7 +50,10 @@ function tokenExpiry(token: string): Date {
 	return new Date(jwtDecode<JwtPayload>(token).exp * 1000)
 }
 
-export function handleUserSession(data: { accessToken: string; user: SessionUser }) {
+export function handleUserSession(data: {
+	accessToken: string
+	user: SessionUser
+}) {
 	const options = getCookieOptions(tokenExpiry(data.accessToken))
 	Cookies.set(TOKEN_KEY, data.accessToken, options)
 	Cookies.set(USER_KEY, JSON.stringify(data.user), options)

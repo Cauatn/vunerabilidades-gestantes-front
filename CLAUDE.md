@@ -41,7 +41,7 @@ Tokens de cor/raio ficam em `src/index.css` (`@theme inline` + variáveis `:root
 ```ts
 // ✅
 export const getUsers = (params: ListUsersParams) =>
-  api.get<PaginatedUsers>('/users', { params })
+	api.get<PaginatedUsers>('/users', { params })
 
 export const getUser = (id: string) => api.get<User>(`/users/${id}`)
 

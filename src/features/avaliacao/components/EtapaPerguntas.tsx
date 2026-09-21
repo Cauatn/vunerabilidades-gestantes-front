@@ -8,7 +8,11 @@ interface EtapaPerguntasProps {
 	onResponder: (perguntaId: string, opcaoId: string) => void
 }
 
-export function EtapaPerguntas({ perguntas, respostas, onResponder }: EtapaPerguntasProps) {
+export function EtapaPerguntas({
+	perguntas,
+	respostas,
+	onResponder,
+}: EtapaPerguntasProps) {
 	return (
 		<div className="flex flex-col gap-3">
 			<Divider text="Perguntas" />
@@ -21,9 +25,14 @@ export function EtapaPerguntas({ perguntas, respostas, onResponder }: EtapaPergu
 						</p>
 						<RadioGroup
 							name={pergunta.id}
-							options={pergunta.opcoes.map((opcao) => ({ value: opcao.id, label: opcao.texto }))}
+							options={pergunta.opcoes.map((opcao) => ({
+								value: opcao.id,
+								label: opcao.texto,
+							}))}
 							value={respostas[pergunta.id]}
-							onValueChange={(opcaoId) => onResponder(pergunta.id, opcaoId)}
+							onValueChange={(opcaoId) =>
+								onResponder(pergunta.id, opcaoId)
+							}
 						/>
 					</div>
 				))}

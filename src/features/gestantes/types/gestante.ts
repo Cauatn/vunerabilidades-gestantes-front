@@ -1,39 +1,62 @@
-import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
+import type {
+	Paginated,
+	PaginationParams,
+} from '@/features/core/types/pagination'
 
-export type IdentifierType = 'CPF' | 'SUS_CARD'
+export interface LatestVulnerability {
+	level: string
+	color: string
+	trend: 'LOW' | 'MEDIUM' | 'HIGH'
+	totalScore: number
+	calculatedAt: string
+}
 
 export interface Gestante {
 	id: string
 	name: string
-	identifier: { type: IdentifierType; value: string }
+	identifiers: { cpf: string | null; cns: string | null }
 	birthDate: string
 	phone: string | null
 	motherName: string | null
+	state?: string | null
+	city?: string | null
 	lastMenstrualPeriod: string | null
 	createdAt: string
 	updatedAt: string
+	latestVulnerability?: LatestVulnerability | null
 }
 
 export type ListGestantesParams = PaginationParams & {
 	name?: string
+	doctorId?: string
+	healthUnitId?: string
+	vulnerabilityLevel?: string
+	state?: string
+	city?: string
 }
 
 export type PaginatedGestantes = Paginated<Gestante>
 
 export interface CreateGestantePayload {
 	name: string
-	identifierType: IdentifierType
-	identifierValue: string
+	cpf?: string
+	cns?: string
 	birthDate: string
 	phone?: string
 	motherName?: string
 	lastMenstrualPeriod?: string
+	state: string
+	city: string
 }
 
 export interface UpdateGestantePayload {
 	name?: string
+	cpf?: string
+	cns?: string
 	birthDate?: string
 	phone?: string | null
 	motherName?: string | null
 	lastMenstrualPeriod?: string | null
+	state: string
+	city: string
 }

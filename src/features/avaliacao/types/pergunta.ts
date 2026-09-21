@@ -9,4 +9,6 @@ export interface Pergunta {
 	categoria: string
 	texto: string
 	opcoes: Opcao[]
+	visibleWhenQuestionId?: string | null
+	visibleWhenOptionId?: string | null
 }

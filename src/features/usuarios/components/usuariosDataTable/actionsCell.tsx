@@ -1,4 +1,4 @@
-import { UserRoundCheck, UserRoundX } from 'lucide-react'
+import { Lock, SquarePen, Unlock } from 'lucide-react'
 
 import { IconButton } from '@/components/ui/icon-button'
 import { useSession } from '@/features/auth/composables/useSession'
@@ -6,10 +6,15 @@ import type { Usuario } from '@/features/usuarios/types/usuario'
 
 interface UsuarioActionsCellProps {
 	usuario: Usuario
+	onEdit: (usuario: Usuario) => void
 	onToggleStatus: (usuario: Usuario) => void
 }
 
-export function UsuarioActionsCell({ usuario, onToggleStatus }: UsuarioActionsCellProps) {
+export function UsuarioActionsCell({
+	usuario,
+	onEdit,
+	onToggleStatus,
+}: UsuarioActionsCellProps) {
 	const { user } = useSession()
 	const ativo = usuario.status === 'ACTIVE'
 	const ehProprioUsuario = user?.id === usuario.id
@@ -17,7 +22,12 @@ export function UsuarioActionsCell({ usuario, onToggleStatus }: UsuarioActionsCe
 	return (
 		<div className="flex items-center justify-end gap-1">
 			<IconButton
-				icon={ativo ? UserRoundX : UserRoundCheck}
+				icon={SquarePen}
+				tooltipText="Editar"
+				onClick={() => onEdit(usuario)}
+			/>
+			<IconButton
+				icon={ativo ? Lock : Unlock}
 				tooltipText={
 					ehProprioUsuario
 						? 'Você não pode alterar o status da sua própria conta'

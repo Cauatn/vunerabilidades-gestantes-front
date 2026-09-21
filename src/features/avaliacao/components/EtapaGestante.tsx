@@ -6,7 +6,10 @@ import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
 import { GestanteResumoCard } from '@/features/avaliacao/components/GestanteResumoCard'
 import { GestanteSheet } from '@/features/gestantes/components/GestanteSheet'
 import { useCreateGestante } from '@/features/gestantes/composables/useCreateGestante'
-import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
+import type {
+	CreateGestantePayload,
+	Gestante,
+} from '@/features/gestantes/types/gestante'
 
 interface EtapaGestanteProps {
 	gestantes: Gestante[]
@@ -14,13 +17,19 @@ interface EtapaGestanteProps {
 	onGestanteChange: (id: string) => void
 }
 
-export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: EtapaGestanteProps) {
+export function EtapaGestante({
+	gestantes,
+	gestanteId,
+	onGestanteChange,
+}: EtapaGestanteProps) {
 	const [sheetAberto, setSheetAberto] = useState(false)
 	const [nomeBuscado, setNomeBuscado] = useState('')
 
 	const criar = useCreateGestante()
 
-	const gestanteSelecionada = gestantes.find((gestante) => gestante.id === gestanteId)
+	const gestanteSelecionada = gestantes.find(
+		(gestante) => gestante.id === gestanteId,
+	)
 
 	async function handleCriarGestante(payload: CreateGestantePayload) {
 		const { data } = await criar.mutateAsync(payload)
@@ -39,7 +48,10 @@ export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: Etapa
 				<FieldContent>
 					<Combobox
 						id="avaliacao-gestante"
-						options={gestantes.map((gestante) => ({ value: gestante.id, label: gestante.name }))}
+						options={gestantes.map((gestante) => ({
+							value: gestante.id,
+							label: gestante.name,
+						}))}
 						value={gestanteId ?? undefined}
 						onValueChange={onGestanteChange}
 						emptyMessage="Nenhuma gestante encontrada."
@@ -52,7 +64,9 @@ export function EtapaGestante({ gestantes, gestanteId, onGestanteChange }: Etapa
 				</FieldContent>
 			</Field>
 
-			{gestanteSelecionada && <GestanteResumoCard gestante={gestanteSelecionada} />}
+			{gestanteSelecionada && (
+				<GestanteResumoCard gestante={gestanteSelecionada} />
+			)}
 
 			<GestanteSheet
 				open={sheetAberto}

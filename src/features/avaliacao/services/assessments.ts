@@ -1,0 +1,65 @@
+import type { AxiosResponse } from 'axios'
+
+import { api } from '@/features/core/service/apiService'
+import type { Paginated } from '@/features/core/types/pagination'
+import type {
+	Assessment,
+	AssessmentQuestion,
+	SavedAssessment,
+} from '../types/assessment'
+
+export const startAssessment = (payload: {
+	patientId: string
+	healthUnitId: string
+}) =>
+	api.post<{ questionnaire: { questions: AssessmentQuestion[] } }>(
+		'/assessments/start',
+		payload,
+	)
+
+export const submitAssessment = (payload: {
+	patientId: string
+	healthUnitId: string
+	answers: Array<{ questionId: string; optionId: string }>
+}) => api.post<SavedAssessment>('/assessments', payload)
+
+export const getAssessment = (id: string) =>
+	api.get<Assessment>(`/assessments/${id}`)
+
+export interface AssessmentSearchParams {
+	search?: string
+	page?: number
+	pageSize?: number
+	healthUnitId?: string
+	appliedByUserId?: string
+	patientId?: string
+	vulnerabilityLevel?: string
+	appliedFrom?: string
+	appliedTo?: string
+}
+
+export const getAssessments = async (
+	params: AssessmentSearchParams = {},
+): Promise<AxiosResponse<Paginated<Assessment>>> =>
+	api.get<Paginated<Assessment>>('/assessments', { params })
+
+export const updateAssessmentRecommendations = (
+	id: string,
+	recommendations: Array<{ id?: string; text: string; order: number }>,
+) =>
+	api.put<SavedAssessment>(`/assessments/${id}/recommendations`, {
+		recommendations,
+	})
+
+export const getPatientAssessments = (
+	patientId: string,
+	params = { page: 1, pageSize: 20 },
+) =>
+	api.get<{
+		assessments: {
+			items: Assessment[]
+			total: number
+			page: number
+			pageSize: number
+		}
+	}>(`/patients/${patientId}/assessments`, { params })

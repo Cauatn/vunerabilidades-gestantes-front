@@ -22,9 +22,14 @@ type Props = {
 	className?: string
 }
 
-export function VulnerabilidadeBadge({ vulnerabilidade, withIcon, label, className }: Props) {
+export function VulnerabilidadeBadge({
+	vulnerabilidade,
+	withIcon,
+	label,
+	className,
+}: Props) {
 	const { label: defaultLabel, wrapper, icon } = config[vulnerabilidade]
-	const Icon = withIcon ? getTrendIcon(vulnerabilidade) ?? icon : null
+	const Icon = withIcon ? (getTrendIcon(vulnerabilidade) ?? icon) : null
 
 	return (
 		<span
@@ -42,6 +47,7 @@ export function VulnerabilidadeBadge({ vulnerabilidade, withIcon, label, classNa
 
 function getTrendIcon(vulnerabilidade: Vulnerabilidade) {
 	if (vulnerabilidade === 'alta') return ChevronUp
-	if (vulnerabilidade === 'media' || vulnerabilidade === 'moderada') return Equal
+	if (vulnerabilidade === 'media' || vulnerabilidade === 'moderada')
+		return Equal
 	return ChevronDown
 }

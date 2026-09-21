@@ -1,6 +1,6 @@
-import type { TipoPergunta } from './types/questionario'
+import type { QuestionType } from './types/questionnaire'
 
-export const TIPO_PERGUNTA_LABEL: Record<TipoPergunta, string> = {
+export const QUESTION_TYPE_LABEL: Record<string, string> = {
 	categorica_ordinal: 'Categórica ordinal',
 	categorica_nominal: 'Categórica nominal',
 	dicotomica: 'Dicotômica',
@@ -9,20 +9,24 @@ export const TIPO_PERGUNTA_LABEL: Record<TipoPergunta, string> = {
 	numerica: 'Numérica',
 }
 
-export const TIPO_PERGUNTA_OPCOES = Object.keys(TIPO_PERGUNTA_LABEL) as TipoPergunta[]
+export const QUESTION_TYPE_OPTIONS: QuestionType[] = [
+	'dicotomica',
+	'dicotomica_complementar',
+	'multipla',
+]
 
 /** o tipo "dicotômica + complementar" habilita o bloco condicional "Se sim" */
-export const TIPO_COM_CONDICIONAL: TipoPergunta = 'dicotomica_complementar'
+export const CONDITIONAL_QUESTION_TYPE: QuestionType = 'dicotomica_complementar'
 
 /** soma da pontuação máxima da versão atual do formulário */
-export const PONTUACAO_SUGERIDA = 60
+export const SUGGESTED_SCORE = 60
 
 /** paleta 4x4 do color picker de graus de vulnerabilidade (Figma) */
-export const CORES_GRAU: string[][] = [
+export const LEVEL_COLORS: string[][] = [
 	['#729ee9', '#467bd8', '#2f64c1', '#2051a7'],
 	['#6ddfb1', '#2db981', '#239f6d', '#1c7d56'],
 	['#fdd286', '#f6bd5a', '#eda831', '#d89013'],
 	['#f98b98', '#f3596c', '#e03e52', '#c92c3f'],
 ]
 
-export const COR_GRAU_PADRAO = '#8794a1'
+export const DEFAULT_LEVEL_COLOR = '#8794a1'

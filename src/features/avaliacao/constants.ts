@@ -1,3 +1,5 @@
+import type { VulnerabilityBand } from '@/features/instrumentos/types/scale'
+
 export interface Recomendacao {
 	id: string
 	texto: string
@@ -7,11 +9,52 @@ export const RECOMENDACOES: Recomendacao[] = [
 	{ id: 'prontuario', texto: 'Registrar os resultados no prontuário.' },
 	{ id: 'equipe', texto: 'Discutir o caso com a equipe de saúde.' },
 	{ id: 'necessidades', texto: 'Avaliar outras necessidades da gestante.' },
-	{ id: 'protocolos', texto: 'Definir as condutas conforme os protocolos da unidade.' },
-	{ id: 'julgamento', texto: 'O julgamento clínico do profissional deve prevalecer.' },
+	{
+		id: 'protocolos',
+		texto: 'Definir as condutas conforme os protocolos da unidade.',
+	},
+	{
+		id: 'julgamento',
+		texto: 'O julgamento clínico do profissional deve prevalecer.',
+	},
 ]
 
 export type Classificacao = 'BAIXA' | 'MODERADA' | 'ALTA'
+
+/**
+ * Faixas fixas usadas só pelas telas de impressão/protótipo que ainda rodam
+ * sobre dados mock (sem avaliação real por trás, logo sem snapshot de
+ * faixas de verdade pra ler cor/limites).
+ */
+export const SYNTHETIC_VULNERABILITY_BANDS: VulnerabilityBand[] = [
+	{
+		id: 'BAIXA',
+		level: 'Baixa',
+		color: '#4ADE80',
+		minScore: 0,
+		maxScore: 3,
+		order: 0,
+		recommendations: [],
+	},
+	{
+		id: 'MODERADA',
+		level: 'Moderada',
+		color: '#FBBF24',
+		minScore: 3,
+		maxScore: 8,
+		order: 1,
+		recommendations: [],
+	},
+	{
+		id: 'ALTA',
+		level: 'Alta',
+		color: '#F87171',
+		minScore: 8,
+		maxScore: 12,
+		order: 2,
+		recommendations: [],
+	},
+]
 
 export const CLASSIFICACAO_LABEL: Record<Classificacao, string> = {
 	BAIXA: 'Baixa',

@@ -1,5 +1,5 @@
 import { PregnantIcon } from '@/features/avaliacao/components/icons'
-import type { DadosGestante } from '@/features/avaliacao/types/historico'
+import type { DadosGestante } from '@/features/avaliacao/types/assessment'
 import { formatarDataBr } from '@/features/core/utils/date'
 
 interface DadosGestanteCardProps {
@@ -17,10 +17,12 @@ export function DadosGestanteCard({ gestante }: DadosGestanteCardProps) {
 					<span className="font-semibold">Nome:</span> {gestante.nome}
 				</p>
 				<p>
-					<span className="font-semibold">Data de nascimento:</span> {formatarDataBr(gestante.dataNascimento)}
+					<span className="font-semibold">Data de nascimento:</span>{' '}
+					{formatarDataBr(gestante.dataNascimento)}
 				</p>
 				<p>
-					<span className="font-semibold">Idade:</span> {gestante.idade}
+					<span className="font-semibold">Idade:</span>{' '}
+					{gestante.idade}
 				</p>
 				<p>
 					<span className="font-semibold">CPF:</span> {gestante.cpf}

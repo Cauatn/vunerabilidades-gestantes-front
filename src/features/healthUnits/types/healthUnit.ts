@@ -1,4 +1,7 @@
-import type { Paginated, PaginationParams } from '@/features/core/types/pagination'
+import type {
+	Paginated,
+	PaginationParams,
+} from '@/features/core/types/pagination'
 
 export interface HealthUnit {
 	id: string

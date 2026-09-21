@@ -1,13 +1,46 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import type { CreateGestantePayload, Gestante } from '@/features/gestantes/types/gestante'
-import { gestanteSchema, type GestanteFormValues } from '@/features/gestantes/validation/gestanteSchema'
+import { Divider } from '@/components/ui/divider'
+import {
+	Field,
+	FieldContent,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '@/components/ui/field'
+import { Input, applyMask } from '@/components/ui/input'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
+import { ESTADOS } from '@/features/core/constants/localizacao'
+import type {
+	CreateGestantePayload,
+	Gestante,
+} from '@/features/gestantes/types/gestante'
+import {
+	formatCns,
+	formatCpf,
+	onlyDigits,
+} from '@/features/gestantes/utils/document'
+import {
+	gestanteSchema,
+	type GestanteFormValues,
+} from '@/features/gestantes/validation/gestanteSchema'
+import { useGetLocalitiesByUf } from '@/features/shared/composables/useGetLocalitiesByUf'
 
 const VALORES_VAZIOS: GestanteFormValues = {
 	nome: '',
@@ -16,6 +49,8 @@ const VALORES_VAZIOS: GestanteFormValues = {
 	cns: '',
 	nomeMae: '',
 	telefone: '',
+	estado: '',
+	municipio: '',
 }
 
 interface GestanteSheetProps {
@@ -26,8 +61,6 @@ interface GestanteSheetProps {
 	isSubmitting?: boolean
 	nomeInicial?: string
 }
-
-const digits = (value: string) => value.replace(/\D/g, '')
 
 export function GestanteSheet({
 	gestante,
@@ -42,11 +75,33 @@ export function GestanteSheet({
 		register,
 		handleSubmit,
 		reset,
+		setValue,
+		control,
 		formState: { errors },
 	} = useForm<GestanteFormValues>({
 		resolver: zodResolver(gestanteSchema),
 		defaultValues: VALORES_VAZIOS,
 	})
+
+	const estadoSelecionado = useWatch({
+		control,
+		name: 'estado',
+	})
+
+	const { data: localidades, isLoading: isLoadingLocalidades } =
+		useGetLocalitiesByUf(estadoSelecionado)
+
+	useEffect(() => {
+		// Resetar município quando o estado selecionado mudar e não for o reset inicial
+		const currentMunicipio = control._formValues.municipio
+		if (
+			localidades &&
+			currentMunicipio &&
+			!localidades.some((l) => l.nome === currentMunicipio)
+		) {
+			setValue('municipio', '')
+		}
+	}, [estadoSelecionado, setValue, control, localidades])
 
 	useEffect(() => {
 		if (!open) return
@@ -55,83 +110,251 @@ export function GestanteSheet({
 				? {
 						nome: gestante.name,
 						dataNascimento: gestante.birthDate.slice(0, 10),
-						cpf: gestante.identifier.type === 'CPF' ? gestante.identifier.value : '',
-						cns: gestante.identifier.type === 'SUS_CARD' ? gestante.identifier.value : '',
+						cpf: gestante.identifiers.cpf
+							? formatCpf(gestante.identifiers.cpf)
+							: '',
+						cns: gestante.identifiers.cns
+							? formatCns(gestante.identifiers.cns)
+							: '',
 						nomeMae: gestante.motherName ?? '',
-						telefone: gestante.phone ?? '',
+						telefone: applyMask('telefone', gestante.phone ?? ''),
+						estado: gestante.state ?? '',
+						municipio: gestante.city ?? '',
 					}
 				: { ...VALORES_VAZIOS, nome: nomeInicial ?? '' },
 		)
 	}, [open, gestante, nomeInicial, reset])
 
 	function submit(values: GestanteFormValues) {
-		const cpf = digits(values.cpf)
-		const cns = digits(values.cns)
+		const cpf = onlyDigits(values.cpf)
+		const cns = onlyDigits(values.cns)
 		onSubmit({
 			name: values.nome,
-			identifierType: cpf ? 'CPF' : 'SUS_CARD',
-			identifierValue: cpf || cns,
+			cpf: cpf || undefined,
+			cns: cns || undefined,
 			birthDate: values.dataNascimento,
 			motherName: values.nomeMae.trim() || undefined,
-			phone: digits(values.telefone) || undefined,
+			phone: onlyDigits(values.telefone) || undefined,
+			state: values.estado,
+			city: values.municipio,
 		})
 	}
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="flex flex-col">
-				<SheetHeader className="gap-0 p-0">
-					<SheetTitle>{isEdit ? 'Editar gestante' : 'Nova gestante'}</SheetTitle>
+			<SheetContent
+				side="right"
+				className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden p-4 sm:p-6"
+				showCloseButton
+			>
+				<SheetHeader className="mb-4 shrink-0 gap-0 p-0 pr-8">
+					<SheetTitle>
+						{isEdit ? 'Editar gestante' : 'Nova gestante'}
+					</SheetTitle>
 				</SheetHeader>
 
-				<form id="gestante-form" className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-nome">Nome</Label>
-						<Input id="gestante-nome" placeholder="Nome da gestante" aria-invalid={!!errors.nome} {...register('nome')} />
-						{errors.nome ? <p className="text-caption text-danger">{errors.nome.message}</p> : null}
-					</div>
+				<form
+					id="gestante-form"
+					className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain pr-2 pb-4 [scrollbar-gutter:stable]"
+					onSubmit={handleSubmit(submit)}
+				>
+					<FieldGroup>
+						<Divider text="Informações pessoais" />
+						<Field>
+							<FieldLabel htmlFor="gestante-nome" required>
+								Nome
+							</FieldLabel>
+							<FieldContent>
+								<Input
+									id="gestante-nome"
+									placeholder="Digite..."
+									aria-invalid={!!errors.nome}
+									{...register('nome')}
+								/>
+								<FieldError errors={[errors.nome]} />
+							</FieldContent>
+						</Field>
 
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-data-nascimento">Data de nascimento</Label>
-						<Input
-							id="gestante-data-nascimento"
-							type="date"
-							aria-invalid={!!errors.dataNascimento}
-							{...register('dataNascimento')}
-						/>
-						{errors.dataNascimento ? (
-							<p className="text-caption text-danger">{errors.dataNascimento.message}</p>
-						) : null}
-					</div>
+						<Field>
+							<FieldLabel
+								htmlFor="gestante-data-nascimento"
+								required
+							>
+								Data de nascimento
+							</FieldLabel>
+							<FieldContent>
+								<Controller
+									name="dataNascimento"
+									control={control}
+									render={({ field }) => (
+										<Input
+											id="gestante-data-nascimento"
+											datePicker
+											value={field.value}
+											onValueChange={field.onChange}
+										/>
+									)}
+								/>
+								<FieldError errors={[errors.dataNascimento]} />
+							</FieldContent>
+						</Field>
 
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-cpf">CPF</Label>
-						<Input id="gestante-cpf" placeholder="000.000.000-00" aria-invalid={!!errors.cpf} {...register('cpf')} />
-						{errors.cpf ? <p className="text-caption text-danger">{errors.cpf.message}</p> : null}
-					</div>
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+							<Field>
+								<FieldLabel htmlFor="gestante-cpf">
+									CPF
+								</FieldLabel>
+								<FieldContent>
+									<Input
+										id="gestante-cpf"
+										maskType="cpf"
+										aria-invalid={!!errors.cpf}
+										{...register('cpf')}
+									/>
+									<FieldError errors={[errors.cpf]} />
+								</FieldContent>
+							</Field>
 
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-cns">CNS</Label>
-						<Input id="gestante-cns" placeholder="000 0000 0000 0000" aria-invalid={!!errors.cns} {...register('cns')} />
-						{errors.cns ? <p className="text-caption text-danger">{errors.cns.message}</p> : null}
-					</div>
+							<Field>
+								<FieldLabel htmlFor="gestante-cns">
+									CNS
+								</FieldLabel>
+								<FieldContent>
+									<Input
+										id="gestante-cns"
+										maskType="cns"
+										aria-invalid={!!errors.cns}
+										{...register('cns')}
+									/>
+									<FieldError errors={[errors.cns]} />
+								</FieldContent>
+							</Field>
+						</div>
+						<p className="text-caption text-n-500">
+							Informe pelo menos um documento: CPF ou CNS.
+						</p>
+					</FieldGroup>
 
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-nome-mae">Nome da mãe</Label>
-						<Input id="gestante-nome-mae" placeholder="Opcional" {...register('nomeMae')} />
-					</div>
+					<FieldGroup>
+						<Divider text="Endereço" />
+						<Field>
+							<FieldLabel required>Estado</FieldLabel>
+							<FieldContent>
+								<Controller
+									control={control}
+									name="estado"
+									render={({ field }) => (
+										<Select
+											value={field.value}
+											onValueChange={field.onChange}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue placeholder="Selecione" />
+											</SelectTrigger>
+											<SelectContent>
+												{ESTADOS.map((estado) => (
+													<SelectItem
+														key={estado.uf}
+														value={estado.uf}
+													>
+														{estado.uf}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
+								/>
+								<FieldError errors={[errors.estado]} />
+							</FieldContent>
+						</Field>
 
-					<div className="space-y-1.5">
-						<Label htmlFor="gestante-telefone">Telefone</Label>
-						<Input id="gestante-telefone" placeholder="Opcional" {...register('telefone')} />
-					</div>
+						<Field>
+							<FieldLabel required>Município</FieldLabel>
+							<FieldContent>
+								<Controller
+									control={control}
+									name="municipio"
+									render={({ field }) => (
+										<Select
+											value={field.value}
+											onValueChange={field.onChange}
+											disabled={
+												!estadoSelecionado ||
+												isLoadingLocalidades
+											}
+										>
+											<SelectTrigger className="w-full">
+												<SelectValue
+													placeholder={
+														isLoadingLocalidades
+															? 'Carregando...'
+															: 'Selecione'
+													}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{localidades?.map((local) => (
+													<SelectItem
+														key={local.codigo_ibge}
+														value={local.nome}
+													>
+														{local.nome}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
+								/>
+								<FieldError errors={[errors.municipio]} />
+							</FieldContent>
+						</Field>
+					</FieldGroup>
+
+					<FieldGroup>
+						<Divider text="Informações complementares" />
+						<Field>
+							<FieldLabel htmlFor="gestante-nome-mae">
+								Nome da mãe
+							</FieldLabel>
+							<FieldContent>
+								<Input
+									id="gestante-nome-mae"
+									placeholder="Digite..."
+									{...register('nomeMae')}
+								/>
+							</FieldContent>
+						</Field>
+
+						<Field>
+							<FieldLabel htmlFor="gestante-telefone">
+								Telefone
+							</FieldLabel>
+							<FieldContent>
+								<Input
+									id="gestante-telefone"
+									type="tel"
+									autoComplete="tel-national"
+									maskType="telefone"
+									{...register('telefone')}
+								/>
+							</FieldContent>
+						</Field>
+					</FieldGroup>
 				</form>
 
-				<SheetFooter className="p-0">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+				<SheetFooter className="shrink-0 flex-wrap border-t pt-4">
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+					>
 						Cancelar
 					</Button>
-					<Button type="submit" form="gestante-form" isLoading={isSubmitting}>
+					<Button
+						type="submit"
+						form="gestante-form"
+						isLoading={isSubmitting}
+					>
 						Confirmar
 					</Button>
 				</SheetFooter>

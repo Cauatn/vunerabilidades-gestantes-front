@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -49,7 +54,13 @@ export function PaginationBar({ current = 1 }: Props) {
 	)
 }
 
-function StepButton({ label, children }: { label: string; children: ReactNode }) {
+function StepButton({
+	label,
+	children,
+}: {
+	label: string
+	children: ReactNode
+}) {
 	return (
 		<button
 			type="button"

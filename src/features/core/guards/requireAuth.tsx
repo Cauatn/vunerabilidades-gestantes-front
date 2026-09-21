@@ -14,11 +14,14 @@ export function RequireAuth() {
 			navigate('/login', { replace: true })
 		}
 		window.addEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized)
-		return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized)
+		return () =>
+			window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized)
 	}, [navigate])
 
 	if (!authenticated) {
-		return <Navigate to="/login" replace state={{ from: location.pathname }} />
+		return (
+			<Navigate to="/login" replace state={{ from: location.pathname }} />
+		)
 	}
 
 	return <Outlet />

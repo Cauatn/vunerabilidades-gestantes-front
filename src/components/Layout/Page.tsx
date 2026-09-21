@@ -1,6 +1,10 @@
 import * as React from 'react'
 
-import { Description, Heading, type HeadingProps } from '@/components/typography'
+import {
+	Description,
+	Heading,
+	type HeadingProps,
+} from '@/components/typography'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 
@@ -28,13 +32,23 @@ export function Page({
 	headerActions,
 }: PageProps) {
 	return (
-		<div className={cn('flex h-full min-w-0 flex-col space-y-8', className)}>
+		<div
+			className={cn(
+				'flex h-full min-w-0 flex-col space-y-8 p-10',
+				className,
+			)}
+		>
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
 				<div className="space-y-2">
 					<Heading size={headingSize}>{title}</Heading>
-					{description ? <Description>{description}</Description> : null}
+					{description ? (
+						<Description>{description}</Description>
+					) : null}
 				</div>
-				{headerActions ?? (withButton ? <Button {...buttonProps}>{buttonText}</Button> : null)}
+				{headerActions ??
+					(withButton ? (
+						<Button {...buttonProps}>{buttonText}</Button>
+					) : null)}
 			</div>
 			{children}
 		</div>

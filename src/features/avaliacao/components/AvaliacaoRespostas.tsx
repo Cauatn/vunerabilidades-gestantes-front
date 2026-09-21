@@ -1,4 +1,4 @@
-import type { CategoriaRespostas } from '@/features/avaliacao/types/historico'
+import type { CategoriaRespostas } from '@/features/avaliacao/types/assessment'
 
 interface AvaliacaoRespostasProps {
 	categorias: CategoriaRespostas[]
@@ -18,7 +18,9 @@ export function AvaliacaoRespostas({ categorias }: AvaliacaoRespostasProps) {
 								{respostaIndex + 1}. {resposta.pergunta}
 							</p>
 							<p className="text-sm text-n-600">
-								<span className="font-semibold">Resposta: </span>
+								<span className="font-semibold">
+									Resposta:{' '}
+								</span>
 								{resposta.resposta}
 							</p>
 						</div>

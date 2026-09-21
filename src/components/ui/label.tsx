@@ -9,7 +9,8 @@ const labelVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'text-sm font-semibold leading-tight tracking-[0.4px] text-n-700',
+				default:
+					'text-sm font-semibold leading-tight tracking-[0.4px] text-n-700',
 				shadcn: 'text-sm font-medium leading-none text-foreground',
 			},
 		},

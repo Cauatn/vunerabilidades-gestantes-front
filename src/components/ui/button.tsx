@@ -10,12 +10,14 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+				primary:
+					'bg-primary text-primary-foreground hover:bg-primary/90',
 				destructive:
 					'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
 				outline: 'border border-n-40 bg-n-0 hover:bg-n-10',
 				'outline-danger': 'border border-danger bg-n-0 hover:bg-r-100',
-				secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+				secondary:
+					'bg-secondary text-secondary-foreground hover:bg-secondary/80',
 				ghost: 'hover:bg-n-20 hover:text-accent-foreground dark:hover:bg-n-20/50',
 				link: 'text-primary underline-offset-4 hover:underline',
 				default:
@@ -23,6 +25,7 @@ const buttonVariants = cva(
 				warning:
 					'border-transparent bg-y-400 font-bold tracking-[0.2px] text-white shadow-xs hover:bg-y-600 active:bg-y-700 focus-visible:border-transparent focus-visible:ring-y-400/40',
 				danger: 'border-transparent bg-r-500 font-bold tracking-[0.2px] text-white shadow-xs hover:bg-r-600 active:bg-r-700 focus-visible:border-transparent focus-visible:ring-r-500/40',
+				info: 'border-transparent bg-b-400 font-bold tracking-[0.2px] text-white shadow-xs hover:bg-b-600 active:bg-b-700 focus-visible:border-transparent focus-visible:ring-b-400/40',
 			},
 			size: {
 				sm: "h-10 md:h-8 min-h-10 md:min-h-8 gap-2 rounded-md px-4 text-sm md:text-xs font-bold tracking-[0.2px] has-[>svg]:px-3 [&_svg:not([class*='size-'])]:size-3.5",
@@ -42,7 +45,8 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps
-	extends React.ComponentProps<'button'>,
+	extends
+		React.ComponentProps<'button'>,
 		VariantProps<typeof buttonVariants> {
 	asChild?: boolean
 	isLoading?: boolean

@@ -3,7 +3,10 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface DashboardCardProps extends Omit<React.ComponentProps<'div'>, 'title'> {
+export interface DashboardCardProps extends Omit<
+	React.ComponentProps<'div'>,
+	'title'
+> {
 	title: React.ReactNode
 	subtitle?: React.ReactNode
 	footer?: React.ReactNode
@@ -33,17 +36,29 @@ function DashboardCard({
 			{locked ? (
 				<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-lg bg-n-0/96 p-4 text-center">
 					<Lock className="size-6 text-n-500" />
-					<span className="text-[15px] font-semibold text-n-700">Estamos trabalhando nisso...</span>
-					<span className="text-caption text-n-500">{lockedText}</span>
+					<span className="text-[15px] font-semibold text-n-700">
+						Estamos trabalhando nisso...
+					</span>
+					<span className="text-caption text-n-500">
+						{lockedText}
+					</span>
 				</div>
 			) : null}
 
 			<div className="flex flex-col">
-				<span className="text-base font-semibold text-n-700">{title}</span>
-				{subtitle ? <span className="mb-3 text-caption text-n-500">{subtitle}</span> : null}
+				<span className="text-base font-semibold text-n-700">
+					{title}
+				</span>
+				{subtitle ? (
+					<span className="mb-3 text-caption text-n-500">
+						{subtitle}
+					</span>
+				) : null}
 			</div>
 
-			<div className="flex flex-1 items-center justify-center gap-4 py-4">{children}</div>
+			<div className="flex flex-1 items-center justify-center gap-4 py-4">
+				{children}
+			</div>
 
 			{footer ? (
 				<div className="flex flex-col items-center">

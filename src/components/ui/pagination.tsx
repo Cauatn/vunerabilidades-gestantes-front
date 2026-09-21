@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -10,19 +15,37 @@ interface PaginationProps {
 	className?: string
 }
 
-function getPaginaVisiveis(page: number, totalPages: number, janela = 5): number[] {
-	const inicio = Math.max(1, Math.min(page - Math.floor(janela / 2), totalPages - janela + 1))
+function getPaginaVisiveis(
+	page: number,
+	totalPages: number,
+	janela = 5,
+): number[] {
+	const inicio = Math.max(
+		1,
+		Math.min(page - Math.floor(janela / 2), totalPages - janela + 1),
+	)
 	const fim = Math.min(totalPages, inicio + janela - 1)
-	return Array.from({ length: fim - Math.max(1, inicio) + 1 }, (_, i) => Math.max(1, inicio) + i)
+	return Array.from(
+		{ length: fim - Math.max(1, inicio) + 1 },
+		(_, i) => Math.max(1, inicio) + i,
+	)
 }
 
-export function Pagination({ page, totalPages, onPageChange, className }: PaginationProps) {
+export function Pagination({
+	page,
+	totalPages,
+	onPageChange,
+	className,
+}: PaginationProps) {
 	if (totalPages <= 1) return null
 
 	const paginas = getPaginaVisiveis(page, totalPages)
 
 	return (
-		<nav className={cn('flex items-center justify-center gap-2', className)} aria-label="Paginação">
+		<nav
+			className={cn('flex items-center justify-center gap-2', className)}
+			aria-label="Paginação"
+		>
 			<Button
 				type="button"
 				variant="outline"
