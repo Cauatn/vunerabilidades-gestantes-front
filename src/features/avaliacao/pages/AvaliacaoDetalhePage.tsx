@@ -10,35 +10,17 @@ import { useParams } from 'react-router-dom'
 import { AvaliacaoRecomendacoesGestante } from '../components/AvaliacaoRecomendacoesGestante'
 import { GestanteResumoCard } from '../components/GestanteResumoCard'
 import { ResumoAplicacaoCard } from '../components/ResumoAplicacaoCard'
+import { groupAnswersBySection } from '../utils/groupAnswersBySection'
+import { AvaliacaoRespostasAgrupadas } from '../components/AvaliacaoRespostasAgrupadas'
 
 export function AvaliacaoDetalhePage() {
 	const { id } = useParams<{ id: string }>()
 	const { data: assessment, isLoading, isError } = useAssessment(id)
 
-	const groupedAnswers = useMemo(() => {
-		if (!assessment) return {}
-
-		return assessment.answers.reduce(
-			(acc, answer) => {
-				const question = assessment.snapshot.props.questions.find(
-					(q) => q.id === answer.questionId,
-				)
-				const section = question?.section || 'Outros'
-
-				if (!acc[section]) {
-					acc[section] = { answers: [], totalScore: 0 }
-				}
-				acc[section].answers.push(answer)
-				acc[section].totalScore += answer.score || 0
-
-				return acc
-			},
-			{} as Record<
-				string,
-				{ answers: typeof assessment.answers; totalScore: number }
-			>,
-		)
-	}, [assessment])
+	const groupedAnswers = useMemo(
+		() => groupAnswersBySection(assessment),
+		[assessment],
+	)
 
 	if (isLoading)
 		return <Page title="Avaliação" description="Carregando avaliação..." />
@@ -96,51 +78,7 @@ export function AvaliacaoDetalhePage() {
 
 				<section className="flex flex-col gap-3">
 					<Divider text="Respostas" />
-					<div className="flex flex-col gap-6 text-sm text-n-700">
-						{Object.entries(groupedAnswers).map(
-							([section, data], index) => {
-								return (
-									<div
-										key={section}
-										className="flex flex-col gap-3"
-									>
-										<div className="flex items-center gap-2">
-											<h3 className="font-semibold text-t-400 text-lg">
-												{index + 1}. {section}
-											</h3>
-											<Badge variant="blue">
-												{data.totalScore} pts.
-											</Badge>
-										</div>
-										<ul className="space-y-2">
-											{data.answers.map(
-												(answer, index) => (
-													<li key={answer.id}>
-														<div className="flex gap-2 items-center">
-															<p className="text-md font-semibold">
-																{index + 1}.{' '}
-																{
-																	answer.questionStatement
-																}
-															</p>
-															<Badge variant="neutral">
-																{answer.score}{' '}
-																pts.
-															</Badge>
-														</div>
-														<p className="text-n-500">
-															R:{' '}
-															{answer.optionLabel}
-														</p>
-													</li>
-												),
-											)}
-										</ul>
-									</div>
-								)
-							},
-						)}
-					</div>
+					<AvaliacaoRespostasAgrupadas groupedAnswers={groupedAnswers} />
 				</section>
 
 				<section className="flex flex-col gap-3">

@@ -76,7 +76,7 @@ export interface AssessmentResult {
 	calculatedAt: string
 }
 
-interface AssessmentAnswer {
+export interface AssessmentAnswer {
 	id: string
 	questionId: string
 	questionStatement: string

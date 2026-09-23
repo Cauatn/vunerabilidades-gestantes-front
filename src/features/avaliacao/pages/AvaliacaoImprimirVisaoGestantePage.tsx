@@ -10,10 +10,16 @@ import { useAssessment } from '@/features/avaliacao/composables/useAssessments'
 import { formatarDataHoraBr } from '@/features/core/utils/date'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
+import { useEffect } from 'react'
 
 export function AvaliacaoImprimirVisaoGestantePage() {
 	const { id } = useParams<{ id: string }>()
 	const { data: avaliacao, isLoading, isError } = useAssessment(id)
+
+	useEffect(() => {
+		const timer = setTimeout(() => window.print(), 300)
+		return () => clearTimeout(timer)
+	}, [])
 
 	if (isLoading) {
 		return (
@@ -57,20 +63,22 @@ export function AvaliacaoImprimirVisaoGestantePage() {
 				<GestanteResumoCard gestante={avaliacao.patient} />
 			</div>
 
-			<div className="flex flex-col gap-3">
+			<div className="flex flex-col gap-3 break-inside-avoid">
 				<Divider text="Resultado" />
 				<div className="py-3">
 					<ResultadoAvaliacao
 						nomeGestante={avaliacao.patient.name}
 						pontuacao={avaliacao.result.totalScore}
 						vulnerabilityLevel={avaliacao.result.vulnerabilityLevel}
-						vulnerabilityBandId={avaliacao.result.vulnerabilityBandId}
+						vulnerabilityBandId={
+							avaliacao.result.vulnerabilityBandId
+						}
 						bands={avaliacao.snapshot.props.vulnerabilityBands}
 					/>
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-3">
+			<div className="flex flex-col gap-3 break-inside-avoid">
 				<Divider text="Recomendações à gestante" />
 				<AvaliacaoRecomendacoesGestante
 					recomendacoes={avaliacao.recommendations}

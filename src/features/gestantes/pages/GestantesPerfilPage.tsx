@@ -1,14 +1,14 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { ClipboardList } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ClipboardList } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { Page } from '@/components/Layout/Page'
+import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
+import { formatarDataHoraBr } from '@/features/core/utils/date'
 import { AvaliacoesTimeline } from '@/features/gestantes/components/AvaliacoesTimeline'
 import { DadosPessoaisCard } from '@/features/gestantes/components/DadosPessoaisCard'
 import { SectionDivider } from '@/features/gestantes/components/SectionDivider'
 import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
-import { usePatientAssessments } from '@/features/avaliacao/composables/useAssessments'
-import { formatarDataHoraBr } from '@/features/core/utils/date'
 import type { AvaliacaoTimelineItem } from '@/features/gestantes/data/mock'
 import { toVulnerabilidade } from '@/features/gestantes/utils/vulnerabilidade'
 
@@ -54,7 +54,12 @@ export function GestantesPerfilPage() {
 			withButton
 			buttonText="Imprimir"
 			buttonProps={{
-				onClick: () => navigate(`/gestantes/${id}/imprimir`),
+				onClick: () =>
+					window.open(
+						`/gestantes/${id}/imprimir`,
+						'_blank',
+						'rel=noopener noreferrer',
+					),
 			}}
 		>
 			<div className="flex flex-col gap-4">
