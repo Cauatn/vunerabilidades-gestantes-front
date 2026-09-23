@@ -23,7 +23,12 @@ export function UsuarioActionsCell({
 		<div className="flex items-center justify-end gap-1">
 			<IconButton
 				icon={SquarePen}
-				tooltipText="Editar"
+				disabled={ehProprioUsuario}
+				tooltipText={
+					ehProprioUsuario
+						? 'Você não pode editar sua própria conta'
+						: 'Editar'
+				}
 				onClick={() => onEdit(usuario)}
 			/>
 			<IconButton
