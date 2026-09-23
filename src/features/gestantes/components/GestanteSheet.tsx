@@ -209,6 +209,9 @@ export function GestanteSheet({
 										id="gestante-cpf"
 										maskType="cpf"
 										aria-invalid={!!errors.cpf}
+										disabled={
+											isEdit && !!gestante.identifiers.cpf
+										}
 										{...register('cpf')}
 									/>
 									<FieldError errors={[errors.cpf]} />
@@ -224,6 +227,9 @@ export function GestanteSheet({
 										id="gestante-cns"
 										maskType="cns"
 										aria-invalid={!!errors.cns}
+										disabled={
+											isEdit && !!gestante.identifiers.cns
+										}
 										{...register('cns')}
 									/>
 									<FieldError errors={[errors.cns]} />
