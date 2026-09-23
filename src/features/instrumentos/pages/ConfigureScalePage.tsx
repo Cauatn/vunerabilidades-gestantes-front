@@ -6,7 +6,7 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CircleAlert, Info, X } from 'lucide-react'
+import { CircleAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -14,16 +14,15 @@ import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
 
 import { Modal } from '@/features/core/components/Modal'
-import { DashedAddButton } from '../components/DashedAddButton'
-import { ScaleBandsBar } from '../components/ScaleBandsBar'
-import { VulnerabilityLevelCard } from '../components/VulnerabilityLevelCard'
-import { InstrumentLayout } from '../components/InstrumentLayout'
-import { LimitsRange } from '../components/LimitsRange'
-import { SortableItem } from '../components/SortableItem'
-import { SUGGESTED_SCORE } from '../constants'
-import { useInstrumentDraft } from '../composables/useInstrumentDraft'
 import { apiErrorMessage } from '@/features/core/utils/apiError'
 import { toast } from 'sonner'
+import { DashedAddButton } from '../components/DashedAddButton'
+import { InstrumentLayout } from '../components/InstrumentLayout'
+import { LimitsRange } from '../components/LimitsRange'
+import { ScaleBandsBar } from '../components/ScaleBandsBar'
+import { SortableItem } from '../components/SortableItem'
+import { VulnerabilityLevelCard } from '../components/VulnerabilityLevelCard'
+import { useInstrumentDraft } from '../composables/useInstrumentDraft'
 
 type RemovalTarget = {
 	tipo: 'grau' | 'recomendacao'
@@ -42,7 +41,6 @@ export function ConfigureScalePage() {
 		versionNumber,
 	} = useInstrumentDraft()
 
-	const [avisoVisivel, setAvisoVisivel] = useState(true)
 	const [removalTarget, setRemovalTarget] = useState<RemovalTarget | null>(
 		null,
 	)
@@ -115,27 +113,6 @@ export function ConfigureScalePage() {
 			<div className="flex flex-col gap-3">
 				<Divider text="Limites da escala" />
 
-				{avisoVisivel ? (
-					<div className="flex items-center justify-between gap-3 rounded-lg border border-(--color-b-200) bg-b-100 px-5 py-4">
-						<div className="flex items-center gap-2 text-sm font-medium text-b-400">
-							<Info className="size-5 shrink-0" />
-							<span>
-								A versão mais atual do formulário soma{' '}
-								{SUGGESTED_SCORE} pontos. Se a escala definir um
-								teto diferente, pontuações fora dele ficarão sem
-								grau.
-							</span>
-						</div>
-						<button
-							type="button"
-							aria-label="Fechar aviso"
-							onClick={() => setAvisoVisivel(false)}
-						>
-							<X className="size-4 text-b-400" />
-						</button>
-					</div>
-				) : null}
-
 				<div className="flex items-end gap-2.5">
 					<div className="flex-1">
 						<LimitsRange
@@ -148,9 +125,7 @@ export function ConfigureScalePage() {
 					</div>
 					<Button
 						type="button"
-						onClick={() =>
-							config.useSuggestedScore(SUGGESTED_SCORE)
-						}
+						onClick={() => config.useSuggestedScore()}
 					>
 						Usar pontuação sugerida
 					</Button>
