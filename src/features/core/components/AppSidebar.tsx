@@ -118,7 +118,7 @@ export function AppSidebar() {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const { user, logout } = useSession()
-	const { data: healthUnits } = useGetHealthUnits()
+	const { data: healthUnits } = useGetHealthUnits({ active: true })
 	const trocarUbs = useSetCurrentHealthUnit({
 		onSuccess: () => toast.success('Troca de UBS realizada com sucesso.'),
 		onError: () =>

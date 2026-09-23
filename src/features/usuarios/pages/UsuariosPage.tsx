@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
 import { Pagination } from '@/components/ui/pagination'
-import { PAGE_SIZE } from '@/features/core/constants/pagination'
-import { Modal } from '@/features/core/components/Modal'
 import { useSession } from '@/features/auth/composables/useSession'
+import { Modal } from '@/features/core/components/Modal'
+import { PAGE_SIZE } from '@/features/core/constants/pagination'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import { UsuarioSheet } from '@/features/usuarios/components/UsuarioSheet'
 import { createUsuariosColumns } from '@/features/usuarios/components/usuariosDataTable/columns'
@@ -66,8 +66,10 @@ export function UsuariosPage() {
 	})
 
 	const ubsNomePorId = useMemo(() => {
-		const map = new Map<string, string>()
-		healthUnits?.items.forEach((unit) => map.set(unit.id, unit.name))
+		const map = new Map<string, { name: string; active: boolean }>()
+		healthUnits?.items.forEach((unit) =>
+			map.set(unit.id, { name: unit.name, active: unit.active }),
+		)
 		return map
 	}, [healthUnits])
 
