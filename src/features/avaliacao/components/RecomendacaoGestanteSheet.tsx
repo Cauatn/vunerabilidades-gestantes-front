@@ -60,7 +60,7 @@ export function RecomendacaoGestanteSheet({
 
 				<form
 					id="recomendacao-form"
-					className="flex min-h-0 flex-1 flex-col gap-4"
+					className="flex min-h-0 flex-1 flex-col gap-4 mt-4"
 					onSubmit={handleSubmit}
 				>
 					<Field>

@@ -158,12 +158,11 @@ export function UsuarioSheet({
 
 				<form
 					id="usuario-form"
-					className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto"
+					className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto mt-4"
 					onSubmit={handleSubmit(submit)}
 				>
-					<Divider text="Informações gerais" />
-
 					<FieldGroup>
+						<Divider text="Informações gerais" />
 						<Field>
 							<FieldLabel htmlFor="usuario-email" required>
 								Email
@@ -221,24 +220,6 @@ export function UsuarioSheet({
 								/>
 							</FieldContent>
 						</Field>
-
-						{isEdit && !isProprioUsuario ? (
-							<Field>
-								<FieldLabel htmlFor="usuario-senha">
-									Nova senha
-								</FieldLabel>
-								<FieldContent>
-									<Input
-										id="usuario-senha"
-										type="password"
-										placeholder="Digite para alterar..."
-										aria-invalid={!!errors.senha}
-										{...register('senha')}
-									/>
-									<FieldError errors={[errors.senha]} />
-								</FieldContent>
-							</Field>
-						) : null}
 					</FieldGroup>
 
 					{!isAdministrador ? (
@@ -262,6 +243,27 @@ export function UsuarioSheet({
 								<FieldError errors={[errors.ubsAtendimento]} />
 							</FieldContent>
 						</Field>
+					) : null}
+
+					{isEdit && !isProprioUsuario ? (
+						<FieldGroup>
+							<Divider text="Alteração de senha" />
+							<Field>
+								<FieldLabel htmlFor="usuario-senha">
+									Nova senha
+								</FieldLabel>
+								<FieldContent>
+									<Input
+										id="usuario-senha"
+										type="password"
+										placeholder="Digite para alterar..."
+										aria-invalid={!!errors.senha}
+										{...register('senha')}
+									/>
+									<FieldError errors={[errors.senha]} />
+								</FieldContent>
+							</Field>
+						</FieldGroup>
 					) : null}
 				</form>
 
