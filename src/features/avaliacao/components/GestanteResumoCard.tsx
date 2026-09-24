@@ -1,4 +1,4 @@
-import { PregnantIcon } from '@/features/avaliacao/components/icons'
+import { Baby } from 'lucide-react'
 import { calcularIdade, formatarDataBr } from '@/features/core/utils/date'
 import type { Gestante } from '@/features/gestantes/types/gestante'
 import { cn } from '@/lib/utils'
@@ -20,7 +20,7 @@ export function GestanteResumoCard({
 			)}
 		>
 			<div className="flex shrink-0 items-center justify-center rounded-full bg-p-100 p-3">
-				<PregnantIcon className="h-7 w-4.5 text-p-400" />
+				<Baby className="h-7 w-4.5 text-p-400" />
 			</div>
 			<div className="grid flex-1 grid-cols-1 gap-x-3 gap-y-3 text-sm text-n-800 sm:grid-cols-3">
 				<p>
