@@ -84,8 +84,11 @@ export function useScaleConfig() {
 		updateLimit(field: keyof ScaleLimits, value: number) {
 			setLimits((current) => ({ ...current, [field]: value }))
 		},
-		useSuggestedScore(value: number) {
-			setLimits((current) => ({ ...current, max: value }))
+		useSuggestedScore() {
+			setLimits((current) => ({
+				...current,
+				max: Math.max(...levels.map((level) => level.max)),
+			}))
 		},
 
 		addLevel() {

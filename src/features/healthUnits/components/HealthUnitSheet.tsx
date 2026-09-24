@@ -1,6 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
-import { Controller, useForm, useWatch } from 'react-hook-form'
 import {
 	Select,
 	SelectContent,
@@ -10,8 +7,12 @@ import {
 } from '@/components/ui/select'
 import { ESTADOS } from '@/features/core/constants/localizacao'
 import { useGetLocalitiesByUf } from '@/features/shared/composables/useGetLocalitiesByUf'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
+import { Divider } from '@/components/ui/divider'
 import {
 	Field,
 	FieldContent,
@@ -135,11 +136,12 @@ export function HealthUnitSheet({
 
 				<form
 					id="health-unit-form"
-					className="flex flex-col gap-4"
+					className="flex flex-col gap-4 mt-4"
 					onSubmit={handleSubmit(submit)}
 				>
 					<FieldGroup>
 						<Field>
+							<Divider text="Informações gerais" />
 							<FieldLabel htmlFor="health-unit-name" required>
 								Nome
 							</FieldLabel>
@@ -169,7 +171,10 @@ export function HealthUnitSheet({
 								<FieldError errors={[errors.code]} />
 							</FieldContent>
 						</Field>
+					</FieldGroup>
 
+					<FieldGroup>
+						<Divider text="Localização" />
 						<Field>
 							<FieldLabel htmlFor="health-unit-state" required>
 								UF

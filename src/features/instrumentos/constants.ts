@@ -18,9 +18,6 @@ export const QUESTION_TYPE_OPTIONS: QuestionType[] = [
 /** o tipo "dicotômica + complementar" habilita o bloco condicional "Se sim" */
 export const CONDITIONAL_QUESTION_TYPE: QuestionType = 'dicotomica_complementar'
 
-/** soma da pontuação máxima da versão atual do formulário */
-export const SUGGESTED_SCORE = 60
-
 /** paleta 4x4 do color picker de graus de vulnerabilidade (Figma) */
 export const LEVEL_COLORS: string[][] = [
 	['#729ee9', '#467bd8', '#2f64c1', '#2051a7'],

@@ -10,10 +10,22 @@ import { useAssessment } from '@/features/avaliacao/composables/useAssessments'
 import { formatarDataHoraBr } from '@/features/core/utils/date'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
 import { ROLE_TO_CATEGORIA } from '@/features/usuarios/types/usuario'
+import { useEffect, useMemo } from 'react'
+import { AvaliacaoRespostasAgrupadas } from '../components/AvaliacaoRespostasAgrupadas'
+import { groupAnswersBySection } from '../utils/groupAnswersBySection'
 
 export function AvaliacaoImprimirVisaoGeralPage() {
 	const { id } = useParams<{ id: string }>()
 	const { data: avaliacao, isLoading, isError } = useAssessment(id)
+	const groupedAnswers = useMemo(
+		() => groupAnswersBySection(avaliacao),
+		[avaliacao],
+	)
+
+	useEffect(() => {
+		const timer = setTimeout(() => window.print(), 300)
+		return () => clearTimeout(timer)
+	}, [])
 
 	if (isLoading) {
 		return (
@@ -57,45 +69,27 @@ export function AvaliacaoImprimirVisaoGeralPage() {
 				<GestanteResumoCard gestante={avaliacao.patient} />
 			</div>
 
-			<div className="flex flex-col gap-3">
+			<div className="flex flex-col gap-3 break-inside-avoid">
 				<Divider text="Resultado" />
 				<div className="flex flex-col gap-10 py-3">
 					<ResultadoAvaliacao
 						nomeGestante={avaliacao.patient.name}
 						pontuacao={avaliacao.result.totalScore}
 						vulnerabilityLevel={avaliacao.result.vulnerabilityLevel}
-						vulnerabilityBandId={avaliacao.result.vulnerabilityBandId}
+						vulnerabilityBandId={
+							avaliacao.result.vulnerabilityBandId
+						}
 						bands={avaliacao.snapshot.props.vulnerabilityBands}
 					/>
 
 					<div className="flex flex-col gap-3">
 						<Divider text="Respostas" />
-						{/*
-							Cada resposta do back não referência a categoria que a
-							pergunta se encontra. Com isso, não dá pra organizar as
-							perguntas por categoria, como no Figma.
-						*/}
-						<div className="flex w-full max-w-[900px] flex-col gap-4">
-							{avaliacao.answers.map((resposta, index) => (
-								<div
-									key={resposta.id}
-									className="flex w-full flex-col"
-								>
-									<p className="pb-2 text-sm font-semibold text-n-700">
-										{index + 1}. {resposta.questionStatement}
-									</p>
-									<p className="text-sm text-n-600">
-										<span className="font-semibold">
-											Resposta:{' '}
-										</span>
-										{resposta.optionLabel}
-									</p>
-								</div>
-							))}
-						</div>
+						<AvaliacaoRespostasAgrupadas
+							groupedAnswers={groupedAnswers}
+						/>
 					</div>
 
-					<div className="flex flex-col gap-3">
+					<div className="flex flex-col gap-3 break-inside-avoid">
 						<Divider text="Recomendações à gestante" />
 						<AvaliacaoRecomendacoesGestante
 							recomendacoes={avaliacao.recommendations}

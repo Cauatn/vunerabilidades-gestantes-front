@@ -1,5 +1,5 @@
-import { useParams } from 'react-router-dom'
 import { formatarDataHoraBr } from '@/features/core/utils/date'
+import { useParams } from 'react-router-dom'
 
 import { Logo } from '@/components/Logo'
 import { useSession } from '@/features/auth/composables/useSession'
@@ -11,6 +11,8 @@ import { useGetGestante } from '@/features/gestantes/composables/useGetGestante'
 import type { AvaliacaoTimelineItem } from '@/features/gestantes/data/mock'
 import { toVulnerabilidade } from '@/features/gestantes/utils/vulnerabilidade'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
+import { ClipboardList } from 'lucide-react'
+import { useEffect } from 'react'
 
 export function GestantesImprimirPage() {
 	const { id } = useParams<{ id: string }>()
@@ -18,6 +20,11 @@ export function GestantesImprimirPage() {
 	const { data: historico } = usePatientAssessments(id)
 	const { user } = useSession()
 	const { data: healthUnits } = useGetHealthUnits()
+
+	useEffect(() => {
+		const timer = setTimeout(() => window.print(), 300)
+		return () => clearTimeout(timer)
+	}, [])
 
 	const dataEmissao = formatarDataHoraBr(new Date())
 	const emissorNome = user?.name ?? '—'
@@ -59,7 +66,26 @@ export function GestantesImprimirPage() {
 
 					<section className="flex flex-col gap-3">
 						<SectionDivider label="Histórico de avaliações" />
-						<AvaliacoesTimeline items={avaliacoes} />
+						{avaliacoes.length === 0 ? (
+							<div
+								role="status"
+								className="flex flex-col items-center rounded-xl border border-n-30 bg-n-0 p-10 text-center"
+							>
+								<ClipboardList
+									aria-hidden="true"
+									className="mb-3 size-10 text-n-400"
+								/>
+								<p className="text-base font-medium text-n-700">
+									Nenhuma avaliação registrada.
+								</p>
+								<p className="mt-1 text-sm text-n-500">
+									Esta gestante ainda não possui avaliações.
+									As avaliações realizadas aparecerão aqui.
+								</p>
+							</div>
+						) : (
+							<AvaliacoesTimeline items={avaliacoes} />
+						)}
 					</section>
 				</div>
 

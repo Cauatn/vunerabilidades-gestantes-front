@@ -330,3 +330,11 @@ body {
 		@apply flex size-10 shrink-0 items-center justify-center rounded-full bg-t-500 text-base font-semibold text-n-0;
 	}
 }
+
+@media print {
+	body {
+		/* Forces the browser to print exact colors and background images */
+		-webkit-print-color-adjust: exact; /* For Safari and Chrome/Edge */
+		print-color-adjust: exact; /* Standard syntax (Firefox) */
+	}
+}
