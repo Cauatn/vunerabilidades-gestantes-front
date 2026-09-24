@@ -13,7 +13,7 @@ const MAX_UBS_VISIVEIS = 2
 interface CreateUsuariosColumnsParams {
 	onEdit: (usuario: Usuario) => void
 	onToggleStatus: (usuario: Usuario) => void
-	ubsNomePorId: Map<string, string>
+	ubsNomePorId: Map<string, { name: string; active: boolean }>
 }
 
 export function createUsuariosColumns({
@@ -44,19 +44,25 @@ export function createUsuariosColumns({
 			id: 'ubs',
 			header: 'UBS de atendimento',
 			cell: ({ row }) => {
-				const nomes = row.original.healthUnitIds
+				const ubss = row.original.healthUnitIds
 					.map((id) => ubsNomePorId.get(id))
-					.filter((nome): nome is string => !!nome)
-				if (nomes.length === 0)
+					.sort((a, b) => (a === b ? 0 : a ? -1 : 1))
+					.filter((ubs) => !!ubs)
+				if (ubss.length === 0)
 					return <span className="text-n-400">-</span>
 
-				const visiveis = nomes.slice(0, MAX_UBS_VISIVEIS)
-				const restantes = nomes.length - visiveis.length
+				const visiveis = ubss.slice(0, MAX_UBS_VISIVEIS)
+				const restantes = ubss.length - visiveis.length
 				return (
 					<div className="flex flex-wrap items-center gap-1">
-						{visiveis.map((nome) => (
-							<Badge key={nome} variant="neutral">
-								{nome}
+						{visiveis.map((ubs) => (
+							<Badge
+								key={ubs.name}
+								variant={
+									ubs.active === true ? 'neutral' : 'red'
+								}
+							>
+								{ubs.name}
 							</Badge>
 						))}
 						{restantes > 0 ? (

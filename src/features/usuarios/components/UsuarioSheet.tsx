@@ -66,7 +66,7 @@ export function UsuarioSheet({
 	onSubmit,
 	isSubmitting,
 }: UsuarioSheetProps) {
-	const { data: healthUnits } = useGetHealthUnits()
+	const { data: healthUnits } = useGetHealthUnits({ active: true })
 	const { user } = useSession()
 	const isEdit = !!usuario
 	const isProprioUsuario = usuario?.id === user?.id
