@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { AppSidebar } from '@/features/core/components/AppSidebar'
 import { useSession } from '@/features/auth/composables/useSession'
+import { AppSidebar } from '@/features/core/components/AppSidebar'
 import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
 import { SelecionarUbsModal } from '@/features/usuarios/components/SelecionarUbsModal'
 import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useSetCurrentHealthUnit'

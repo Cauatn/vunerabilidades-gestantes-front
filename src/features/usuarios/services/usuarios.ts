@@ -1,4 +1,5 @@
 import { api } from '@/features/core/service/apiService'
+import type { HealthUnit } from '@/features/healthUnits/types/healthUnit'
 import type {
 	InviteUsuarioPayload,
 	ListUsuariosParams,
@@ -24,3 +25,5 @@ export const updateUsuarioStatus = (id: string, status: UsuarioStatus) =>
 
 export const setCurrentHealthUnit = (healthUnitId: string) =>
 	api.patch('/users/me/current-health-unit', { healthUnitId })
+
+export const getMyUbs = () => api.get<HealthUnit[]>('/users/me/ubs')

@@ -29,7 +29,7 @@ import {
 import { useSession } from '@/features/auth/composables/useSession'
 import { Restricted } from '@/features/core/components/Restricted'
 import { useHasCapability } from '@/features/core/composables/useHasCapability'
-import { useGetHealthUnits } from '@/features/healthUnits/composables/useGetHealthUnits'
+import { useGetMyUbs } from '@/features/usuarios/composables/useGetMyUbs'
 import type { Capability } from '@/features/roles/types/roles'
 import { useSetCurrentHealthUnit } from '@/features/usuarios/composables/useSetCurrentHealthUnit'
 import { CATEGORIA_PROFISSIONAL_LABEL } from '@/features/usuarios/constants/categoriaProfissional'
@@ -118,7 +118,7 @@ export function AppSidebar() {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const { user, logout } = useSession()
-	const { data: healthUnits } = useGetHealthUnits({ active: true })
+	const { data: minhasUbs = [] } = useGetMyUbs()
 	const trocarUbs = useSetCurrentHealthUnit({
 		onSuccess: () => toast.success('Troca de UBS realizada com sucesso.'),
 		onError: () =>
@@ -128,10 +128,7 @@ export function AppSidebar() {
 	})
 	const [open, setOpen] = useState(true)
 
-	const minhasUbs =
-		healthUnits?.items.filter((unit) =>
-			user?.healthUnitIds.includes(unit.id),
-		) ?? []
+
 	const categoria = user
 		? CATEGORIA_PROFISSIONAL_LABEL[ROLE_TO_CATEGORIA[user.role]]
 		: ''
